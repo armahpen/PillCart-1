@@ -73,8 +73,8 @@ export default function Landing() {
             
             <div className="flex justify-center lg:justify-end">
               <img
-                src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
-                alt="Modern pharmacy with friendly pharmacist"
+                src="/assets/african-american-woman-pharmacist-standing-with-serious-expression-pharmacy_1754949718521.jpg"
+                alt="Professional African American woman pharmacist at Smile Pills Ltd"
                 className="w-full max-w-lg h-auto object-cover rounded-2xl shadow-2xl"
               />
             </div>
