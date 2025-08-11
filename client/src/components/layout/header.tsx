@@ -2,18 +2,15 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import CartSidebar from "@/components/cart/cart-sidebar";
 import { Link, useLocation } from "wouter";
 import { 
-  Search, 
   ShoppingCart, 
   Heart, 
   User, 
   Phone, 
   Mail,
-  Pill,
   Menu,
   X
 } from "lucide-react";
@@ -23,8 +20,6 @@ export default function Header() {
   const [location] = useLocation();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
   const { data: cartItems } = useQuery({
     queryKey: ["/api/cart"],
     enabled: isAuthenticated,
@@ -32,21 +27,11 @@ export default function Header() {
 
   const cartItemCount = Array.isArray(cartItems) ? cartItems.length : 0;
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      window.location.href = `/shop?search=${encodeURIComponent(searchQuery.trim())}`;
-    }
-  };
-
   const categories = [
-    { name: "All Products", slug: "", href: "/shop" },
-    { name: "Prescription", slug: "prescription-drugs", href: "/shop?category=prescription-drugs" },
-    { name: "Over-the-Counter", slug: "over-the-counter", href: "/shop?category=over-the-counter" },
-    { name: "Supplements", slug: "health-supplements", href: "/shop?category=health-supplements" },
-    { name: "First Aid", slug: "first-aid", href: "/shop?category=first-aid" },
-    { name: "Wellness", slug: "wellness", href: "/shop?category=wellness" },
-    { name: "Medical Devices", slug: "medical-devices", href: "/shop?category=medical-devices" },
+    { name: "Prescription", slug: "prescriptions", href: "#prescriptions" },
+    { name: "Shop", slug: "shop", href: "/shop" },
+    { name: "Advice", slug: "advice", href: "#advice" },
+    { name: "Help", slug: "help", href: "#help" },
   ];
 
   return (
@@ -117,19 +102,8 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Search bar - Desktop */}
-            <div className="hidden md:block flex-1 max-w-2xl mx-8">
-              <form onSubmit={handleSearch} className="relative">
-                <Input
-                  type="text"
-                  placeholder="Search for medicines, health products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              </form>
-            </div>
+            {/* Spacer */}
+            <div className="flex-1"></div>
 
             {/* Cart and User actions */}
             <div className="flex items-center space-x-4">
@@ -168,21 +142,7 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* Mobile search */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden pb-4">
-              <form onSubmit={handleSearch} className="relative">
-                <Input
-                  type="text"
-                  placeholder="Search medicines..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2"
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              </form>
-            </div>
-          )}
+
 
           {/* Category navigation */}
           <div className="hidden md:block pb-4">
@@ -207,7 +167,7 @@ export default function Header() {
           {/* Mobile category navigation */}
           {isMobileMenuOpen && (
             <div className="md:hidden pb-4 border-t pt-4">
-              <nav className="grid grid-cols-2 gap-2">
+              <nav className="grid grid-cols-1 gap-2">
                 {categories.map((category) => (
                   <Link key={category.slug} href={category.href}>
                     <Button
