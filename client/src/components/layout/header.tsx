@@ -30,7 +30,7 @@ export default function Header() {
     enabled: isAuthenticated,
   });
 
-  const cartItemCount = cartItems?.length || 0;
+  const cartItemCount = Array.isArray(cartItems) ? cartItems.length : 0;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +71,7 @@ export default function Header() {
                 {isAuthenticated ? (
                   <>
                     <span className="text-gray-600">
-                      Welcome, {user?.firstName || 'User'}!
+                      Welcome, {(user as any)?.firstName || 'User'}!
                     </span>
                     <a 
                       href="/api/logout" 
@@ -109,10 +109,11 @@ export default function Header() {
             {/* Logo */}
             <Link href="/">
               <div className="flex items-center space-x-3 cursor-pointer">
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                  <Pill className="h-6 w-6 text-white" />
-                </div>
-                <span className="text-2xl font-bold text-neutral">SmilePills</span>
+                <img 
+                  src="/assets/smile-pills-logo.png" 
+                  alt="Smile Pills Ltd - Smile Forever" 
+                  className="h-12 w-auto object-contain"
+                />
               </div>
             </Link>
 

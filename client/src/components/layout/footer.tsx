@@ -10,10 +10,11 @@ export default function Footer() {
           <div className="space-y-4">
             <Link href="/">
               <div className="flex items-center space-x-3 cursor-pointer">
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                  <Pill className="h-6 w-6 text-white" />
-                </div>
-                <span className="text-2xl font-bold">Smile Pills Ltd</span>
+                <img 
+                  src="/assets/smile-pills-logo.png" 
+                  alt="Smile Pills Ltd - Smile Forever" 
+                  className="h-10 w-auto object-contain brightness-0 invert"
+                />
               </div>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed">
@@ -101,21 +102,21 @@ export default function Footer() {
               <div className="flex items-start space-x-3">
                 <MapPin className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
                 <span className="text-gray-400">
-                  123 Health Street<br />
-                  Medical District, MD 12345
+                  East Legon Hills<br />
+                  Accra, Ghana
                 </span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-gray-400">+1 (555) 123-4567</span>
+                <span className="text-gray-400">0544137947 | +233 209339912</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-gray-400">support@smilepills.com</span>
+                <span className="text-gray-400">smilepills21@gmail.com</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Clock className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-gray-400">24/7 Customer Support</span>
+                <span className="text-gray-400">Monday-Saturday, 24/7</span>
               </div>
             </div>
           </div>
@@ -124,7 +125,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            &copy; 2024 SmilePills. All rights reserved.
+            &copy; 2025 Smile Pills Ltd. All rights reserved.
           </p>
           <div className="flex items-center space-x-6 text-sm">
             <Link href="/privacy">
