@@ -159,7 +159,7 @@ export default function Landing() {
       </section>
 
       {/* Featured Products */}
-      {featuredProducts && featuredProducts.length > 0 && (
+      {featuredProducts && Array.isArray(featuredProducts) && featuredProducts.length > 0 && (
         <section className="py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
@@ -168,7 +168,7 @@ export default function Landing() {
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredProducts.slice(0, 6).map((product: any) => (
+              {(featuredProducts as any[]).slice(0, 6).map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
@@ -189,7 +189,7 @@ export default function Landing() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-neutral mb-4">Why Choose SmilePills?</h2>
+            <h2 className="text-4xl font-bold text-neutral mb-4">Why Choose Smile Pills Ltd?</h2>
             <p className="text-xl text-gray-600">Your trusted partner in health and wellness</p>
           </div>
 

@@ -33,15 +33,12 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
 
   const { data: product, isLoading: productLoading } = useQuery<Product>({
-    queryKey: ["/api/products/slug", params?.slug],
+    queryKey: [`/api/products/slug/${params?.slug}`],
     enabled: !!params?.slug,
   });
 
   const { data: relatedProducts } = useQuery<Product[]>({
-    queryKey: ["/api/products", { 
-      categoryId: product?.categoryId,
-      limit: 4 
-    }],
+    queryKey: [`/api/products?categoryId=${product?.categoryId}&limit=4`],
     enabled: !!product?.categoryId,
   });
 
