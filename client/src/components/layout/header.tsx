@@ -97,7 +97,7 @@ export default function Header() {
                 <img 
                   src="/assets/IMG_1598 (1)_1754952167373.PNG" 
                   alt="Smile Pills Ltd - Smile Forever" 
-                  className="h-12 w-auto object-contain"
+                  className="h-10 w-auto object-contain"
                 />
               </div>
             </Link>

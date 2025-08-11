@@ -13,7 +13,7 @@ export default function Footer() {
                 <img 
                   src="/assets/IMG_1598 (1)_1754952167373.PNG" 
                   alt="Smile Pills Ltd - Smile Forever" 
-                  className="h-12 w-auto object-contain brightness-0 invert"
+                  className="h-10 w-auto object-contain filter brightness-0 invert"
                 />
               </div>
             </Link>
