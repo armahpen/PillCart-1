@@ -90,7 +90,7 @@ export default function Header() {
         
         {/* Main navigation */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center justify-between py-4">
+          <nav className="flex items-center justify-between py-2">
             {/* Logo */}
             <Link href="/">
               <div className="flex items-center space-x-3 cursor-pointer">
@@ -145,15 +145,15 @@ export default function Header() {
 
 
           {/* Category navigation */}
-          <div className="hidden md:block pb-4">
-            <nav className="flex space-x-8 overflow-x-auto">
+          <div className="hidden md:block pb-2">
+            <nav className="flex justify-center space-x-8">
               {categories.map((category) => (
                 <Link key={category.slug} href={category.href}>
                   <span
-                    className={`whitespace-nowrap pb-2 transition-colors ${
+                    className={`whitespace-nowrap pb-2 transition-colors font-medium ${
                       location === category.href || 
                       (category.slug && location.includes(`category=${category.slug}`))
-                        ? "text-primary border-b-2 border-primary font-medium"
+                        ? "text-primary border-b-2 border-primary"
                         : "text-gray-600 hover:text-primary"
                     }`}
                   >
