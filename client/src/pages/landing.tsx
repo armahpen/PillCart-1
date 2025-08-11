@@ -25,22 +25,21 @@ export default function Landing() {
       <Header />
       
       {/* Hero Section */}
-      <section className="hero relative min-h-[68vh] flex items-center bg-gradient-to-br from-primary/5 to-secondary/10">
+      <section className="hero relative min-h-[60vh] flex items-center bg-gradient-to-br from-primary/5 to-secondary/10 py-12">
         <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-white"></div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <div className="space-y-6">
-              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-neutral leading-tight">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-4">
+              <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-neutral leading-tight">
                 Online Pharmacy & Prescription Services
               </h1>
-              <p className="text-lg lg:text-xl text-gray-600 leading-relaxed">
+              <p className="text-base lg:text-lg text-gray-600 leading-relaxed">
                 Order your prescriptions and shop trusted health essentials with fast, discreet delivery across Ghana.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Link href="/api/login">
                   <Button 
-                    size="lg" 
-                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white px-6 py-2 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
                   >
                     Order Repeat Prescription
                   </Button>
@@ -48,8 +47,7 @@ export default function Landing() {
                 <Link href="/shop">
                   <Button 
                     variant="outline" 
-                    size="lg"
-                    className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-4 text-lg font-semibold transition-all duration-200"
+                    className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-6 py-2 text-sm font-semibold transition-all duration-200"
                   >
                     Shop Medicines
                   </Button>
@@ -57,15 +55,15 @@ export default function Landing() {
               </div>
               
               {/* Search Bar */}
-              <div className="mt-6">
+              <div className="mt-4">
                 <div className="relative max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     type="search"
                     placeholder="Search medicines and health essentials"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-3 h-12 rounded-lg border-2 border-gray-200 focus:border-primary"
+                    className="pl-9 pr-4 py-2 h-10 rounded-lg border-2 border-gray-200 focus:border-primary text-sm"
                   />
                 </div>
               </div>
@@ -75,7 +73,7 @@ export default function Landing() {
               <img
                 src="/assets/african-american-woman-pharmacist-standing-with-serious-expression-pharmacy_1754949718521.jpg"
                 alt="Professional African American woman pharmacist at Smile Pills Ltd"
-                className="w-full max-w-lg h-auto object-cover rounded-2xl shadow-2xl"
+                className="w-full max-w-md h-auto object-cover rounded-2xl shadow-2xl"
               />
             </div>
           </div>
