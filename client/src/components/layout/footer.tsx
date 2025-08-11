@@ -11,7 +11,7 @@ export default function Footer() {
             <Link href="/">
               <div className="flex items-center space-x-3 cursor-pointer">
                 <img 
-                  src="/assets/IMG_1598 (1)_1754950757542.PNG" 
+                  src="/assets/IMG_1598 (1)_1754952167373.PNG" 
                   alt="Smile Pills Ltd - Smile Forever" 
                   className="h-12 w-auto object-contain brightness-0 invert"
                 />
