@@ -305,8 +305,8 @@ export default function Landing() {
             
             <div className="flex justify-center">
               <img
-                src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400"
-                alt="Smile Pills pharmacy team"
+                src="/assets/portrait-woman-working-pharmaceutical-industry_1754949834568.jpg"
+                alt="Smile Pills pharmaceutical professional team member"
                 className="w-full max-w-lg h-auto object-cover rounded-2xl shadow-lg"
               />
             </div>
