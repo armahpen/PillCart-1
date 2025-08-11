@@ -38,10 +38,10 @@ export default function About() {
   ];
 
   const stats = [
-    { number: "50,000+", label: "Happy Customers" },
-    { number: "10,000+", label: "Products Available" },
-    { number: "24/7", label: "Customer Support" },
-    { number: "99.9%", label: "Customer Satisfaction" }
+    { number: "4+", label: "Years Experience" },
+    { number: "1000+", label: "Products Available" },
+    { number: "Mon-Sat", label: "24/7 Support" },
+    { number: "100%", label: "Licensed & Compliant" }
   ];
 
   const team = [

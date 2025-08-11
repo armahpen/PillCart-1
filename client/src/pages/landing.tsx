@@ -41,11 +41,13 @@ export default function Landing() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 fade-in">
               <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                Your Health, <span className="text-blue-200">Our Priority</span>
+                Smile Pills Ltd
               </h1>
+              <p className="text-2xl text-blue-200 font-semibold mb-2">
+                Smile Forever
+              </p>
               <p className="text-xl text-blue-100 leading-relaxed">
-                Trusted online pharmacy delivering quality medicines and health products to your doorstep. 
-                Licensed, secure, and always here for your wellness needs.
+                Ghana's trusted pharmaceutical wholesale and medical supplies company, delivering health with trust, quality, and convenience to pharmacies, hospitals, and individual customers.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/shop">
@@ -64,15 +66,15 @@ export default function Landing() {
               <div className="flex items-center space-x-6 pt-8">
                 <div className="flex items-center space-x-2">
                   <ShieldCheck className="h-5 w-5 text-secondary" />
-                  <span className="text-sm">FDA Approved</span>
+                  <span className="text-sm">Licensed</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Truck className="h-5 w-5 text-secondary" />
-                  <span className="text-sm">Free Delivery</span>
+                  <span className="text-sm">Ghana Delivery</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Clock className="h-5 w-5 text-secondary" />
-                  <span className="text-sm">24/7 Support</span>
+                  <span className="text-sm">Mon-Sat 24/7</span>
                 </div>
               </div>
             </div>

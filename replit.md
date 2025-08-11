@@ -1,8 +1,27 @@
-# Online Pharmacy System
+# Smile Pills Ltd - E-Commerce Website
 
 ## Overview
 
-SmilePills is a comprehensive online pharmacy platform built as a full-stack web application. The system allows users to browse medications, manage shopping carts, process payments, and complete orders through a secure e-commerce interface. The platform integrates prescription management capabilities with over-the-counter product sales, featuring Stripe payment processing and Replit authentication.
+Smile Pills Ltd is a comprehensive online pharmaceutical and medical supplies platform serving Ghana. The company is a licensed pharmaceutical wholesale business providing quality, affordable, and accessible medicines and medical products to pharmacies, hospitals, and individual customers. The platform features Stripe embedded checkout, prescription verification, secure authentication, and comprehensive product management.
+
+## Business Information
+
+**Company**: Smile Pills Ltd  
+**Location**: East Legon Hills, Accra, Ghana  
+**Contact**: 0544137947 | +233 209339912 | smilepills21@gmail.com  
+**WhatsApp**: https://wa.me/message/GKIVR7F2FJPJE1  
+**Hours**: Monday – Saturday, 24/7  
+**Mission**: Smile Forever – delivering health with trust, quality, and convenience  
+**Vision**: To be Ghana's leading pharmaceutical and medical supplies provider  
+
+## Recent Changes (August 2025)
+
+✓ Implemented Stripe embedded checkout system replacing PaymentElement approach  
+✓ Created session-based payment processing matching Ruby/Sinatra example  
+✓ Added automatic order creation from successful checkout sessions  
+✓ Updated branding to reflect Smile Pills Ltd business information  
+✓ Integrated prescription verification requirements and policies  
+✓ Configured for Ghana market with GHS currency and local delivery
 
 ## User Preferences
 

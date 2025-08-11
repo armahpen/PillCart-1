@@ -17,30 +17,29 @@ import {
 } from "lucide-react";
 
 export default function Privacy() {
-  const lastUpdated = "December 15, 2024";
+  const lastUpdated = "August 11, 2025";
 
   const sections = [
     {
       icon: <Database className="h-5 w-5" />,
       title: "Information We Collect",
       content: [
-        "Personal identification information (name, email, phone number, address)",
-        "Health information necessary for prescription processing (with your consent)",
-        "Payment and billing information (processed securely through Stripe)",
-        "Usage data and website analytics to improve our services",
-        "Device and browser information for security and optimization"
+        "Personal details (name, phone number, email, delivery address)",
+        "Payment information (processed securely through trusted payment providers)",
+        "Prescription documents (where applicable)",
+        "Website usage data (cookies, browsing activity)",
+        "Device and browser information for security purposes"
       ]
     },
     {
       icon: <Shield className="h-5 w-5" />,
       title: "How We Use Your Information",
       content: [
-        "Processing and fulfilling your medication orders",
-        "Providing pharmaceutical consultation and support",
-        "Communicating about your orders, prescriptions, and account",
-        "Ensuring medication safety and preventing drug interactions",
-        "Compliance with legal and regulatory requirements",
-        "Improving our services and website functionality"
+        "To process and deliver your orders",
+        "To verify prescriptions for restricted medicines",
+        "To communicate updates, promotions, or important notices",
+        "To improve our products, services, and website experience",
+        "To comply with legal and regulatory requirements in Ghana"
       ]
     },
     {
@@ -77,15 +76,11 @@ export default function Privacy() {
           <div className="text-center">
             <h1 className="text-5xl font-bold mb-6">Privacy Policy</h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Your privacy and the security of your health information are our top priorities. 
-              Learn how we protect and handle your personal data.
+              At Smile Pills Ltd, your privacy is important to us. Learn how we protect and handle your personal information.
             </p>
-            <div className="mt-8 flex justify-center">
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                <FileText className="h-4 w-4 mr-2" />
-                Last Updated: {lastUpdated}
-              </Badge>
-            </div>
+            <p className="mt-4 text-blue-200">
+              Effective Date: {lastUpdated}
+            </p>
           </div>
         </div>
       </section>

@@ -59,11 +59,11 @@ export default function Header() {
               <div className="hidden md:flex items-center space-x-6 text-gray-600">
                 <div className="flex items-center space-x-2">
                   <Phone className="h-4 w-4 text-secondary" />
-                  <span>+1 (555) 123-4567</span>
+                  <span>0544137947</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4 text-secondary" />
-                  <span>support@smilepills.com</span>
+                  <span>smilepills21@gmail.com</span>
                 </div>
               </div>
               

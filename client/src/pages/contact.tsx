@@ -59,27 +59,33 @@ export default function Contact() {
   const contactInfo = [
     {
       icon: <MapPin className="h-6 w-6 text-primary" />,
-      title: "Visit Our Pharmacy",
-      details: ["123 Health Street", "Medical District, MD 12345"],
+      title: "Visit Our Location",
+      details: ["East Legon Hills", "Accra, Ghana"],
       action: "Get Directions"
     },
     {
       icon: <Phone className="h-6 w-6 text-secondary" />,
       title: "Call Us",
-      details: ["+1 (555) 123-4567", "Toll-free: 1-800-SMILE-RX"],
+      details: ["0544137947", "+233 209339912"],
       action: "Call Now"
     },
     {
       icon: <Mail className="h-6 w-6 text-purple-600" />,
       title: "Email Support",
-      details: ["support@smilepills.com", "prescriptions@smilepills.com"],
+      details: ["smilepills21@gmail.com"],
       action: "Send Email"
     },
     {
-      icon: <Clock className="h-6 w-6 text-orange-600" />,
+      icon: <Clock className="h-6 w-6 text-orange-500" />,
       title: "Business Hours",
-      details: ["Mon-Fri: 8:00 AM - 8:00 PM", "Sat-Sun: 9:00 AM - 6:00 PM"],
-      action: "24/7 Online"
+      details: ["Monday - Saturday", "24/7 Support"],
+      action: "WhatsApp Available"
+    },
+    {
+      icon: <MessageCircle className="h-6 w-6 text-green-500" />,
+      title: "WhatsApp",
+      details: ["Chat with us instantly"],
+      action: "https://wa.me/message/GKIVR7F2FJPJE1"
     }
   ];
 
@@ -101,10 +107,10 @@ export default function Contact() {
       <section className="bg-gradient-to-r from-primary to-blue-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-5xl font-bold mb-6">Contact Us</h1>
+            <h1 className="text-5xl font-bold mb-6">Contact Smile Pills Ltd</h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              We're here to help! Get in touch with our healthcare professionals 
-              for any questions about medications, orders, or pharmacy services.
+              We're here to help! Get in touch with our licensed pharmaceutical team 
+              for any questions about medications, orders, or healthcare services in Ghana.
             </p>
           </div>
         </div>

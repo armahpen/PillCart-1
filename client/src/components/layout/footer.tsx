@@ -13,12 +13,12 @@ export default function Footer() {
                 <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                   <Pill className="h-6 w-6 text-white" />
                 </div>
-                <span className="text-2xl font-bold">SmilePills</span>
+                <span className="text-2xl font-bold">Smile Pills Ltd</span>
               </div>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Your trusted online pharmacy providing quality medications and health products 
-              with professional care and convenience.
+              Ghana's trusted pharmaceutical wholesale and medical supplies company, 
+              delivering health with trust, quality, and convenience.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-primary transition-colors">

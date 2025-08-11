@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRoute } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { type Product } from "@shared/schema";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
@@ -31,12 +32,12 @@ export default function ProductDetail() {
   const queryClient = useQueryClient();
   const [quantity, setQuantity] = useState(1);
 
-  const { data: product, isLoading: productLoading } = useQuery({
+  const { data: product, isLoading: productLoading } = useQuery<Product>({
     queryKey: ["/api/products/slug", params?.slug],
     enabled: !!params?.slug,
   });
 
-  const { data: relatedProducts } = useQuery({
+  const { data: relatedProducts } = useQuery<Product[]>({
     queryKey: ["/api/products", { 
       categoryId: product?.categoryId,
       limit: 4 
