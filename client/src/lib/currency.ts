@@ -4,12 +4,13 @@
 
 export function formatPrice(price: string | number): string {
   const numPrice = typeof price === 'string' ? parseFloat(price) : price;
-  return new Intl.NumberFormat('en-GH', {
-    style: 'currency',
-    currency: 'GHS',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(numPrice);
+  
+  if (isNaN(numPrice)) {
+    return '₵0.00';
+  }
+  
+  // Simple formatting for Ghana Cedis
+  return `₵${numPrice.toFixed(2)}`;
 }
 
 export function formatPriceCompact(price: string | number): string {
