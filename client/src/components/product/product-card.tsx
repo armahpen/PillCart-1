@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { formatPrice } from "@/lib/currency";
 import { Link } from "wouter";
 import { 
   ShoppingCart, 
@@ -166,10 +167,10 @@ export default function ProductCard({ product, variant = "grid" }: ProductCardPr
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <span className="text-xl font-bold text-neutral">${product.price}</span>
+                    <span className="text-xl font-bold text-neutral">{formatPrice(product.price)}</span>
                     {product.originalPrice && (
                       <span className="text-sm text-gray-500 line-through">
-                        ${product.originalPrice}
+                        {formatPrice(product.originalPrice)}
                       </span>
                     )}
                     {product.dosage && (
@@ -284,10 +285,10 @@ export default function ProductCard({ product, variant = "grid" }: ProductCardPr
           
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-neutral">${product.price}</span>
+              <span className="text-2xl font-bold text-neutral">{formatPrice(product.price)}</span>
               {product.originalPrice && (
                 <span className="text-sm text-gray-500 line-through">
-                  ${product.originalPrice}
+                  {formatPrice(product.originalPrice)}
                 </span>
               )}
             </div>

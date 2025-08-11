@@ -32,14 +32,20 @@ export default function Shop() {
   }, [location]);
 
   const { data: products, isLoading: productsLoading } = useQuery({
-    queryKey: ["/api/products", {
-      search: searchQuery,
-      categoryId: categoryFilter,
-      brandId: brandFilter,
-      inStock: true,
-      limit: itemsPerPage,
-      offset: (currentPage - 1) * itemsPerPage,
-    }],
+    queryKey: ["/api/products"],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('search', searchQuery);
+      if (categoryFilter) params.append('categoryId', categoryFilter);
+      if (brandFilter) params.append('brandId', brandFilter);
+      params.append('inStock', 'true');
+      params.append('limit', itemsPerPage.toString());
+      params.append('offset', ((currentPage - 1) * itemsPerPage).toString());
+      
+      const response = await fetch(`/api/products?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch products');
+      return response.json();
+    },
   });
 
   const { data: categories } = useQuery({
