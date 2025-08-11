@@ -11,7 +11,7 @@ let stripe: Stripe | null = null;
 
 if (process.env.STRIPE_SECRET_KEY) {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2025-01-27.acacia",
+    apiVersion: "2025-07-30.basil",
   });
 }
 
@@ -278,7 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             currency: 'usd',
             product_data: {
               name: item.product.name,
-              description: item.product.shortDescription || item.product.description,
+              description: item.product.shortDescription || item.product.description || undefined,
               images: item.product.imageUrl ? [item.product.imageUrl] : undefined,
             },
             unit_amount: Math.round(parseFloat(item.product.price) * 100), // Convert to cents
@@ -370,8 +370,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         orderNumber,
         status: 'confirmed',
         totalAmount: totalAmount.toString(),
-        shippingAddress: session.shipping_details || null,
-        billingAddress: session.customer_details || null,
+        shippingAddress: (session as any).shipping_details || null,
+        billingAddress: (session as any).customer_details || null,
         paymentStatus: 'paid',
         stripePaymentIntentId: session.payment_intent as string,
       };
@@ -398,158 +398,381 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Seed data endpoint (for development)
   app.post('/api/seed', async (req, res) => {
     try {
-      // Create categories
-      const prescriptionCategory = await storage.createCategory({
-        name: "Prescription Drugs",
-        slug: "prescription-drugs",
-        description: "Licensed prescription medications with professional consultation"
-      });
+      // Get existing categories or create new ones
+      let categories = await storage.getCategories();
+      let prescriptionCategory = categories.find(c => c.slug === 'prescription-drugs');
+      let otcCategory = categories.find(c => c.slug === 'over-the-counter');
+      let supplementsCategory = categories.find(c => c.slug === 'health-supplements');
+      let firstAidCategory = categories.find(c => c.slug === 'first-aid');
+      let devicesCategory = categories.find(c => c.slug === 'medical-devices');
 
-      const otcCategory = await storage.createCategory({
-        name: "Over-the-Counter",
-        slug: "over-the-counter",
-        description: "Safe, effective medicines available without prescription"
-      });
+      if (!prescriptionCategory) {
+        prescriptionCategory = await storage.createCategory({
+          name: "Prescription Drugs",
+          slug: "prescription-drugs",
+          description: "Licensed prescription medications with professional consultation"
+        });
+      }
 
-      const supplementsCategory = await storage.createCategory({
-        name: "Health Supplements",
-        slug: "health-supplements",
-        description: "Premium vitamins and supplements for optimal wellness"
-      });
+      if (!otcCategory) {
+        otcCategory = await storage.createCategory({
+          name: "Over-the-Counter",
+          slug: "over-the-counter",
+          description: "Safe, effective medicines available without prescription"
+        });
+      }
 
-      const firstAidCategory = await storage.createCategory({
-        name: "First Aid",
-        slug: "first-aid",
-        description: "Essential first aid supplies and emergency care items"
-      });
+      if (!supplementsCategory) {
+        supplementsCategory = await storage.createCategory({
+          name: "Health Supplements",
+          slug: "health-supplements",
+          description: "Premium vitamins and supplements for optimal wellness"
+        });
+      }
 
-      const devicesCategory = await storage.createCategory({
-        name: "Medical Devices",
-        slug: "medical-devices",
-        description: "Healthcare monitoring and diagnostic devices"
-      });
+      if (!firstAidCategory) {
+        firstAidCategory = await storage.createCategory({
+          name: "First Aid",
+          slug: "first-aid",
+          description: "Essential first aid supplies and emergency care items"
+        });
+      }
 
-      // Create brands
-      const johnsonBrand = await storage.createBrand({
-        name: "Johnson & Johnson",
-        description: "Leading healthcare and pharmaceutical company"
-      });
+      if (!devicesCategory) {
+        devicesCategory = await storage.createCategory({
+          name: "Medical Devices",
+          slug: "medical-devices",
+          description: "Healthcare monitoring and diagnostic devices"
+        });
+      }
 
-      const pfizerBrand = await storage.createBrand({
-        name: "Pfizer",
-        description: "Global pharmaceutical corporation"
-      });
+      // Get existing brands or create new ones
+      let brands = await storage.getBrands();
+      let johnsonBrand = brands.find(b => b.name === 'Johnson & Johnson');
+      let pfizerBrand = brands.find(b => b.name === 'Pfizer');
+      let naturesWayBrand = brands.find(b => b.name === "Nature's Way");
+      let redCrossBrand = brands.find(b => b.name === 'Red Cross');
+      let omronBrand = brands.find(b => b.name === 'Omron');
 
-      const naturesWayBrand = await storage.createBrand({
-        name: "Nature's Way",
-        description: "Premium natural health supplements"
-      });
+      if (!johnsonBrand) {
+        johnsonBrand = await storage.createBrand({
+          name: "Johnson & Johnson",
+          description: "Leading healthcare and pharmaceutical company"
+        });
+      }
 
-      const redCrossBrand = await storage.createBrand({
-        name: "Red Cross",
-        description: "Trusted first aid and emergency supplies"
-      });
+      if (!pfizerBrand) {
+        pfizerBrand = await storage.createBrand({
+          name: "Pfizer",
+          description: "Global pharmaceutical corporation"
+        });
+      }
 
-      const omronBrand = await storage.createBrand({
-        name: "Omron",
-        description: "Healthcare technology and medical devices"
-      });
+      if (!naturesWayBrand) {
+        naturesWayBrand = await storage.createBrand({
+          name: "Nature's Way",
+          description: "Premium natural health supplements"
+        });
+      }
 
-      // Create products
+      if (!redCrossBrand) {
+        redCrossBrand = await storage.createBrand({
+          name: "Red Cross",
+          description: "Trusted first aid and emergency supplies"
+        });
+      }
+
+      if (!omronBrand) {
+        omronBrand = await storage.createBrand({
+          name: "Omron",
+          description: "Healthcare technology and medical devices"
+        });
+      }
+
+      // Create products with uploaded images
       const products = [
         {
-          name: "Advanced Pain Relief",
-          slug: "advanced-pain-relief",
-          description: "Fast-acting pain relief for headaches, muscle pain, and arthritis. 200mg tablets provide effective relief from minor aches and pains.",
-          shortDescription: "Fast-acting pain relief for headaches, muscle pain, and arthritis",
-          price: "12.99",
-          originalPrice: "15.99",
-          dosage: "200mg",
+          name: "Paracetamol 500mg Tablets",
+          slug: "paracetamol-500mg",
+          description: "Fast-acting pain relief and fever reducer. 500mg paracetamol tablets provide effective relief from headaches, muscle pain, toothache, and fever. Safe for adults and children over 12 years.",
+          shortDescription: "Fast-acting pain relief and fever reducer tablets",
+          price: "8.50",
+          originalPrice: "12.00",
+          dosage: "500mg",
           categoryId: otcCategory.id,
           brandId: johnsonBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 150,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM_1754947176458.jpeg",
+          stockQuantity: 250,
           requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 124,
+          rating: "4.6",
+          reviewCount: 189,
         },
         {
-          name: "Vitamin D3 + K2",
-          slug: "vitamin-d3-k2",
-          description: "High-potency vitamin D3 with K2 for bone health and immune support. 60 capsules of premium quality supplements.",
-          shortDescription: "High-potency vitamin D3 with K2 for bone health and immune support",
-          price: "24.99",
-          dosage: "5000 IU",
-          categoryId: supplementsCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 89,
+          name: "Ibuprofen 400mg Tablets",
+          slug: "ibuprofen-400mg",
+          description: "Anti-inflammatory pain relief medication. Effective for reducing inflammation, pain, and fever. Suitable for headaches, dental pain, menstrual pain, and muscular pain.",
+          shortDescription: "Anti-inflammatory pain relief medication",
+          price: "15.75",
+          originalPrice: "18.99",
+          dosage: "400mg",
+          categoryId: otcCategory.id,
+          brandId: pfizerBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM_1754947176457.jpeg",
+          stockQuantity: 180,
           requiresPrescription: false,
-          rating: "4.2",
-          reviewCount: 89,
+          rating: "4.4",
+          reviewCount: 142,
         },
         {
-          name: "Complete First Aid Kit",
-          slug: "complete-first-aid-kit",
-          description: "Comprehensive first aid kit with 150+ pieces for home, office, or travel emergencies. Includes bandages, antiseptics, and emergency supplies.",
-          shortDescription: "Comprehensive first aid kit with 150+ pieces for emergencies",
-          price: "39.99",
-          originalPrice: "49.99",
-          dosage: "150+ pieces",
-          categoryId: firstAidCategory.id,
-          brandId: redCrossBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1603398938785-81dd9b45de34?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 25,
-          requiresPrescription: false,
-          rating: "4.8",
-          reviewCount: 203,
-        },
-        {
-          name: "Blood Pressure Medication",
-          slug: "blood-pressure-medication",
-          description: "Effective blood pressure control medication. Prescription required from licensed physician. Consult with our pharmacists for proper dosage.",
-          shortDescription: "Effective blood pressure control medication",
-          price: "45.99",
-          dosage: "30 tablets",
+          name: "Amoxicillin 250mg Capsules",
+          slug: "amoxicillin-250mg",
+          description: "Broad-spectrum antibiotic for bacterial infections. Effective treatment for respiratory tract infections, skin infections, and urinary tract infections. Prescription required.",
+          shortDescription: "Broad-spectrum antibiotic capsules",
+          price: "35.00",
+          dosage: "250mg",
           categoryId: prescriptionCategory.id,
           brandId: pfizerBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 50,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM_1754947176455.jpeg",
+          stockQuantity: 95,
           requiresPrescription: true,
-          rating: "4.1",
-          reviewCount: 67,
+          rating: "4.8",
+          reviewCount: 87,
         },
         {
-          name: "Digital BP Monitor",
-          slug: "digital-bp-monitor",
-          description: "Clinically accurate digital blood pressure monitor with large display and memory storage. FDA approved for home use.",
-          shortDescription: "Clinically accurate digital blood pressure monitor",
-          price: "79.99",
-          originalPrice: "99.99",
-          dosage: "FDA Approved",
-          categoryId: devicesCategory.id,
-          brandId: omronBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 35,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 312,
-        },
-        {
-          name: "Omega-3 Fish Oil",
-          slug: "omega-3-fish-oil",
-          description: "Premium omega-3 supplement for heart health and brain function. 120 softgels of pure fish oil with high EPA and DHA content.",
-          shortDescription: "Premium omega-3 supplement for heart health and brain function",
-          price: "32.99",
+          name: "Vitamin C 1000mg Tablets",
+          slug: "vitamin-c-1000mg",
+          description: "High-strength vitamin C supplement for immune system support. Helps maintain healthy skin, blood vessels, bones and cartilage. Antioxidant properties support overall health.",
+          shortDescription: "High-strength immune support vitamin C",
+          price: "22.50",
+          originalPrice: "28.00",
           dosage: "1000mg",
           categoryId: supplementsCategory.id,
           brandId: naturesWayBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 120,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.20%20PM_1754947176453.jpeg",
+          stockQuantity: 160,
+          requiresPrescription: false,
+          rating: "4.5",
+          reviewCount: 203,
+        },
+        {
+          name: "Multivitamin Complex",
+          slug: "multivitamin-complex",
+          description: "Complete daily multivitamin with essential vitamins and minerals. Contains Vitamins A, B-complex, C, D, E, plus Iron, Calcium, and Zinc for comprehensive nutritional support.",
+          shortDescription: "Complete daily multivitamin and mineral supplement",
+          price: "32.99",
+          originalPrice: "39.99",
+          dosage: "Daily tablet",
+          categoryId: supplementsCategory.id,
+          brandId: naturesWayBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM_1754947176460.jpeg",
+          stockQuantity: 145,
           requiresPrescription: false,
           rating: "4.3",
           reviewCount: 156,
         },
+        {
+          name: "Hypertension Medication",
+          slug: "hypertension-medication",
+          description: "ACE inhibitor for blood pressure control. Helps reduce high blood pressure and supports cardiovascular health. Professional consultation required for proper dosage and monitoring.",
+          shortDescription: "Blood pressure control medication",
+          price: "48.50",
+          dosage: "30 tablets",
+          categoryId: prescriptionCategory.id,
+          brandId: pfizerBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM_1754947176449.jpeg",
+          stockQuantity: 75,
+          requiresPrescription: true,
+          rating: "4.2",
+          reviewCount: 94,
+        },
+        {
+          name: "Diabetes Management Kit",
+          slug: "diabetes-management-kit",
+          description: "Complete diabetes monitoring system including glucose meter, test strips, and lancets. Easy-to-use digital display with memory function for tracking glucose levels.",
+          shortDescription: "Complete diabetes monitoring system",
+          price: "125.00",
+          originalPrice: "149.99",
+          dosage: "Complete kit",
+          categoryId: devicesCategory.id,
+          brandId: omronBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.25%20PM_1754947176452.jpeg",
+          stockQuantity: 45,
+          requiresPrescription: false,
+          rating: "4.7",
+          reviewCount: 128,
+        },
+        {
+          name: "Antiseptic Wound Care Set",
+          slug: "antiseptic-wound-care",
+          description: "Professional wound care essentials including antiseptic solution, sterile gauze, medical tape, and bandages. Perfect for first aid treatment and wound management.",
+          shortDescription: "Professional wound care and first aid essentials",
+          price: "18.75",
+          originalPrice: "24.99",
+          dosage: "Complete set",
+          categoryId: firstAidCategory.id,
+          brandId: redCrossBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM%20(1)_1754947176458.jpeg",
+          stockQuantity: 88,
+          requiresPrescription: false,
+          rating: "4.6",
+          reviewCount: 167,
+        },
+        {
+          name: "Calcium & Magnesium Supplement",
+          slug: "calcium-magnesium",
+          description: "Essential bone health support with calcium and magnesium. Supports strong bones and teeth, muscle function, and nerve transmission. Enhanced with Vitamin D3 for better absorption.",
+          shortDescription: "Bone health calcium and magnesium supplement",
+          price: "28.99",
+          dosage: "500mg Ca + 250mg Mg",
+          categoryId: supplementsCategory.id,
+          brandId: naturesWayBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM%20(1)_1754947176457.jpeg",
+          stockQuantity: 112,
+          requiresPrescription: false,
+          rating: "4.4",
+          reviewCount: 89,
+        },
+        {
+          name: "Respiratory Health Inhaler",
+          slug: "respiratory-inhaler",
+          description: "Bronchodilator inhaler for asthma and respiratory conditions. Provides quick relief from breathing difficulties and bronchospasm. Prescription medication requiring proper medical supervision.",
+          shortDescription: "Quick-relief respiratory inhaler",
+          price: "65.00",
+          dosage: "Metered dose",
+          categoryId: prescriptionCategory.id,
+          brandId: pfizerBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM%20(2)_1754947176456.jpeg",
+          stockQuantity: 58,
+          requiresPrescription: true,
+          rating: "4.9",
+          reviewCount: 74,
+        },
+        {
+          name: "Antihistamine Allergy Relief",
+          slug: "antihistamine-allergy",
+          description: "Fast-acting antihistamine for allergy symptoms. Provides 24-hour relief from hay fever, pet allergies, dust mite allergies, and skin reactions like urticaria.",
+          shortDescription: "24-hour allergy symptom relief",
+          price: "19.50",
+          originalPrice: "23.99",
+          dosage: "10mg tablets",
+          categoryId: otcCategory.id,
+          brandId: johnsonBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM%20(1)_1754947176455.jpeg",
+          stockQuantity: 195,
+          requiresPrescription: false,
+          rating: "4.5",
+          reviewCount: 211,
+        },
+        {
+          name: "Probiotic Digestive Support",
+          slug: "probiotic-digestive",
+          description: "Multi-strain probiotic supplement for digestive health. Contains 10 billion CFU of beneficial bacteria to support gut health, immune function, and digestive comfort.",
+          shortDescription: "Multi-strain probiotic for digestive health",
+          price: "42.99",
+          dosage: "10 billion CFU",
+          categoryId: supplementsCategory.id,
+          brandId: naturesWayBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM%20(2)_1754947176454.jpeg",
+          stockQuantity: 76,
+          requiresPrescription: false,
+          rating: "4.3",
+          reviewCount: 132,
+        },
+        {
+          name: "Thermometer & Health Monitor",
+          slug: "digital-thermometer",
+          description: "Digital thermometer with fever alarm and memory function. Non-contact infrared technology for safe and hygienic temperature measurement. Includes health monitoring features.",
+          shortDescription: "Digital non-contact thermometer",
+          price: "55.00",
+          originalPrice: "69.99",
+          dosage: "Digital device",
+          categoryId: devicesCategory.id,
+          brandId: omronBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM%20(1)_1754947176460.jpeg",
+          stockQuantity: 67,
+          requiresPrescription: false,
+          rating: "4.6",
+          reviewCount: 98,
+        },
+        {
+          name: "Eye Care Solution",
+          slug: "eye-care-solution",
+          description: "Sterile eye drops for dry eyes and irritation. Provides long-lasting moisture and comfort for tired, dry, or irritated eyes. Preservative-free formula safe for frequent use.",
+          shortDescription: "Moisturizing eye drops for dry eyes",
+          price: "16.25",
+          dosage: "10ml bottle",
+          categoryId: otcCategory.id,
+          brandId: johnsonBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM%20(2)_1754947176459.jpeg",
+          stockQuantity: 134,
+          requiresPrescription: false,
+          rating: "4.4",
+          reviewCount: 156,
+        },
+        {
+          name: "Heart Health Omega-3",
+          slug: "omega-3-heart",
+          description: "Premium fish oil supplement for cardiovascular health. High concentration EPA and DHA omega-3 fatty acids support heart health, brain function, and reduce inflammation.",
+          shortDescription: "Premium omega-3 for heart and brain health",
+          price: "38.75",
+          originalPrice: "44.99",
+          dosage: "1200mg fish oil",
+          categoryId: supplementsCategory.id,
+          brandId: naturesWayBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(1)_1754947176463.jpeg",
+          stockQuantity: 102,
+          requiresPrescription: false,
+          rating: "4.7",
+          reviewCount: 178,
+        },
+        {
+          name: "Complete Wound Dressing Kit",
+          slug: "wound-dressing-kit",
+          description: "Professional wound dressing supplies for healthcare facilities and home care. Includes sterile gauze, medical tape, wound pads, and antiseptic wipes for proper wound management.",
+          shortDescription: "Professional wound dressing supplies",
+          price: "29.99",
+          originalPrice: "35.99",
+          dosage: "Complete kit",
+          categoryId: firstAidCategory.id,
+          brandId: redCrossBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(2)_1754947176462.jpeg",
+          stockQuantity: 91,
+          requiresPrescription: false,
+          rating: "4.5",
+          reviewCount: 143,
+        },
+        {
+          name: "Blood Pressure Monitor",
+          slug: "bp-monitor-digital",
+          description: "Automatic digital blood pressure monitor with large LCD display. Clinically validated accuracy with irregular heartbeat detection. Stores up to 120 readings for two users.",
+          shortDescription: "Automatic digital blood pressure monitor",
+          price: "89.99",
+          originalPrice: "109.99",
+          dosage: "Digital device",
+          categoryId: devicesCategory.id,
+          brandId: omronBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(3)_1754947176461.jpeg",
+          stockQuantity: 52,
+          requiresPrescription: false,
+          rating: "4.8",
+          reviewCount: 267,
+        },
+        {
+          name: "Antacid Relief Tablets",
+          slug: "antacid-relief",
+          description: "Fast-acting antacid tablets for heartburn and indigestion relief. Neutralizes stomach acid quickly and provides long-lasting relief from acid-related discomfort.",
+          shortDescription: "Fast-acting heartburn and indigestion relief",
+          price: "11.50",
+          originalPrice: "14.99",
+          dosage: "Chewable tablets",
+          categoryId: otcCategory.id,
+          brandId: johnsonBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.25%20PM%20(1)_1754947176451.jpeg",
+          stockQuantity: 210,
+          requiresPrescription: false,
+          rating: "4.3",
+          reviewCount: 189,
+        }
       ];
 
       for (const product of products) {
@@ -778,7 +1001,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             // Broadcast to session participants
             broadcastToSession(client.sessionId, {
-              type: 'message',
               ...chatMessage
             });
             
@@ -813,7 +1035,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 
                 // Send to session participants
                 broadcastToSession(client.sessionId!, {
-                  type: 'message',
                   ...staffResponse
                 });
               }
