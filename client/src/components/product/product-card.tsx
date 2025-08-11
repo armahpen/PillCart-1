@@ -213,18 +213,14 @@ export default function ProductCard({ product, variant = "grid" }: ProductCardPr
       >
         <div className="relative">
           <img
-            src={product.imageUrl || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&h=300"}
+            src={product.imageUrl || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&h=200"}
             alt={product.name}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
           />
           
           {/* Stock status badge */}
           <div className="absolute top-3 right-3">
-            {isInStock ? (
-              <Badge className="bg-secondary text-white text-xs">
-                In Stock
-              </Badge>
-            ) : (
+            {!isInStock && (
               <Badge variant="destructive" className="text-xs">
                 Out of Stock
               </Badge>
@@ -255,14 +251,35 @@ export default function ProductCard({ product, variant = "grid" }: ProductCardPr
           )}
         </div>
         
-        <CardContent className="p-6 flex flex-col h-full">
+        <CardContent className="p-4 flex flex-col">
           <div className="flex items-center justify-between mb-2">
             <Badge 
               variant={product.requiresPrescription ? "destructive" : "secondary"}
               className="text-xs"
             >
-              {product.requiresPrescription ? "Prescription" : "OTC"}
+              {product.requiresPrescription ? "Rx" : "OTC"}
             </Badge>
+            {product.dosage && (
+              <Badge variant="outline" className="text-xs">
+                {product.dosage}
+              </Badge>
+            )}
+          </div>
+          
+          <h3 className="font-semibold text-sm mb-1 text-neutral line-clamp-2">
+            {product.name}
+          </h3>
+          <p className="text-gray-500 text-xs mb-2">{product.brand?.name}</p>
+          
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-1">
+              <span className="text-lg font-bold text-primary">{formatPrice(product.price)}</span>
+              {product.originalPrice && (
+                <span className="text-xs text-gray-400 line-through">
+                  {formatPrice(product.originalPrice)}
+                </span>
+              )}
+            </div>
             <div className="flex text-yellow-400">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -274,47 +291,28 @@ export default function ProductCard({ product, variant = "grid" }: ProductCardPr
                   }`}
                 />
               ))}
-              <span className="text-gray-600 text-xs ml-1">({product.reviewCount})</span>
+              <span className="text-gray-500 text-xs ml-1">({product.reviewCount})</span>
             </div>
-          </div>
-          
-          <h3 className="font-semibold text-lg mb-2 text-neutral line-clamp-2 flex-grow">
-            {product.name}
-          </h3>
-          <p className="text-gray-600 text-sm mb-3">{product.brand?.name}</p>
-          
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-neutral">{formatPrice(product.price)}</span>
-              {product.originalPrice && (
-                <span className="text-sm text-gray-500 line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
-              )}
-            </div>
-            {product.dosage && (
-              <Badge variant="outline" className="text-xs">
-                {product.dosage}
-              </Badge>
-            )}
           </div>
           
           {product.requiresPrescription ? (
             <Button
-              className="w-full bg-accent text-white hover:bg-red-700"
+              size="sm"
+              className="w-full bg-accent text-white hover:bg-red-700 text-xs"
               onClick={handleAddToCart}
               disabled={!isInStock}
             >
-              <AlertCircle className="mr-2 h-4 w-4" />
-              Upload Prescription
+              <AlertCircle className="mr-1 h-3 w-3" />
+              Upload Rx
             </Button>
           ) : (
             <Button
-              className="w-full"
+              size="sm"
+              className="w-full text-xs"
               onClick={handleAddToCart}
               disabled={!isInStock || addToCartMutation.isPending}
             >
-              <ShoppingCart className="mr-2 h-4 w-4" />
+              <ShoppingCart className="mr-1 h-3 w-3" />
               {addToCartMutation.isPending ? "Adding..." : "Add to Cart"}
             </Button>
           )}
