@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
+import { formatPrice } from "@/lib/currency";
 import { 
   ShieldCheck, 
   Truck, 
@@ -24,7 +25,6 @@ import {
   CheckCircle,
   Users,
   Globe,
-  ArrowLeft,
   ChevronLeft,
   ChevronRight,
   Calculator,
@@ -38,21 +38,20 @@ export default function Landing() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: featuredProducts, isLoading: productsLoading } = useQuery({
-    queryKey: ["/api/products", { limit: 6 }],
-    retry: false,
+    queryKey: ["/api/products"],
+    queryFn: async () => {
+      const response = await fetch('/api/products?limit=6');
+      if (!response.ok) throw new Error('Failed to fetch products');
+      return response.json();
+    },
   });
 
-  const { data: categories } = useQuery({
-    queryKey: ["/api/categories"],
-    retry: false,
-  });
-
-  // Hero carousel slides
+  // Hero carousel slides - Ghana pharmaceutical focus
   const heroSlides = [
     {
       title: "Instantly check stock of your prescription medicines",
       subtitle: "NEW",
-      description: "See if we have the medicine you need before you place a prescription request.",
+      description: "See if we have the medicine you need before you place your order. Serving Ghana with quality pharmaceutical care.",
       buttonText: "Check stock now",
       buttonLink: "/shop",
       buttonText2: "Log in & re-order",
@@ -61,9 +60,9 @@ export default function Landing() {
       badge: "Licensed Services"
     },
     {
-      title: "Free home delivery of your repeat prescriptions",
+      title: "Free delivery of your prescriptions across Ghana",
       subtitle: "",
-      description: "Get your repeat prescriptions delivered to your door for free across Ghana.",
+      description: "Get your prescriptions delivered to your door across Accra and major cities in Ghana.",
       buttonText: "Find out more",
       buttonLink: "/about",
       buttonText2: "Log in & re-order", 
@@ -74,7 +73,7 @@ export default function Landing() {
     {
       title: "Manage prescriptions for the whole family in one account",
       subtitle: "NEW",
-      description: "Add family members to your account and manage all prescriptions in one place.",
+      description: "Create a family account and manage all prescriptions from one convenient location.",
       buttonText: "Sign up for free",
       buttonLink: "/api/login",
       buttonText2: "Add a patient",
@@ -83,15 +82,15 @@ export default function Landing() {
       badge: "Licensed Services"
     },
     {
-      title: "Expert pharmaceutical consultation",
-      subtitle: "Save ¢40: from ¢85 for your first consultation",
-      description: "Connect with our certified pharmacists for professional health advice and prescription guidance.",
-      buttonText: "Find out more",
+      title: "Professional pharmaceutical care from certified technicians",
+      subtitle: "Save ₵40",
+      description: "Get expert consultation and pharmaceutical care from our certified pharmacy technicians with over 4+ years experience.",
+      buttonText: "Book consultation",
       buttonLink: "/contact",
       buttonText2: "",
       buttonLink2: "",
-      image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=1406&h=1441",
-      badge: "Licensed Services"
+      image: "https://images.unsplash.com/photo-1551601651-2a8555f1a136?ixlib=rb-4.0.3&auto=format&fit=crop&w=1406&h=1441",
+      badge: ""
     }
   ];
 
@@ -99,16 +98,9 @@ export default function Landing() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
-    }, 5000);
+    }, 6000);
     return () => clearInterval(timer);
   }, [heroSlides.length]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      window.location.href = `/shop?search=${encodeURIComponent(searchQuery.trim())}`;
-    }
-  };
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
@@ -119,523 +111,432 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Header />
       
       {/* Hero Carousel Section */}
-      <section className="relative bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="relative overflow-hidden">
-            <div 
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+      <section className="relative bg-gradient-to-br from-primary/5 to-secondary/5 overflow-hidden">
+        <div className="relative h-[600px] md:h-[650px]">
+          {heroSlides.map((slide, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                index === currentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
             >
-              {heroSlides.map((slide, index) => (
-                <div key={index} className="min-w-full">
-                  <div className="grid lg:grid-cols-2 gap-8 items-center p-8 lg:p-16">
-                    {/* Content */}
-                    <div className="space-y-6">
-                      {slide.subtitle && (
-                        <Badge variant="secondary" className="bg-secondary text-white font-medium">
-                          {slide.subtitle}
-                        </Badge>
-                      )}
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+                <div className="grid lg:grid-cols-2 gap-8 h-full items-center">
+                  <div className="space-y-6 lg:pr-8">
+                    {slide.subtitle && (
+                      <Badge className="bg-secondary text-white px-3 py-1">
+                        {slide.subtitle}
+                      </Badge>
+                    )}
+                    
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral leading-tight">
+                      {slide.title}
+                    </h1>
+                    
+                    <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+                      {slide.description}
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Link href={slide.buttonLink}>
+                        <Button 
+                          size="lg" 
+                          className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg font-semibold"
+                        >
+                          {slide.buttonText}
+                        </Button>
+                      </Link>
                       
-                      <h1 className="text-4xl lg:text-5xl font-bold text-neutral leading-tight">
-                        {slide.title}
-                      </h1>
-                      
-                      <p className="text-xl text-gray-600 leading-relaxed">
-                        {slide.description}
-                      </p>
-                      
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <Link href={slide.buttonLink}>
-                          <Button size="lg" className="bg-primary text-white hover:bg-primary/90 px-8">
-                            {slide.buttonText}
+                      {slide.buttonText2 && (
+                        <Link href={slide.buttonLink2}>
+                          <Button 
+                            variant="outline" 
+                            size="lg"
+                            className="border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 text-lg font-semibold"
+                          >
+                            {slide.buttonText2}
                           </Button>
                         </Link>
-                        
-                        {slide.buttonText2 && (
-                          <Link href={slide.buttonLink2}>
-                            <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white px-8">
-                              {slide.buttonText2}
-                            </Button>
-                          </Link>
-                        )}
-                      </div>
-                      
-                      {/* Trust indicators */}
-                      <div className="flex items-center space-x-8 pt-6">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold">Excellent</div>
-                          <div className="flex items-center justify-center space-x-1 mt-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className="h-4 w-4 text-green-500 fill-current" />
-                            ))}
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-sm font-medium text-gray-700">1,000+ reviews on</div>
-                          <div className="text-lg font-bold text-primary">Trustpilot</div>
-                        </div>
-                      </div>
-                      
-
-                    </div>
-                    
-                    {/* Image */}
-                    <div className="relative">
-                      <img 
-                        src={slide.image}
-                        alt={slide.title}
-                        className="rounded-lg shadow-lg w-full h-auto max-w-lg mx-auto"
-                      />
-                      {slide.badge && (
-                        <div className="absolute bottom-4 left-4">
-                          <Badge variant="secondary" className="bg-primary text-white px-3 py-1">
-                            {slide.badge}
-                          </Badge>
-                        </div>
                       )}
                     </div>
+                    
+                    {slide.badge && (
+                      <div className="flex items-center space-x-2">
+                        <img 
+                          src="/assets/pharmacy-badge.svg" 
+                          alt="Licensed Services" 
+                          className="h-8"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <span className="text-sm text-gray-600">{slide.badge}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="relative lg:pl-8">
+                    <img
+                      src={slide.image}
+                      alt={slide.title}
+                      className="w-full h-auto max-h-96 object-cover rounded-2xl shadow-2xl"
+                    />
                   </div>
                 </div>
-              ))}
+              </div>
+            </div>
+          ))}
+          
+          {/* Carousel Navigation */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            {heroSlides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  index === currentSlide ? 'bg-primary' : 'bg-gray-300'
+                }`}
+              />
+            ))}
+          </div>
+          
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm p-3 rounded-full transition-colors"
+          >
+            <ChevronLeft className="h-6 w-6 text-white" />
+          </button>
+          
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm p-3 rounded-full transition-colors"
+          >
+            <ChevronRight className="h-6 w-6 text-white" />
+          </button>
+        </div>
+      </section>
+
+      {/* Trust Indicators */}
+      <section className="py-12 bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center">
+                  <Award className="h-8 w-8 text-secondary" />
+                </div>
+              </div>
+              <h3 className="font-semibold text-neutral mb-2">Excellent Service Rating</h3>
+              <p className="text-gray-600 text-sm">4+ years serving Ghana</p>
             </div>
             
-            {/* Navigation arrows */}
-            <button
-              onClick={prevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all"
-            >
-              <ChevronLeft className="h-6 w-6 text-gray-700" />
-            </button>
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <ShieldCheck className="h-8 w-8 text-primary" />
+                </div>
+              </div>
+              <h3 className="font-semibold text-neutral mb-2">Trusted Licensed Partner</h3>
+              <p className="text-gray-600 text-sm">Certified pharmacy technician</p>
+            </div>
             
-            <button
-              onClick={nextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all"
-            >
-              <ChevronRight className="h-6 w-6 text-gray-700" />
-            </button>
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center">
+                  <Pill className="h-8 w-8 text-secondary" />
+                </div>
+              </div>
+              <h3 className="font-semibold text-neutral mb-2">Regulated Pharmacy</h3>
+              <p className="text-gray-600 text-sm">Licensed pharmaceutical business</p>
+            </div>
             
-            {/* Dots indicator */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2">
-              {heroSlides.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentSlide 
-                      ? 'bg-primary' 
-                      : 'bg-gray-300 hover:bg-gray-400'
-                  }`}
-                />
-              ))}
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Users className="h-8 w-8 text-primary" />
+                </div>
+              </div>
+              <h3 className="font-semibold text-neutral mb-2">Serving Ghana</h3>
+              <p className="text-gray-600 text-sm">East Legon Hills, Accra</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Promotional Banner */}
-      <section className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Badge variant="secondary" className="bg-white text-orange-600 font-bold px-3 py-1">
-                UP TO 33% OFF
-              </Badge>
-              <h3 className="text-lg font-bold">
-                Real solutions for real health concerns with premium brands and more
-              </h3>
-            </div>
-            <Link href="/shop">
-              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-orange-600">
-                Shop now
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust Indicators Bar */}
-      <section className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            <div className="flex flex-col items-center space-y-3">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <Star className="h-8 w-8 text-green-600" />
-              </div>
-              <div>
-                <div className="font-semibold text-sm">Excellent Trustpilot rating</div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-center space-y-3">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <ShieldCheck className="h-8 w-8 text-blue-600" />
-              </div>
-              <div>
-                <div className="font-semibold text-sm">Licensed pharmaceutical partner</div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-center space-y-3">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                <ShieldCheck className="h-8 w-8 text-primary" />
-              </div>
-              <div>
-                <div className="font-semibold text-sm">Regulated pharmacy</div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-center space-y-3">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <Users className="h-8 w-8 text-green-600" />
-              </div>
-              <div>
-                <div className="font-semibold text-sm">Serving 1,000+ patients</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Services Section */}
+      {/* Welcome Section */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Welcome to Ghana's leading online pharmacy
+            <h2 className="text-3xl md:text-4xl font-bold text-neutral mb-4">
+              Welcome to Ghana's trusted online pharmacy
             </h2>
-            <h3 className="text-xl font-semibold text-gray-700 mb-8">
+            <h3 className="text-xl text-gray-600 font-semibold">
               What would you like to do today?
             </h3>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {/* Prescription Management */}
-            <Card className="group hover:shadow-lg transition-shadow duration-300 bg-white">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <Pill className="h-6 w-6 text-primary" />
+          <div className="grid lg:grid-cols-5 gap-8">
+            {/* Manage Prescriptions */}
+            <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-lg font-bold mb-3">Manage my prescription</h3>
-                <ul className="space-y-2 text-sm text-gray-600 mb-4">
-                  <li><Link href="/about" className="hover:text-primary">Find out more</Link></li>
-                  <li><Link href="/api/login" className="hover:text-primary">Order your prescription</Link></li>
-                  <li><Link href="/api/login" className="hover:text-primary">Track your orders</Link></li>
-                  <li><Link href="/shop" className="hover:text-primary">Check medicine stock</Link></li>
-                </ul>
-                <Link href="/api/login" className="text-primary font-medium text-sm hover:underline">
-                  Join Smile Pills today
-                </Link>
-              </CardContent>
-            </Card>
+                <h3 className="text-lg font-semibold text-neutral mb-4">
+                  Manage my prescription
+                </h3>
+              </div>
+              
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/about" className="text-primary hover:underline">Find out more</Link></li>
+                <li><Link href="/api/login" className="text-primary hover:underline">Order your prescription</Link></li>
+                <li><Link href="/api/login" className="text-primary hover:underline">Track your orders</Link></li>
+                <li><Link href="/shop" className="text-primary hover:underline">Check medicine stock</Link></li>
+              </ul>
+              
+              <div className="mt-6 text-center">
+                <span className="text-sm text-gray-600">Join Smile Pills today</span>
+              </div>
+            </div>
 
-            {/* Pharmacy Consultation */}
-            <Card className="group hover:shadow-lg transition-shadow duration-300 bg-white">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mb-4">
-                  <Stethoscope className="h-6 w-6 text-secondary" />
+            {/* Professional Consultation */}
+            <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Stethoscope className="h-8 w-8 text-secondary" />
                 </div>
-                <h3 className="text-lg font-bold mb-3">Explore pharmacist support</h3>
-                <ul className="space-y-2 text-sm text-gray-600 mb-4">
-                  <li><Link href="/contact" className="hover:text-primary">View consultation services</Link></li>
-                  <li><Link href="/contact" className="hover:text-primary">Find out how it works</Link></li>
-                  <li><Link href="/contact" className="hover:text-primary">Book consultation</Link></li>
-                  <li><Link href="/contact" className="hover:text-primary">Prescription guidance</Link></li>
-                </ul>
-                <Link href="/contact" className="text-primary font-medium text-sm hover:underline">
-                  Visit Pharmacy Support
+                <h3 className="text-lg font-semibold text-neutral mb-4">
+                  Professional consultation
+                </h3>
+              </div>
+              
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/contact" className="text-primary hover:underline">Book consultation</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Find out how it works</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Speak with pharmacist</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Get health advice</Link></li>
+              </ul>
+              
+              <div className="mt-6 text-center">
+                <Link href="/contact">
+                  <Button variant="outline" size="sm" className="text-xs">
+                    Visit Consultation
+                  </Button>
                 </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Shop Health Products */}
-            <Card className="group hover:shadow-lg transition-shadow duration-300 bg-white">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                  <Heart className="h-6 w-6 text-green-600" />
+            <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Heart className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-lg font-bold mb-3">Shop health and wellness</h3>
-                <ul className="space-y-2 text-sm text-gray-600 mb-4">
-                  <li><Link href="/shop" className="hover:text-primary">Order quality products</Link></li>
-                  <li><Link href="/shop" className="hover:text-primary">Shop health essentials</Link></li>
-                  <li><Link href="/shop" className="hover:text-primary">Shop latest offers</Link></li>
-                  <li><Link href="/api/login" className="hover:text-primary">Track your orders</Link></li>
-                </ul>
-                <Link href="/shop" className="text-primary font-medium text-sm hover:underline">
-                  Explore the shop
+                <h3 className="text-lg font-semibold text-neutral mb-4">
+                  Shop health & wellness
+                </h3>
+              </div>
+              
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/shop" className="text-primary hover:underline">Order great products</Link></li>
+                <li><Link href="/shop" className="text-primary hover:underline">Shop health essentials</Link></li>
+                <li><Link href="/shop" className="text-primary hover:underline">Shop latest offers</Link></li>
+                <li><Link href="/api/login" className="text-primary hover:underline">Track your orders</Link></li>
+                <li><Link href="/api/login" className="text-primary hover:underline">View your account</Link></li>
+              </ul>
+              
+              <div className="mt-6 text-center">
+                <Link href="/shop">
+                  <Button variant="outline" size="sm" className="text-xs">
+                    Explore the shop
+                  </Button>
                 </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Licensed Services */}
-            <Card className="group hover:shadow-lg transition-shadow duration-300 bg-white">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                  <ShieldCheck className="h-6 w-6 text-blue-600" />
+            {/* Free Health Services */}
+            <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <UserCheck className="h-8 w-8 text-secondary" />
                 </div>
-                <h3 className="text-lg font-bold mb-3">Use our licensed services</h3>
-                <ul className="space-y-2 text-sm text-gray-600 mb-4">
-                  <li><Link href="/about" className="hover:text-primary">Prescription verification</Link></li>
-                  <li><Link href="/contact" className="hover:text-primary">Find expert healthcare advice</Link></li>
-                  <li><Link href="/contact" className="hover:text-primary">Pharmacy First service</Link></li>
-                  <li><Link href="/about" className="hover:text-primary">Get new medicine advice</Link></li>
-                </ul>
-                <Link href="/about" className="text-primary font-medium text-sm hover:underline">
-                  View Licensed Services
+                <h3 className="text-lg font-semibold text-neutral mb-4">
+                  Use our health services
+                </h3>
+              </div>
+              
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/contact" className="text-primary hover:underline">Health consultation</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Find expert healthcare advice</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Pharmacy services</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Get medicine advice</Link></li>
+              </ul>
+              
+              <div className="mt-6 text-center">
+                <Link href="/contact">
+                  <Button variant="outline" size="sm" className="text-xs">
+                    View Health Services
+                  </Button>
                 </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Health Management */}
-            <Card className="group hover:shadow-lg transition-shadow duration-300 bg-white">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-                  <Users className="h-6 w-6 text-purple-600" />
+            {/* Contact & Support */}
+            <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MessageCircle className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-lg font-bold mb-3">Manage your family's health</h3>
-                <ul className="space-y-2 text-sm text-gray-600 mb-4">
-                  <li><Link href="/api/login" className="hover:text-primary">Family account setup</Link></li>
-                  <li><Link href="/about" className="hover:text-primary">Health monitoring tools</Link></li>
-                  <li><Link href="/shop" className="hover:text-primary">Shop health products</Link></li>
-                  <li><Link href="/api/login" className="hover:text-primary">Track family orders</Link></li>
-                </ul>
-                <Link href="/api/login" className="text-primary font-medium text-sm hover:underline">
-                  Manage Family Health
+                <h3 className="text-lg font-semibold text-neutral mb-4">
+                  Contact & support
+                </h3>
+              </div>
+              
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/contact" className="text-primary hover:underline">WhatsApp support</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Call: 0544137947</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Email support</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Visit our location</Link></li>
+              </ul>
+              
+              <div className="mt-6 text-center">
+                <Link href="/contact">
+                  <Button variant="outline" size="sm" className="text-xs">
+                    Get Support
+                  </Button>
                 </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Free Health Tools Section */}
+      {/* Health Tools Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-neutral mb-4">
               Putting you in control with our free health tools
             </h2>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8 items-center mb-12">
-            {/* Health Hub */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <img 
-                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
+              <img
+                src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?ixlib=rb-4.0.3&auto=format&fit=crop&w=699&h=269"
                 alt="Health Hub"
-                className="rounded-lg shadow-lg w-full"
+                className="w-full h-64 object-cover rounded-lg shadow-lg"
               />
             </div>
             
-            <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-gray-900">Health Hub</h3>
-              <p className="text-gray-600">
+            <div>
+              <h3 className="text-2xl font-bold text-neutral mb-4">Health Hub</h3>
+              <p className="text-gray-600 mb-6">
                 Access reliable health advice and guidance reviewed by our healthcare professionals
               </p>
               
-              <div className="grid grid-cols-2 gap-4">
-                <Link href="/about" className="text-primary hover:underline font-medium">
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <Link href="/contact" className="text-primary hover:underline font-medium">
                   Heart Health
                 </Link>
-                <Link href="/about" className="text-primary hover:underline font-medium">
-                  Weight Management
+                <Link href="/contact" className="text-primary hover:underline font-medium">
+                  Weight Management  
                 </Link>
-                <Link href="/about" className="text-primary hover:underline font-medium">
+                <Link href="/contact" className="text-primary hover:underline font-medium">
                   Digestive Health
                 </Link>
-                <Link href="/about" className="text-primary hover:underline font-medium">
+                <Link href="/contact" className="text-primary hover:underline font-medium">
                   Mental Health
                 </Link>
-                <Link href="/about" className="text-primary hover:underline font-medium">
+                <Link href="/contact" className="text-primary hover:underline font-medium">
                   Women's Health
                 </Link>
-                <Link href="/about" className="text-primary hover:underline font-medium">
+                <Link href="/contact" className="text-primary hover:underline font-medium">
                   Men's Health
                 </Link>
               </div>
               
-              <Link href="/about" className="inline-block text-primary font-semibold hover:underline">
-                Visit Health Hub
+              <Link href="/contact">
+                <Button className="bg-primary hover:bg-primary/90 text-white">
+                  Visit Health Hub
+                </Button>
               </Link>
             </div>
           </div>
           
-          {/* Medicine Stock Checker */}
-          <div className="bg-gradient-to-r from-primary to-blue-600 text-white p-8 rounded-lg mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold mb-2">Medicine Stock Checker</h3>
-                <p className="text-blue-100">
-                  See if we have the medicine you need before you place a prescription request.
-                </p>
-              </div>
-              <Link href="/shop">
-                <Button variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-                  Check stock now
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-6">
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+          {/* Health Tools Grid */}
+          <div className="grid md:grid-cols-4 gap-8 mt-16">
+            <div className="text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg mb-3">Local services finder</h3>
-              <Link href="/contact">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-                  Search now
-                </Button>
+              <h4 className="font-semibold text-neutral mb-2">Medicine Stock Checker</h4>
+              <p className="text-sm text-gray-600 mb-4">
+                See if we have the medicine you need before you place a prescription request.
+              </p>
+              <Link href="/shop" className="text-primary hover:underline font-medium">
+                Check stock now
               </Link>
-            </Card>
-
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+            </div>
+            
+            <div className="text-center">
               <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="h-8 w-8 text-secondary" />
+                <MapPin className="h-8 w-8 text-secondary" />
               </div>
-              <h3 className="font-semibold text-lg mb-3">Health Conditions A-Z Directory</h3>
-              <Link href="/about">
-                <Button variant="outline" className="border-secondary text-secondary hover:bg-secondary hover:text-white">
-                  Explore conditions
-                </Button>
+              <h4 className="font-semibold text-neutral mb-2">Local services finder</h4>
+              <Link href="/contact" className="text-primary hover:underline font-medium">
+                Search now
               </Link>
-            </Card>
-
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+            </div>
+            
+            <div className="text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Pill className="h-8 w-8 text-primary" />
+                <FileText className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg mb-3">Medicines A-Z Directory</h3>
-              <Link href="/shop">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-                  Browse medicines
-                </Button>
+              <h4 className="font-semibold text-neutral mb-2">Health Conditions A-Z Directory</h4>
+              <Link href="/contact" className="text-primary hover:underline font-medium">
+                Explore conditions
               </Link>
-            </Card>
-
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+            </div>
+            
+            <div className="text-center">
               <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Calculator className="h-8 w-8 text-secondary" />
               </div>
-              <h3 className="font-semibold text-lg mb-3">Health Calculator</h3>
-              <Link href="/about">
-                <Button variant="outline" className="border-secondary text-secondary hover:bg-secondary hover:text-white">
-                  Calculate now
-                </Button>
+              <h4 className="font-semibold text-neutral mb-2">Health Calculator</h4>
+              <Link href="/contact" className="text-primary hover:underline font-medium">
+                Calculate now
               </Link>
-            </Card>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Categories */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Access leading brands at great value</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            <Link href="/shop?category=baby-child">
-              <Card className="group cursor-pointer hover:shadow-lg transition-shadow duration-300 bg-white">
-                <CardContent className="p-0">
-                  <img 
-                    src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300"
-                    alt="Baby & Child"
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg mb-2">Baby & Child Essentials</h3>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/shop?category=oral-care">
-              <Card className="group cursor-pointer hover:shadow-lg transition-shadow duration-300 bg-white">
-                <CardContent className="p-0">
-                  <img 
-                    src="https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300"
-                    alt="Oral Care"
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg mb-2">Oral Care</h3>
-                    <Badge className="bg-red-500 text-white">Better Than Half Price</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/shop?category=allergy">
-              <Card className="group cursor-pointer hover:shadow-lg transition-shadow duration-300 bg-white">
-                <CardContent className="p-0">
-                  <img 
-                    src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300"
-                    alt="Allergy Relief"
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg mb-2">Allergy Relief</h3>
-                    <Badge className="bg-primary text-white">From ¢8</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/shop?category=hair-care">
-              <Card className="group cursor-pointer hover:shadow-lg transition-shadow duration-300 bg-white">
-                <CardContent className="p-0">
-                  <img 
-                    src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300"
-                    alt="Healthy Hair"
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg mb-2">Healthy Hair</h3>
-                    <Badge className="bg-secondary text-white">UP TO 33% OFF</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/shop/clearance">
-              <Card className="group cursor-pointer hover:shadow-lg transition-shadow duration-300 bg-red-500 text-white">
-                <CardContent className="p-8 flex items-center justify-center h-48">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold mb-2">UP TO 60% OFF</div>
-                    <div className="text-xl">SALE</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      {featuredProducts && Array.isArray(featuredProducts) && featuredProducts.length > 0 && (
-        <section className="py-16 bg-white">
+      {/* Featured Products Section */}
+      {featuredProducts && featuredProducts.length > 0 && (
+        <section className="py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-neutral mb-4">Featured Products</h2>
-              <p className="text-xl text-gray-600">Our most popular health and wellness products</p>
+              <h2 className="text-3xl font-bold text-neutral mb-4">
+                Access leading brands at great value
+              </h2>
             </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {(featuredProducts as any[]).slice(0, 6).map((product: any) => (
-                <ProductCard key={product.id} product={product} />
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredProducts.slice(0, 6).map((product: any) => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  variant="grid"
+                />
               ))}
             </div>
-
+            
             <div className="text-center mt-12">
               <Link href="/shop">
-                <Button size="lg" className="bg-primary text-white hover:bg-primary/90">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8">
                   View All Products
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -645,102 +546,60 @@ export default function Landing() {
         </section>
       )}
 
-
-
-      {/* Jump Straight In Section */}
+      {/* Help & Support Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Jump straight in...find advice, apps and health tools here
-            </h2>
-          </div>
-          
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Help & Support */}
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
-                <img 
-                  src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300"
-                  alt="Help and Support"
-                  className="rounded-lg shadow-lg w-full"
-                />
-              </div>
+            <div>
+              <img
+                src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1424&h=618"
+                alt="Help and Support"
+                className="w-full h-64 object-cover rounded-lg shadow-lg"
+              />
               
-              <div className="space-y-4">
-                <h3 className="text-2xl font-bold text-gray-900">Help and Support</h3>
-                <p className="text-gray-600">
-                  We're here when you need us. Our Help & Support hub has everything you need 
-                  to find answers to commonly asked questions and you can contact our dedicated team.
-                </p>
-                
-                <div className="space-y-2 text-sm">
-                  <Link href="/api/login" className="block text-primary hover:underline">
-                    My account
-                  </Link>
-                  <Link href="/contact" className="block text-primary hover:underline">
-                    Orders & delivery
-                  </Link>
-                  <Link href="/about" className="block text-primary hover:underline">
-                    Payments & prescriptions
-                  </Link>
-                  <Link href="/contact" className="block text-primary hover:underline">
-                    Health FAQs
-                  </Link>
-                  <Link href="/about" className="block text-primary hover:underline">
-                    FAQs
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* About Us */}
-            <div className="space-y-6">
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-primary mb-2">Smile Pills Ltd</h3>
-                <p className="text-sm text-gray-600">Smile Forever – delivering health with trust, quality, and convenience</p>
-              </div>
-              
-              <h4 className="text-xl font-bold text-gray-900">About us</h4>
-              <p className="text-gray-600">
-                From licensed pharmaceutical services to comprehensive healthcare solutions, 
-                we proudly serve customers across Ghana with quality medicines and expert advice.
+              <h3 className="text-2xl font-bold text-neutral mt-6 mb-4">Help and Support</h3>
+              <p className="text-gray-600 mb-6">
+                We're here when you need us. Our Help & Support hub has everything you need to find answers to commonly asked questions and you can contact our dedicated team.
               </p>
               
-              <div className="space-y-2 text-sm">
-                <Link href="/about" className="block text-primary hover:underline">
-                  About us
-                </Link>
-                <Link href="/about" className="block text-primary hover:underline">
-                  Our Mission & Vision
-                </Link>
-                <Link href="/about" className="block text-primary hover:underline">
-                  Meet the team
-                </Link>
-                <Link href="/privacy" className="block text-primary hover:underline">
-                  Privacy Policy
-                </Link>
-                <Link href="/contact" className="block text-primary hover:underline">
-                  Contact & Location
-                </Link>
+              <ul className="space-y-3">
+                <li><Link href="/api/login" className="text-primary hover:underline">My account</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Orders & delivery</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Payments & support</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Health FAQs</Link></li>
+                <li><Link href="/contact" className="text-primary hover:underline">Contact us</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-neutral mb-4">About Smile Pills Ltd</h3>
+                <p className="text-gray-600 mb-6">
+                  Founded by a certified pharmacy technician with over 4+ years of experience in both retail and hospital pharmacy settings, serving the pharmaceutical needs of Ghana.
+                </p>
+                
+                <ul className="space-y-3">
+                  <li><Link href="/about" className="text-primary hover:underline">About us</Link></li>
+                  <li><Link href="/about" className="text-primary hover:underline">Our mission</Link></li>
+                  <li><Link href="/contact" className="text-primary hover:underline">Meet the team</Link></li>
+                  <li><Link href="/contact" className="text-primary hover:underline">Contact us</Link></li>
+                </ul>
               </div>
               
-              <div className="space-y-3 text-sm text-gray-600 bg-gray-50 p-4 rounded-lg">
-                <div className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-3 text-primary" />
-                  <span>East Legon Hills, Accra, Ghana</span>
-                </div>
-                <div className="flex items-center">
-                  <Phone className="h-4 w-4 mr-3 text-secondary" />
-                  <span>0544137947 | +233 209339912</span>
-                </div>
-                <div className="flex items-center">
-                  <MessageCircle className="h-4 w-4 mr-3 text-primary" />
-                  <span>smilepills21@gmail.com</span>
-                </div>
-                <div className="flex items-center">
-                  <Clock className="h-4 w-4 mr-3 text-secondary" />
-                  <span>Monday-Saturday, 24/7 support</span>
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h4 className="font-bold text-neutral mb-2">Contact Information</h4>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <p><strong>Phone:</strong> 0544137947 | +233 209339912</p>
+                  <p><strong>Email:</strong> smilepills21@gmail.com</p>
+                  <p><strong>Location:</strong> East Legon Hills, Accra, Ghana</p>
+                  <p><strong>Hours:</strong> Monday – Saturday, 24/7</p>
+                  <Link 
+                    href="https://wa.me/message/GKIVR7F2FJPJE1" 
+                    target="_blank"
+                    className="inline-block mt-3 text-primary hover:underline font-medium"
+                  >
+                    WhatsApp Support →
+                  </Link>
                 </div>
               </div>
             </div>
