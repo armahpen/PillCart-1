@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
+import WebSocket, { WebSocketServer } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertCategorySchema, insertBrandSchema } from "@shared/schema";
@@ -563,5 +564,335 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  
+  // Initialize WebSocket server for chat
+  const wss = new WebSocketServer({ 
+    server: httpServer, 
+    path: '/ws/chat'
+  });
+  
+  // Chat system state
+  interface ChatSession {
+    id: string;
+    userId: string;
+    userName: string;
+    staffId?: string;
+    staffName?: string;
+    staffRole?: string;
+    status: 'waiting' | 'connected' | 'ended';
+    startedAt: Date;
+    queuePosition?: number;
+  }
+  
+  interface ChatMessage {
+    id: string;
+    sessionId: string;
+    text: string;
+    sender: 'user' | 'staff';
+    senderName: string;
+    timestamp: Date;
+    type: 'message' | 'system';
+  }
+  
+  interface ConnectedClient {
+    ws: WebSocket;
+    userId?: string;
+    userName?: string;
+    isStaff: boolean;
+    staffId?: string;
+    staffName?: string;
+    staffRole?: string;
+    sessionId?: string;
+  }
+  
+  const connectedClients = new Map<WebSocket, ConnectedClient>();
+  const activeSessions = new Map<string, ChatSession>();
+  const waitingQueue: string[] = [];
+  const sessionMessages = new Map<string, ChatMessage[]>();
+  
+  // Mock staff members (in production, this would come from a database)
+  const availableStaff = [
+    { id: 'staff-1', name: 'Dr. Sarah Mensah', role: 'Senior Pharmacist' },
+    { id: 'staff-2', name: 'James Asante', role: 'Pharmacy Technician' },
+    { id: 'staff-3', name: 'Mary Osei', role: 'Certified Pharmacist' },
+  ];
+  
+  const getOnlineStaffCount = () => {
+    return Array.from(connectedClients.values())
+      .filter(client => client.isStaff).length || 3; // Always show at least 3 staff online
+  };
+  
+  const findAvailableStaff = () => {
+    // In production, find actual available staff
+    // For demo, return a random staff member
+    return availableStaff[Math.floor(Math.random() * availableStaff.length)];
+  };
+  
+  const generateId = () => Math.random().toString(36).substr(2, 9);
+  
+  const broadcastToSession = (sessionId: string, data: any, excludeWs?: WebSocket) => {
+    connectedClients.forEach((client, ws) => {
+      if (ws !== excludeWs && client.sessionId === sessionId && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(data));
+      }
+    });
+  };
+  
+  const sendToUser = (userId: string, data: any) => {
+    connectedClients.forEach((client, ws) => {
+      if (client.userId === userId && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(data));
+      }
+    });
+  };
+  
+  wss.on('connection', (ws: WebSocket) => {
+    console.log('New WebSocket connection');
+    
+    // Initialize client
+    connectedClients.set(ws, {
+      ws,
+      isStaff: false
+    });
+    
+    // Send initial staff status
+    ws.send(JSON.stringify({
+      type: 'staff_status',
+      onlineCount: getOnlineStaffCount()
+    }));
+    
+    ws.on('message', async (data: Buffer) => {
+      try {
+        const message = JSON.parse(data.toString());
+        const client = connectedClients.get(ws);
+        
+        if (!client) return;
+        
+        switch (message.type) {
+          case 'join':
+            // User joins the chat system
+            client.userId = message.userId;
+            client.userName = message.userName;
+            console.log(`User ${client.userName} joined chat system`);
+            break;
+            
+          case 'start_chat':
+            // User wants to start a new chat session
+            if (!client.userId) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: 'User not authenticated'
+              }));
+              return;
+            }
+            
+            // Create new chat session
+            const sessionId = generateId();
+            const session: ChatSession = {
+              id: sessionId,
+              userId: client.userId,
+              userName: client.userName || 'Anonymous',
+              status: 'waiting',
+              startedAt: new Date(),
+            };
+            
+            activeSessions.set(sessionId, session);
+            client.sessionId = sessionId;
+            sessionMessages.set(sessionId, []);
+            
+            // Add to waiting queue
+            waitingQueue.push(sessionId);
+            session.queuePosition = waitingQueue.length;
+            
+            // Send session update
+            ws.send(JSON.stringify({
+              type: 'session_update',
+              session: session
+            }));
+            
+            // Try to connect to staff immediately (simulate instant connection)
+            setTimeout(() => {
+              const staff = findAvailableStaff();
+              if (staff && activeSessions.has(sessionId)) {
+                const currentSession = activeSessions.get(sessionId)!;
+                currentSession.status = 'connected';
+                currentSession.staffId = staff.id;
+                currentSession.staffName = staff.name;
+                currentSession.staffRole = staff.role;
+                
+                // Remove from waiting queue
+                const queueIndex = waitingQueue.indexOf(sessionId);
+                if (queueIndex > -1) {
+                  waitingQueue.splice(queueIndex, 1);
+                }
+                
+                // Update session
+                activeSessions.set(sessionId, currentSession);
+                
+                // Notify user that staff connected
+                sendToUser(client.userId!, {
+                  type: 'session_update',
+                  session: currentSession
+                });
+                
+                console.log(`Staff ${staff.name} connected to session ${sessionId}`);
+              }
+            }, Math.random() * 3000 + 1000); // 1-4 seconds delay
+            
+            break;
+            
+          case 'message':
+            // Send chat message
+            if (!client.sessionId || !client.userId) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: 'No active chat session'
+              }));
+              return;
+            }
+            
+            const currentSession = activeSessions.get(client.sessionId);
+            if (!currentSession || currentSession.status !== 'connected') {
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: 'Chat session not connected'
+              }));
+              return;
+            }
+            
+            // Create message
+            const chatMessage: ChatMessage = {
+              id: generateId(),
+              sessionId: client.sessionId,
+              text: message.text,
+              sender: 'user',
+              senderName: client.userName || 'User',
+              timestamp: new Date(),
+              type: 'message'
+            };
+            
+            // Store message
+            const messages = sessionMessages.get(client.sessionId) || [];
+            messages.push(chatMessage);
+            sessionMessages.set(client.sessionId, messages);
+            
+            // Broadcast to session participants
+            broadcastToSession(client.sessionId, {
+              type: 'message',
+              ...chatMessage
+            });
+            
+            // Simulate staff response after a delay
+            setTimeout(() => {
+              if (activeSessions.has(client.sessionId!) && currentSession.status === 'connected') {
+                const staffResponses = [
+                  "Thank you for your question. Let me help you with that.",
+                  "I understand your concern. Based on what you've described, I'd recommend...",
+                  "That's a great question about your medication. Here's what I can tell you...",
+                  "For safety reasons, I need to ask a few more questions about your medical history.",
+                  "I can definitely help you with that prescription question.",
+                  "Let me check our current stock for that medication.",
+                  "That medication interaction is something we need to be careful about.",
+                  "I'd recommend speaking with your doctor about adjusting the dosage.",
+                ];
+                
+                const staffResponse: ChatMessage = {
+                  id: generateId(),
+                  sessionId: client.sessionId!,
+                  text: staffResponses[Math.floor(Math.random() * staffResponses.length)],
+                  sender: 'staff',
+                  senderName: currentSession.staffName || 'Pharmacist',
+                  timestamp: new Date(),
+                  type: 'message'
+                };
+                
+                // Store staff message
+                const currentMessages = sessionMessages.get(client.sessionId!) || [];
+                currentMessages.push(staffResponse);
+                sessionMessages.set(client.sessionId!, currentMessages);
+                
+                // Send to session participants
+                broadcastToSession(client.sessionId!, {
+                  type: 'message',
+                  ...staffResponse
+                });
+              }
+            }, Math.random() * 4000 + 2000); // 2-6 seconds delay
+            
+            break;
+            
+          case 'typing':
+            // Handle typing indicators
+            if (client.sessionId) {
+              broadcastToSession(client.sessionId, {
+                type: 'typing',
+                isTyping: message.isTyping,
+                sender: client.isStaff ? 'staff' : 'user'
+              }, ws);
+            }
+            break;
+            
+          case 'end_chat':
+            // End chat session
+            if (client.sessionId) {
+              const session = activeSessions.get(client.sessionId);
+              if (session) {
+                session.status = 'ended';
+                activeSessions.delete(client.sessionId);
+                sessionMessages.delete(client.sessionId);
+                
+                // Remove from queue if still waiting
+                const queueIndex = waitingQueue.indexOf(client.sessionId);
+                if (queueIndex > -1) {
+                  waitingQueue.splice(queueIndex, 1);
+                }
+                
+                console.log(`Chat session ${client.sessionId} ended`);
+              }
+              client.sessionId = undefined;
+            }
+            break;
+        }
+        
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+        ws.send(JSON.stringify({
+          type: 'error',
+          message: 'Invalid message format'
+        }));
+      }
+    });
+    
+    ws.on('close', () => {
+      console.log('WebSocket connection closed');
+      const client = connectedClients.get(ws);
+      
+      if (client?.sessionId) {
+        // Clean up session if user disconnects
+        const session = activeSessions.get(client.sessionId);
+        if (session && session.status !== 'ended') {
+          session.status = 'ended';
+          activeSessions.delete(client.sessionId);
+          sessionMessages.delete(client.sessionId);
+          
+          // Remove from queue
+          const queueIndex = waitingQueue.indexOf(client.sessionId);
+          if (queueIndex > -1) {
+            waitingQueue.splice(queueIndex, 1);
+          }
+        }
+      }
+      
+      connectedClients.delete(ws);
+    });
+    
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      connectedClients.delete(ws);
+    });
+  });
+  
+  console.log('Chat WebSocket server initialized on /ws/chat');
+
   return httpServer;
 }
