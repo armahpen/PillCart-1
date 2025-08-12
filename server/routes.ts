@@ -836,6 +836,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Prescription routes
+  app.post('/api/prescriptions/submit', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const prescriptionData = {
+        id: Math.random().toString(36).substring(7),
+        userId,
+        patientName: req.body.patientName,
+        doctorName: req.body.doctorName,
+        doctorContact: req.body.doctorContact,
+        prescriptionDate: req.body.prescriptionDate,
+        medications: req.body.medications,
+        status: 'pending',
+        submittedAt: new Date().toISOString(),
+        files: [], // In a real implementation, handle file uploads here
+      };
+
+      // Store prescription (in real app, save to database)
+      res.json({ id: prescriptionData.id, success: true });
+    } catch (error) {
+      console.error('Error submitting prescription:', error);
+      res.status(500).json({ error: 'Failed to submit prescription' });
+    }
+  });
+
+  app.get('/api/prescriptions/history', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      // In real implementation, fetch from database
+      const mockHistory = [];
+      res.json(mockHistory);
+    } catch (error) {
+      console.error('Error fetching prescription history:', error);
+      res.status(500).json({ error: 'Failed to fetch prescription history' });
+    }
+  });
+
+  app.get('/api/prescriptions/view/:id', async (req, res) => {
+    try {
+      const prescriptionId = req.params.id;
+      // In real implementation, fetch from database and verify access
+      const mockPrescription = {
+        id: prescriptionId,
+        patientName: 'Sample Patient',
+        doctorName: 'Sample Doctor',
+        doctorContact: '+233 20 123 4567',
+        prescriptionDate: new Date().toISOString(),
+        medications: 'Sample medications',
+        status: 'pending',
+        submittedAt: new Date().toISOString(),
+        files: []
+      };
+      
+      res.json(mockPrescription);
+    } catch (error) {
+      console.error('Error fetching prescription:', error);
+      res.status(500).json({ error: 'Failed to fetch prescription' });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // Initialize WebSocket server for chat

@@ -15,6 +15,8 @@ import CheckoutReturn from "@/pages/checkout-return";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import Privacy from "@/pages/privacy";
+import Prescription from "@/pages/prescription";
+import PrescriptionView from "@/pages/prescription-view";
 import ChatWidget from "@/components/chat/chat-widget";
 
 function Router() {
@@ -27,6 +29,8 @@ function Router() {
           <Route path="/" component={Landing} />
           <Route path="/shop" component={Shop} />
           <Route path="/product/:slug" component={ProductDetail} />
+          <Route path="/prescription" component={Prescription} />
+          <Route path="/prescription-view/:id" component={PrescriptionView} />
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/privacy" component={Privacy} />
@@ -36,6 +40,8 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/shop" component={Shop} />
           <Route path="/product/:slug" component={ProductDetail} />
+          <Route path="/prescription" component={Prescription} />
+          <Route path="/prescription-view/:id" component={PrescriptionView} />
           <Route path="/cart" component={Cart} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/checkout/return" component={CheckoutReturn} />

@@ -28,7 +28,7 @@ export default function Header() {
   const cartItemCount = Array.isArray(cartItems) ? cartItems.length : 0;
 
   const categories = [
-    { name: "Prescription", slug: "prescriptions", href: "#prescriptions" },
+    { name: "Prescription", slug: "prescriptions", href: "/prescription" },
     { name: "Shop", slug: "shop", href: "/shop" },
     { name: "Advice", slug: "advice", href: "#advice" },
     { name: "Help", slug: "help", href: "#help" },

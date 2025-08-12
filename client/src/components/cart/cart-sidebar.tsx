@@ -101,9 +101,10 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
     removeItemMutation.mutate(productId);
   };
 
-  const totalAmount = cartItems?.reduce((total: number, item: any) => {
+  const cartItemsArray = Array.isArray(cartItems) ? cartItems : [];
+  const totalAmount = cartItemsArray.reduce((total: number, item: any) => {
     return total + (parseFloat(item.product.price) * item.quantity);
-  }, 0) || 0;
+  }, 0);
 
   if (!isOpen) return null;
 
@@ -149,9 +150,9 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 <div key={i} className="bg-gray-200 animate-pulse rounded-lg h-24"></div>
               ))}
             </div>
-          ) : cartItems && cartItems.length > 0 ? (
+          ) : cartItemsArray.length > 0 ? (
             <div className="space-y-4">
-              {cartItems.map((item: any) => (
+              {cartItemsArray.map((item: any) => (
                 <div key={item.id} className="flex items-center space-x-4 bg-gray-50 rounded-lg p-4">
                   <img
                     src={item.product.imageUrl || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=100&h=100"}
@@ -221,7 +222,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         </div>
 
         {/* Footer */}
-        {isAuthenticated && cartItems && cartItems.length > 0 && (
+        {isAuthenticated && cartItemsArray.length > 0 && (
           <div className="border-t border-gray-200 p-6 space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
