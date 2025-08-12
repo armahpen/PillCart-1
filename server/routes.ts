@@ -485,6 +485,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Authentic products from your Smile Pills Ltd catalog with exact prices
       const products = [
+        // 21st Century Products - Authentic from catalog
+        {
+          name: "21st Century 800mcg Folic Acid Tablets, Assorted 180 Count",
+          slug: "21st-century-folic-acid-800mcg-180ct",
+          description: "Essential folic acid supplement supporting reproductive health and red blood cell formation. Important for women's prenatal health.",
+          shortDescription: "Folic acid 800mcg, 180 tablets",
+          price: "95.10",
+          dosage: "180 tablets",
+          categoryId: vitaminsCategory.id,
+          brandId: century21Brand.id,
+          imageUrl: "/attached_assets/image_1755035211331.png",
+          stockQuantity: 120,
+          requiresPrescription: false,
+          rating: "4.2",
+          reviewCount: 89
+        },
         // Centrum Products - Main multivitamins from catalog
         {
           name: "Centrum Adult Multivitamin/Multimineral 200ct",
