@@ -95,7 +95,7 @@ export default function Header() {
             <Link href="/">
               <div className="flex items-center space-x-3 cursor-pointer">
                 <img 
-                  src="/assets/IMG_1598 (1)_1754986183203.PNG" 
+                  src="/assets/IMG_1598%20(1)_1754986183203.PNG" 
                   alt="Smile Pills Ltd - Smile Forever" 
                   className="h-10 w-auto object-contain"
                 />
