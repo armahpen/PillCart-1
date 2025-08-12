@@ -57,6 +57,7 @@ export interface IStorage {
   getProductBySlug(slug: string): Promise<ProductWithRelations | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProductStock(id: string, quantity: number): Promise<Product>;
+  deleteAllProducts(): Promise<void>;
 
   // Cart operations
   getCartItems(userId: string): Promise<CartItemWithProduct[]>;
@@ -204,6 +205,10 @@ export class DatabaseStorage implements IStorage {
       .where(eq(products.id, id))
       .returning();
     return product;
+  }
+
+  async deleteAllProducts(): Promise<void> {
+    await db.delete(products);
   }
 
   // Cart operations

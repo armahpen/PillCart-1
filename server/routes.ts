@@ -446,6 +446,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Add Minerals category for proper categorization
+      let mineralCategory = await storage.getCategories().then(cats => 
+        cats.find(c => c.name === "Minerals")
+      );
+      if (!mineralCategory) {
+        mineralCategory = await storage.createCategory({
+          name: "Minerals",
+          slug: "minerals",
+          description: "Essential mineral supplements for health"
+        });
+      }
+
       // Get existing brands or create new ones
       let brands = await storage.getBrands();
       let johnsonBrand = brands.find(b => b.name === 'Johnson & Johnson');
@@ -514,1265 +526,509 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Create products with authentic Ghana pricing from Upstand Trading catalog
+      // Add more authentic brands from your catalog
+      let twentyFirstBrand = await storage.getBrandByName("21st Century");
+      if (!twentyFirstBrand) {
+        twentyFirstBrand = await storage.createBrand({
+          name: "21st Century",
+          description: "Quality health and wellness supplements"
+        });
+      }
+
+      let naturesBrand = await storage.getBrandByName("Nature Made");
+      if (!naturesBrand) {
+        naturesBrand = await storage.createBrand({
+          name: "Nature Made",
+          description: "Premium vitamins and nutritional supplements"
+        });
+      }
+
+      let naturesBountyBrand = await storage.getBrandByName("Nature's Bounty");
+      if (!naturesBountyBrand) {
+        naturesBountyBrand = await storage.createBrand({
+          name: "Nature's Bounty",
+          description: "Natural health and wellness supplements"
+        });
+      }
+
+      let advilesBrand = await storage.getBrandByName("Advil");
+      if (!advilesBrand) {
+        advilesBrand = await storage.createBrand({
+          name: "Advil",
+          description: "Trusted pain relief medication"
+        });
+      }
+
+      let equateBrand = await storage.getBrandByName("Equate");
+      if (!equateBrand) {
+        equateBrand = await storage.createBrand({
+          name: "Equate",
+          description: "Affordable quality healthcare products"
+        });
+      }
+
+      let goliBrand = await storage.getBrandByName("Goli");
+      if (!goliBrand) {
+        goliBrand = await storage.createBrand({
+          name: "Goli",
+          description: "Nutritious wellness gummies and supplements"
+        });
+      }
+
+      let nowFoodsBrand = await storage.getBrandByName("NOW Foods");
+      if (!nowFoodsBrand) {
+        nowFoodsBrand = await storage.createBrand({
+          name: "NOW Foods",
+          description: "Natural health products and supplements"
+        });
+      }
+
+      // Create comprehensive products with authentic Ghana pricing from your catalog
       const products = [
+        // 21st Century Products - First Section from catalog
         {
-          name: "Centrum Adult Multivitamin/Multimineral 200ct",
+          name: "21st century 800 mcg folic acid tablets, Assorted 180 Count",
+          slug: "21st-century-folic-acid-800mcg-180ct",
+          description: "Essential folic acid supplement for pregnant women and overall health. Supports red blood cell formation and DNA synthesis.",
+          shortDescription: "Folic acid supplement for health",
+          price: "95.10",
+          dosage: "800mcg",
+          categoryId: vitaminCategory.id,
+          brandId: twentyFirstBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.15%20PM_1755031702982.jpeg",
+          stockQuantity: 180,
+          requiresPrescription: false,
+          rating: "4.3",
+          reviewCount: 89,
+        },
+        {
+          name: "21st century acidophilus capsules, 100 Count",
+          slug: "21st-century-acidophilus-100ct",
+          description: "Probiotic supplement containing acidophilus to support digestive health and immune system function.",
+          shortDescription: "Probiotic digestive support",
+          price: "177.59",
+          dosage: "100 capsules",
+          categoryId: digestiveCategory.id,
+          brandId: twentyFirstBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.16%20PM_1755031702981.jpeg",
+          stockQuantity: 100,
+          requiresPrescription: false,
+          rating: "4.4",
+          reviewCount: 125,
+        },
+        {
+          name: "21st arthric -flex Advantage Plus vitamin D3 joint support supplement (120 Tablets)",
+          slug: "21st-century-arthric-flex-120ct",
+          description: "Advanced joint support formula with Vitamin D3 for bone and joint health, flexibility, and mobility.",
+          shortDescription: "Joint support with Vitamin D3",
+          price: "444.85",
+          dosage: "120 tablets",
+          categoryId: vitaminCategory.id,
+          brandId: twentyFirstBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.16%20PM%20(3)_1755031702980.jpeg",
+          stockQuantity: 60,
+          requiresPrescription: false,
+          rating: "4.5",
+          reviewCount: 89,
+        },
+        {
+          name: "21st century B12 2500mcg sublingual tablets, 110 Count",
+          slug: "21st-century-b12-2500mcg-110ct",
+          description: "High-potency sublingual B12 for energy metabolism, nervous system health, and red blood cell formation.",
+          shortDescription: "High-potency B12 sublingual tablets",
+          price: "177.59",
+          dosage: "2500mcg",
+          categoryId: vitaminCategory.id,
+          brandId: twentyFirstBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM_1755031702979.jpeg",
+          stockQuantity: 110,
+          requiresPrescription: false,
+          rating: "4.6",
+          reviewCount: 234,
+        },
+        {
+          name: "21st century CoQ10 30 mg capsules, 45 Count",
+          slug: "21st-century-coq10-30mg-45ct",
+          description: "Coenzyme Q10 supplement for heart health, cellular energy production, and antioxidant support.",
+          shortDescription: "CoQ10 heart health supplement",
+          price: "222.55",
+          dosage: "30mg",
+          categoryId: vitaminCategory.id,
+          brandId: twentyFirstBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM%20(1)_1755031702979.jpeg",
+          stockQuantity: 45,
+          requiresPrescription: false,
+          rating: "4.4",
+          reviewCount: 156,
+        },
+        {
+          name: "21st century cranberry plus probiotic tablet, 60 Count",
+          slug: "21st-century-cranberry-probiotic-60ct",
+          description: "Cranberry extract with probiotics for urinary tract health and digestive support.",
+          shortDescription: "Cranberry plus probiotics",
+          price: "199.82",
+          dosage: "60 tablets",
+          categoryId: digestiveCategory.id,
+          brandId: twentyFirstBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM_1755031702978.jpeg",
+          stockQuantity: 60,
+          requiresPrescription: false,
+          rating: "4.3",
+          reviewCount: 98,
+        },
+        {
+          name: "21st century Gelatine 600mg dietary supplement (100 Count)",
+          slug: "21st-century-gelatine-600mg-100ct",
+          description: "Gelatine supplement for joint health, skin, hair, and nail support.",
+          shortDescription: "Gelatine for joint and skin health",
+          price: "172.65",
+          dosage: "600mg",
+          categoryId: vitaminCategory.id,
+          brandId: twentyFirstBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM%20(1)_1755031702978.jpeg",
+          stockQuantity: 100,
+          requiresPrescription: false,
+          rating: "4.2",
+          reviewCount: 87,
+        },
+        {
+          name: "21st century glucosamine chondroitin 250/200mg original strength, 60 Count",
+          slug: "21st-century-glucosamine-chondroitin-60ct",
+          description: "Joint support formula with glucosamine and chondroitin for cartilage health and mobility.",
+          shortDescription: "Glucosamine chondroitin joint support",
+          price: "207.73",
+          dosage: "250/200mg",
+          categoryId: vitaminCategory.id,
+          brandId: twentyFirstBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM_1755031702977.jpeg",
+          stockQuantity: 60,
+          requiresPrescription: false,
+          rating: "4.5",
+          reviewCount: 145,
+        },
+        {
+          name: "21st century hair, skin and nails extra strength tablets, 90 count",
+          slug: "21st-century-hair-skin-nails-90ct",
+          description: "Beauty supplement with biotin, vitamins, and minerals for healthy hair, skin, and nails.",
+          shortDescription: "Hair, skin, and nails support",
+          price: "223.04",
+          dosage: "90 tablets",
+          categoryId: vitaminCategory.id,
+          brandId: twentyFirstBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM%20(1)_1755031702976.jpeg",
+          stockQuantity: 90,
+          requiresPrescription: false,
+          rating: "4.4",
+          reviewCount: 198,
+        },
+        {
+          name: "21st century healthcare, B complex plus vitamin C, tablet 100count",
+          slug: "21st-century-b-complex-vitamin-c-100ct",
+          description: "Complete B-complex vitamins with added vitamin C for energy metabolism and immune support.",
+          shortDescription: "B-complex with Vitamin C",
+          price: "207.48",
+          dosage: "100 tablets",
+          categoryId: vitaminCategory.id,
+          brandId: twentyFirstBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM%20(2)_1755031702975.jpeg",
+          stockQuantity: 100,
+          requiresPrescription: false,
+          rating: "4.6",
+          reviewCount: 267,
+        },
+        // Advil Products from catalog
+        {
+          name: "Advil liquid-gel pain reliever and fever reducer, Ibuprofen 200mg capsules 240ct",
+          slug: "advil-liquid-gel-240ct",
+          description: "Fast-acting liquid gel capsules with ibuprofen 200mg for effective pain relief and fever reduction.",
+          shortDescription: "Liquid gel pain reliever 240ct",
+          price: "518.21",
+          dosage: "200mg",
+          categoryId: otcCategory.id,
+          brandId: advilesBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.20%20PM_1755031702992.jpeg",
+          stockQuantity: 75,
+          requiresPrescription: false,
+          rating: "4.7",
+          reviewCount: 342,
+        },
+        {
+          name: "Advil pain reliever and fever reducer, Ibuprofen 200mg capsules 24ct",
+          slug: "advil-pain-reliever-24ct",
+          description: "Trusted ibuprofen pain relief for headaches, muscle aches, and fever.",
+          shortDescription: "Ibuprofen pain reliever 24ct",
+          price: "122.76",
+          dosage: "200mg",
+          categoryId: otcCategory.id,
+          brandId: advilesBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.21%20PM_1755031702991.jpeg",
+          stockQuantity: 120,
+          requiresPrescription: false,
+          rating: "4.6",
+          reviewCount: 189,
+        },
+        {
+          name: "Advil liqui-gel pain reliever and fever reducer, Ibuprofen 200mg capsules 10ct",
+          slug: "advil-liqui-gel-10ct",
+          description: "Fast-acting liquid gel formula for quick pain relief in a convenient 10-count package.",
+          shortDescription: "Liqui-gel pain relief 10ct",
+          price: "76.32",
+          dosage: "200mg",
+          categoryId: otcCategory.id,
+          brandId: advilesBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.22%20PM_1755031702990.jpeg",
+          stockQuantity: 150,
+          requiresPrescription: false,
+          rating: "4.5",
+          reviewCount: 98,
+        },
+        {
+          name: "Advil PM pain reliever and nighttime sleep aid, Ibuprofen sleep aid -120 coated caplets",
+          slug: "advil-pm-120ct",
+          description: "Combines ibuprofen pain relief with diphenhydramine sleep aid for nighttime pain relief.",
+          shortDescription: "PM pain reliever with sleep aid",
+          price: "320.85",
+          dosage: "200mg + sleep aid",
+          categoryId: otcCategory.id,
+          brandId: advilesBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM_1755031702985.jpeg",
+          stockQuantity: 85,
+          requiresPrescription: false,
+          rating: "4.4",
+          reviewCount: 234,
+        },
+        // Centrum Products from catalog
+        {
+          name: "Centrum adult multivitamin/multimineral supplement with antioxidants -200ct",
           slug: "centrum-adult-200ct",
-          description: "Complete multivitamin and multimineral supplement with antioxidants for daily wellness support. Essential nutrients for adults.",
-          shortDescription: "Complete daily multivitamin, 200 tablets",
+          description: "Complete daily multivitamin and multimineral supplement with antioxidants for adult wellness.",
+          shortDescription: "Complete adult multivitamin 200ct",
           price: "348.76",
-          originalPrice: "380.00",
           dosage: "Daily",
-          categoryId: supplementsCategory.id,
+          categoryId: vitaminCategory.id,
           brandId: centrumBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=400&h=300",
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM%20(1)_1755031702985.jpeg",
           stockQuantity: 120,
           requiresPrescription: false,
           rating: "4.8",
           reviewCount: 456,
         },
         {
-          name: "Centrum Kids Multivitamin Gummies 150ct",
+          name: "Centrum kid's multivitamin gummies, stocking stuffer, tropical punch Flavors made with natural flavors,150ct ,150 days' supply",
           slug: "centrum-kids-gummies-150ct",
-          description: "Tropical punch flavored gummies made with natural flavors for kids daily nutrition. 150 days supply of essential vitamins.",
-          shortDescription: "Kids multivitamin gummies, tropical punch flavor",
+          description: "Tropical punch flavored gummies made with natural flavors for kids daily nutrition. 150 days supply.",
+          shortDescription: "Kids multivitamin gummies 150ct",
           price: "380.87",
-          originalPrice: "420.00",
           dosage: "Daily",
-          categoryId: supplementsCategory.id,
+          categoryId: vitaminCategory.id,
           brandId: centrumBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1559181567-c3190ca9959b?auto=format&fit=crop&w=400&h=300",
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM%20(2)_1755031702983.jpeg",
           stockQuantity: 85,
           requiresPrescription: false,
           rating: "4.6",
           reviewCount: 234,
         },
         {
-          name: "Centrum Multivitamin for Women 100ct",
+          name: "Centrum multivitamin for women -100ct",
           slug: "centrum-women-100ct",
-          description: "Complete multivitamin tailored for women's health and wellness needs. Essential nutrients for daily vitality.",
-          shortDescription: "Women's complete daily multivitamin",
+          description: "Complete multivitamin tailored for women's health and wellness needs.",
+          shortDescription: "Women's multivitamin 100ct",
           price: "258.86",
-          originalPrice: "290.00",
           dosage: "Daily",
-          categoryId: supplementsCategory.id,
+          categoryId: vitaminCategory.id,
           brandId: centrumBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1550572017-1244dc7b3c82?auto=format&fit=crop&w=400&h=300",
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM_1755031702988.jpeg",
           stockQuantity: 110,
           requiresPrescription: false,
           rating: "4.8",
           reviewCount: 287,
         },
         {
-          name: "Ester-C Vitamin C 500mg - 225 Tablets",
-          slug: "ester-c-500mg-225ct",
-          description: "Ester-C Vitamin C 500mg Coated Tablets, gentle on stomach, non-acidic formula. Premium vitamin C supplement for immune system support and antioxidant protection.",
-          shortDescription: "Non-acidic vitamin C, 225 coated tablets",
-          price: "515.49",
-          originalPrice: "580.00",
-          dosage: "500mg",
-          categoryId: supplementsCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.20%20PM_1754947176453.jpeg",
-          stockQuantity: 95,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 387,
-        },
-        {
-          name: "Centrum Adult Multivitamin - 200 Count",
-          slug: "centrum-adult-200ct",
-          description: "Centrum Adult Multivitamin/Multimineral Supplement with Antioxidants. Complete daily nutrition with essential vitamins and minerals for adult health.",
-          shortDescription: "Complete daily multivitamin with antioxidants, 200 count",
-          price: "348.76",
-          originalPrice: "390.00",
-          dosage: "Daily tablet",
-          categoryId: supplementsCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM_1754947176460.jpeg",
-          stockQuantity: 120,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 567,
-        },
-        {
-          name: "Benadryl Allergy Plus Congestion - 24ct",
-          slug: "benadryl-allergy-congestion-24ct",
-          description: "Benadryl Allergy Plus Congestion Ultratabs for comprehensive allergy relief. Treats nasal congestion, runny nose, sneezing, and itchy eyes.",
-          shortDescription: "Complete allergy and congestion relief, 24 tablets",
-          price: "180.06",
-          originalPrice: "210.00",
-          dosage: "25mg + decongestant",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM_1754947176449.jpeg",
-          stockQuantity: 95,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 178,
-        },
-        {
-          name: "Johnson & Johnson First Aid Kit - 80pc",
-          slug: "jj-first-aid-kit-80pc",
-          description: "Johnson & Johnson Travel Ready Portable Emergency First Aid Kit with 80 pieces. Complete emergency care for home, office, travel, and auto use.",
-          shortDescription: "Portable emergency first aid kit, 80 pieces",
-          price: "246.51",
-          originalPrice: "280.00",
-          dosage: "80 piece kit",
-          categoryId: firstAidCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.25%20PM_1754947176452.jpeg",
-          stockQuantity: 65,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 245,
-        },
-        {
-          name: "CURAD Assorted Bandages - 300 Pieces",
-          slug: "curad-assorted-bandages-300pc",
-          description: "CURAD Assorted Bandages including Antibacterial, Heavy Duty, Fabric, and Waterproof bandages. Complete wound care solution for all needs.",
-          shortDescription: "Assorted antibacterial and waterproof bandages, 300 pieces",
-          price: "300.85",
-          originalPrice: "340.00",
-          dosage: "300 piece assortment",
-          categoryId: firstAidCategory.id,
-          brandId: redCrossBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM%20(1)_1754947176458.jpeg",
-          stockQuantity: 120,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 389,
-        },
-        {
-          name: "Calcium & Magnesium Supplement",
-          slug: "calcium-magnesium",
-          description: "Essential bone health support with calcium and magnesium. Supports strong bones and teeth, muscle function, and nerve transmission. Enhanced with Vitamin D3 for better absorption.",
-          shortDescription: "Bone health calcium and magnesium supplement",
-          price: "28.99",
-          dosage: "500mg Ca + 250mg Mg",
-          categoryId: supplementsCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM%20(1)_1754947176457.jpeg",
-          stockQuantity: 112,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 89,
-        },
-        {
-          name: "Respiratory Health Inhaler",
-          slug: "respiratory-inhaler",
-          description: "Bronchodilator inhaler for asthma and respiratory conditions. Provides quick relief from breathing difficulties and bronchospasm. Prescription medication requiring proper medical supervision.",
-          shortDescription: "Quick-relief respiratory inhaler",
-          price: "65.00",
-          dosage: "Metered dose",
-          categoryId: prescriptionCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM%20(2)_1754947176456.jpeg",
-          stockQuantity: 58,
-          requiresPrescription: true,
-          rating: "4.9",
-          reviewCount: 74,
-        },
-        {
-          name: "Antihistamine Allergy Relief",
-          slug: "antihistamine-allergy",
-          description: "Fast-acting antihistamine for allergy symptoms. Provides 24-hour relief from hay fever, pet allergies, dust mite allergies, and skin reactions like urticaria.",
-          shortDescription: "24-hour allergy symptom relief",
-          price: "19.50",
-          originalPrice: "23.99",
-          dosage: "10mg tablets",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM%20(1)_1754947176455.jpeg",
-          stockQuantity: 195,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 211,
-        },
-        {
-          name: "Probiotic Digestive Support",
-          slug: "probiotic-digestive",
-          description: "Multi-strain probiotic supplement for digestive health. Contains 10 billion CFU of beneficial bacteria to support gut health, immune function, and digestive comfort.",
-          shortDescription: "Multi-strain probiotic for digestive health",
-          price: "42.99",
-          dosage: "10 billion CFU",
-          categoryId: supplementsCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM%20(2)_1754947176454.jpeg",
-          stockQuantity: 76,
-          requiresPrescription: false,
-          rating: "4.3",
-          reviewCount: 132,
-        },
-        {
-          name: "Thermometer & Health Monitor",
-          slug: "digital-thermometer",
-          description: "Digital thermometer with fever alarm and memory function. Non-contact infrared technology for safe and hygienic temperature measurement. Includes health monitoring features.",
-          shortDescription: "Digital non-contact thermometer",
-          price: "55.00",
-          originalPrice: "69.99",
-          dosage: "Digital device",
-          categoryId: devicesCategory.id,
-          brandId: omronBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM%20(1)_1754947176460.jpeg",
-          stockQuantity: 67,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 98,
-        },
-        {
-          name: "Eye Care Solution",
-          slug: "eye-care-solution",
-          description: "Sterile eye drops for dry eyes and irritation. Provides long-lasting moisture and comfort for tired, dry, or irritated eyes. Preservative-free formula safe for frequent use.",
-          shortDescription: "Moisturizing eye drops for dry eyes",
-          price: "16.25",
-          dosage: "10ml bottle",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM%20(2)_1754947176459.jpeg",
-          stockQuantity: 134,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 156,
-        },
-        {
-          name: "Heart Health Omega-3",
-          slug: "omega-3-heart",
-          description: "Premium fish oil supplement for cardiovascular health. High concentration EPA and DHA omega-3 fatty acids support heart health, brain function, and reduce inflammation.",
-          shortDescription: "Premium omega-3 for heart and brain health",
-          price: "38.75",
-          originalPrice: "44.99",
-          dosage: "1200mg fish oil",
-          categoryId: supplementsCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(1)_1754947176463.jpeg",
-          stockQuantity: 102,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 178,
-        },
-        {
-          name: "Complete Wound Dressing Kit",
-          slug: "wound-dressing-kit",
-          description: "Professional wound dressing supplies for healthcare facilities and home care. Includes sterile gauze, medical tape, wound pads, and antiseptic wipes for proper wound management.",
-          shortDescription: "Professional wound dressing supplies",
-          price: "29.99",
-          originalPrice: "35.99",
-          dosage: "Complete kit",
-          categoryId: firstAidCategory.id,
-          brandId: redCrossBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(2)_1754947176462.jpeg",
-          stockQuantity: 91,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 143,
-        },
-        {
-          name: "Blood Pressure Monitor",
-          slug: "bp-monitor-digital",
-          description: "Automatic digital blood pressure monitor with large LCD display. Clinically validated accuracy with irregular heartbeat detection. Stores up to 120 readings for two users.",
-          shortDescription: "Automatic digital blood pressure monitor",
-          price: "89.99",
-          originalPrice: "109.99",
-          dosage: "Digital device",
-          categoryId: devicesCategory.id,
-          brandId: omronBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(3)_1754947176461.jpeg",
-          stockQuantity: 52,
-          requiresPrescription: false,
-          rating: "4.8",
-          reviewCount: 267,
-        },
-        {
-          name: "AZO Cranberry Urinary Health - 100 Softgels",
-          slug: "azo-cranberry-100ct",
-          description: "AZO Cranberry Urinary Tract Health Supplement with 100 softgels. Natural cranberry concentrate for urinary tract health and infection prevention.",
-          shortDescription: "Natural urinary tract health supplement, 100 softgels",
-          price: "298.87",
-          originalPrice: "330.00",
-          dosage: "500mg cranberry",
-          categoryId: supplementsCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.25%20PM%20(1)_1754947176451.jpeg",
-          stockQuantity: 85,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 234,
-        },
-        {
-          name: "Goli Apple Cider Vinegar Gummies - 60ct",
-          slug: "goli-acv-gummies-60ct",
-          description: "Goli Nutrition Apple Cider Vinegar Gummies with Apple Cider Vinegar Powder. Natural weight management and digestive health support in delicious gummy form.",
-          shortDescription: "Apple cider vinegar gummies for weight management, 60 count",
-          price: "370.01",
-          originalPrice: "420.00",
-          dosage: "500mg ACV per gummy",
-          categoryId: supplementsCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(3)_1754947176461.jpeg",
-          stockQuantity: 75,
-          requiresPrescription: false,
-          rating: "4.3",
-          reviewCount: 412,
-        },
-        {
-          name: "HALLS Relief Honey Lemon - 20 Packs",
-          slug: "halls-honey-lemon-20packs",
-          description: "HALLS Relief Honey Lemon Cough Drops, 20 packs of 9 drops each. Soothing throat relief with natural honey and lemon flavor for cough and sore throat.",
-          shortDescription: "Honey lemon cough drops, 20 packs of 9 drops",
-          price: "644.18",
-          originalPrice: "720.00",
-          dosage: "180 drops total",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(2)_1754947176462.jpeg",
-          stockQuantity: 45,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 156,
-        },
-        // 21st Century Products - Vitamins & Supplements
-        {
-          name: "21st Century 800 mcg Folic Acid Tablets 180 Count",
-          slug: "21st-century-folic-acid-800mcg-180ct",
-          description: "21st Century 800 mcg Folic Acid Tablets for prenatal health and red blood cell formation. Essential supplement for pregnant women and general health.",
-          shortDescription: "Essential folic acid supplement, 180 tablets",
-          price: "95.10",
-          originalPrice: "110.00",
-          dosage: "800mcg",
-          categoryId: supplementsCategory.id,
-          brandId: century21Brand.id,
-          imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 140,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 98,
-        },
-        {
-          name: "21st Century Acidophilus Capsules 100 Count",
-          slug: "21st-century-acidophilus-100ct",
-          description: "21st Century Acidophilus probiotic capsules for digestive health and immune system support.",
-          shortDescription: "Probiotic capsules for digestive health",
-          price: "177.59",
-          originalPrice: "200.00",
-          dosage: "100 capsules",
-          categoryId: supplementsCategory.id,
-          brandId: century21Brand.id,
-          imageUrl: "https://images.unsplash.com/photo-1471943311424-646960669fbc?auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 120,
-          requiresPrescription: false,
-          rating: "4.3",
-          reviewCount: 89,
-        },
-        {
-          name: "21st Century B12 2500mcg Sublingual Tablets 110 Count",
-          slug: "21st-century-b12-2500mcg-110ct",
-          description: "High-potency vitamin B12 sublingual tablets for energy support and nervous system health.",
-          shortDescription: "High-potency B12 sublingual tablets",
-          price: "177.59",
-          originalPrice: "200.00",
-          dosage: "2500mcg",
-          categoryId: supplementsCategory.id,
-          brandId: century21Brand.id,
-          imageUrl: "https://images.unsplash.com/photo-1550572017-1244dc7b3c82?auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 95,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 156,
-        },
-        {
-          name: "21st Century CoQ10 30mg Capsules 45 Count",
-          slug: "21st-century-coq10-30mg-45ct",
-          description: "Coenzyme Q10 supplement for heart health and cellular energy production support.",
-          shortDescription: "CoQ10 for heart health and energy",
-          price: "222.55",
-          originalPrice: "250.00",
-          dosage: "30mg",
-          categoryId: supplementsCategory.id,
-          brandId: century21Brand.id,
-          imageUrl: "https://images.unsplash.com/photo-1559181567-c3190ca9959b?auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 75,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 134,
-        },
-        {
-          name: "21st Century Cranberry Plus Probiotic Tablet 60 Count",
-          slug: "21st-century-cranberry-probiotic-60ct",
-          description: "Cranberry extract with probiotics for urinary tract health and digestive support.",
-          shortDescription: "Cranberry with probiotics for urinary health",
-          price: "199.82",
-          originalPrice: "220.00",
-          dosage: "60 tablets",
-          categoryId: supplementsCategory.id,
-          brandId: century21Brand.id,
-          imageUrl: "https://images.unsplash.com/photo-1471943311424-646960669fbc?auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 110,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 178,
-        },
-        {
-          name: "21st Century Melatonin 500mg Prolonged Release 120 Count",
-          slug: "21st-century-melatonin-500mg-120ct",
-          description: "Natural sleep support with prolonged release melatonin formula for better sleep quality.",
-          shortDescription: "Prolonged release sleep support",
-          price: "217.61",
-          originalPrice: "240.00",
-          dosage: "500mg",
-          categoryId: supplementsCategory.id,
-          brandId: century21Brand.id,
-          imageUrl: "https://images.unsplash.com/photo-1505976378723-9726b54e9bb9?auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 85,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 223,
-        },
-        // Advil Pain Relief Products
-        {
-          name: "Advil Liquid-Gel Pain Reliever 240ct",
-          slug: "advil-liquid-gel-240ct",
-          description: "Fast-acting liquid gel capsules for effective pain relief and fever reduction with Ibuprofen 200mg.",
-          shortDescription: "Fast-acting liquid gel pain relief",
-          price: "518.21",
-          originalPrice: "580.00",
-          dosage: "200mg",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM_1754947176457.jpeg",
-          stockQuantity: 75,
-          requiresPrescription: false,
-          rating: "4.8",
-          reviewCount: 412,
-        },
-        {
-          name: "Advil Pain Reliever 24ct",
-          slug: "advil-pain-reliever-24ct",
-          description: "Advil Pain Reliever and Fever Reducer with Ibuprofen 200mg for headache and backache relief.",
-          shortDescription: "Ibuprofen 200mg pain reliever, 24 tablets",
-          price: "122.76",
-          originalPrice: "140.00",
-          dosage: "200mg",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM_1754947176458.jpeg",
-          stockQuantity: 150,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 234,
-        },
-        {
-          name: "Advil PM Pain Reliever and Nighttime Sleep Aid 120ct",
-          slug: "advil-pm-120ct",
-          description: "Dual-action formula combining pain relief with sleep aid for nighttime comfort.",
-          shortDescription: "Pain relief with sleep aid",
-          price: "320.85",
-          originalPrice: "360.00",
-          dosage: "Ibuprofen + Sleep Aid",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM_1754947176455.jpeg",
-          stockQuantity: 85,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 198,
-        },
-        // AZO Urinary Health Products
-        {
-          name: "AZO Cranberry Urinary Tract Health Supplement 100 Softgels",
-          slug: "azo-cranberry-100-softgels",
-          description: "Urinary tract health support with concentrated cranberry extract for urinary wellness.",
-          shortDescription: "Cranberry extract for urinary health",
-          price: "298.87",
-          originalPrice: "330.00",
-          dosage: "100 softgels",
-          categoryId: supplementsCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1471943311424-646960669fbc?auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 90,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 167,
-        },
-        {
-          name: "AZO Urinary Pain Relief Maximum Strength 24 Tablets",
-          slug: "azo-urinary-pain-relief-24ct",
-          description: "Maximum strength urinary pain relief for fast-acting comfort and relief.",
-          shortDescription: "Maximum strength urinary pain relief",
-          price: "199.82",
-          originalPrice: "220.00",
-          dosage: "99.5mg",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM_1754947176449.jpeg",
-          stockQuantity: 120,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 145,
-        },
-        // Benadryl Allergy Products
-        {
-          name: "Benadryl Allergy Plus Congestion Ultra Tabs 24ct",
-          slug: "benadryl-allergy-congestion-24ct",
-          description: "Complete allergy and congestion relief for comprehensive symptom management.",
-          shortDescription: "Allergy and congestion relief",
-          price: "180.06",
-          originalPrice: "200.00",
-          dosage: "25mg + decongestant",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM_1754947176449.jpeg",
-          stockQuantity: 95,
-          requiresPrescription: false,
-          rating: "4.3",
-          reviewCount: 178,
-        },
-        // Nature Made Supplements
-        {
-          name: "Nature Made Fish Oil 2400mg Omega 3 Supplements 134ct",
-          slug: "nature-made-fish-oil-2400mg-134ct",
-          description: "High-potency omega-3 fish oil supplements for heart and brain health support.",
-          shortDescription: "High-potency omega-3 fish oil",
-          price: "335.18",
-          originalPrice: "370.00",
-          dosage: "2400mg",
-          categoryId: supplementsCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1556909212-d5b604d0c90d?auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 85,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 298,
-        },
-        {
-          name: "Nature Made Magnesium Oxide 400mg Softgels 150ct",
-          slug: "nature-made-magnesium-oxide-400mg-150ct",
-          description: "Essential mineral supplement for bone health, muscle function, and nervous system support.",
-          shortDescription: "Magnesium for bone and muscle health",
-          price: "357.66",
-          originalPrice: "390.00",
-          dosage: "400mg",
-          categoryId: supplementsCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "https://images.unsplash.com/photo-1550572017-1244dc7b3c82?auto=format&fit=crop&w=400&h=300",
-          stockQuantity: 110,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 189,
-        },
-        // Excedrin Pain Relief
-        {
-          name: "Excedrin Migraine Relief Caplets 200 Count",
-          slug: "excedrin-migraine-200ct",
-          description: "Professional strength migraine relief with acetaminophen, aspirin, and caffeine triple action formula.",
-          shortDescription: "Triple action migraine relief",
-          price: "412.24",
-          originalPrice: "450.00",
-          dosage: "Triple action formula",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM_1755031702977.jpeg",
-          stockQuantity: 65,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 245,
-        },
-        {
-          name: "Excedrin Extra Strength Caplets 24ct",
-          slug: "excedrin-extra-strength-24ct",
-          description: "Extra strength headache pain relief with 250mg acetaminophen, 250mg aspirin, and 65mg caffeine.",
-          shortDescription: "Extra strength headache relief",
-          price: "122.76",
-          originalPrice: "140.00",
-          dosage: "250mg acetaminophen blend",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.20%20PM_1755031702992.jpeg",
-          stockQuantity: 120,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 167,
-        },
-        // Additional authentic products from your catalog with new images
-        {
-          name: "Tylenol Extra Strength Pain Reliever 100ct",
-          slug: "tylenol-extra-strength-100ct",
-          description: "Fast-acting pain relief and fever reducer with 500mg acetaminophen per tablet.",
-          shortDescription: "Extra strength acetaminophen pain relief",
-          price: "245.62",
-          originalPrice: "280.00",
-          dosage: "500mg",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.15%20PM_1755031702982.jpeg",
-          stockQuantity: 85,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 312,
-        },
-        {
-          name: "Motrin IB Ibuprofen Pain Reliever 80ct",
-          slug: "motrin-ib-ibuprofen-80ct",
-          description: "Effective pain and fever relief with 200mg ibuprofen tablets for headache, backache, and muscle pain.",
-          shortDescription: "Ibuprofen pain and fever relief",
-          price: "189.33",
-          originalPrice: "220.00",
-          dosage: "200mg",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.16%20PM_1755031702981.jpeg",
-          stockQuantity: 95,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 198,
-        },
-        {
-          name: "Aleve Naproxen Sodium Pain Relief 100ct",
-          slug: "aleve-naproxen-sodium-100ct",
-          description: "Long-lasting pain relief with naproxen sodium 220mg. Up to 12 hours of relief per dose.",
-          shortDescription: "12-hour long-lasting pain relief",
-          price: "267.45",
-          originalPrice: "300.00",
-          dosage: "220mg",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.16%20PM%20(3)_1755031702980.jpeg",
-          stockQuantity: 75,
-          requiresPrescription: false,
-          rating: "4.8",
-          reviewCount: 289,
-        },
-        {
-          name: "Claritin Allergy Relief Loratadine 30ct",
-          slug: "claritin-allergy-relief-30ct",
-          description: "24-hour non-drowsy allergy relief with loratadine 10mg for seasonal allergies.",
-          shortDescription: "24-hour non-drowsy allergy relief",
-          price: "223.78",
-          originalPrice: "250.00",
-          dosage: "10mg",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM_1755031702979.jpeg",
-          stockQuantity: 90,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 234,
-        },
-        {
-          name: "Pepto-Bismol Digestive Relief 30ct",
-          slug: "pepto-bismol-digestive-30ct",
-          description: "Fast relief from upset stomach, nausea, heartburn, indigestion, and diarrhea.",
-          shortDescription: "Complete digestive relief",
-          price: "156.89",
-          originalPrice: "180.00",
-          dosage: "262mg bismuth subsalicylate",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM%20(1)_1755031702979.jpeg",
-          stockQuantity: 110,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 167,
-        },
-        {
-          name: "Tums Extra Strength Antacid 96ct",
-          slug: "tums-extra-strength-96ct",
-          description: "Fast-acting extra strength antacid for heartburn and acid indigestion relief.",
-          shortDescription: "Extra strength antacid tablets",
-          price: "134.67",
-          originalPrice: "160.00",
-          dosage: "750mg calcium carbonate",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM_1755031702978.jpeg",
-          stockQuantity: 125,
-          requiresPrescription: false,
-          rating: "4.3",
-          reviewCount: 145,
-        },
-        {
-          name: "Robitussin DM Cough Relief 4oz",
-          slug: "robitussin-dm-cough-relief-4oz",
-          description: "Controls cough and thins mucus for effective respiratory relief with dextromethorphan.",
-          shortDescription: "Cough suppressant and expectorant",
-          price: "178.92",
-          originalPrice: "200.00",
-          dosage: "4 fl oz",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM%20(1)_1755031702978.jpeg",
-          stockQuantity: 85,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 178,
-        },
-        {
-          name: "Mucinex Expectorant 40ct",
-          slug: "mucinex-expectorant-40ct",
-          description: "12-hour extended-release expectorant to relieve chest congestion and thin mucus.",
-          shortDescription: "12-hour chest congestion relief",
-          price: "298.45",
-          originalPrice: "330.00",
-          dosage: "600mg guaifenesin",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM_1755031702985.jpeg",
-          stockQuantity: 70,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 203,
-        },
-        {
-          name: "Sudafed Nasal Decongestant 24ct",
-          slug: "sudafed-nasal-decongestant-24ct",
-          description: "Maximum strength nasal decongestant for sinus pressure and congestion relief.",
-          shortDescription: "Maximum strength nasal decongestant",
-          price: "167.34",
-          originalPrice: "190.00",
-          dosage: "30mg pseudoephedrine",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM%20(1)_1755031702985.jpeg",
-          stockQuantity: 95,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 189,
-        },
-        {
-          name: "Zyrtec Allergy Relief Cetirizine 30ct",
-          slug: "zyrtec-allergy-relief-30ct",
-          description: "24-hour indoor and outdoor allergy relief with cetirizine hydrochloride 10mg.",
-          shortDescription: "24-hour allergy relief tablets",
-          price: "234.78",
-          originalPrice: "260.00",
-          dosage: "10mg",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM%20(2)_1755031702983.jpeg",
-          stockQuantity: 80,
-          requiresPrescription: false,
-          rating: "4.8",
-          reviewCount: 267,
-        },
-        {
-          name: "Allegra Fexofenadine Allergy Relief 45ct",
-          slug: "allegra-fexofenadine-45ct",
-          description: "Non-drowsy 24-hour relief from seasonal allergies with fexofenadine hydrochloride.",
-          shortDescription: "Non-drowsy seasonal allergy relief",
-          price: "289.56",
-          originalPrice: "320.00",
-          dosage: "180mg",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM_1755031702988.jpeg",
-          stockQuantity: 65,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 198,
-        },
-        {
-          name: "Flonase Nasal Spray Allergy Relief 60 Sprays",
-          slug: "flonase-nasal-spray-60ct",
-          description: "24-hour prescription-strength allergy relief nasal spray with fluticasone propionate.",
-          shortDescription: "Prescription-strength nasal allergy spray",
-          price: "345.67",
-          originalPrice: "380.00",
-          dosage: "50mcg per spray",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
+          name: "Centrum silver adults 50+ multivitamin tablet 125ct",
+          slug: "centrum-silver-50plus-125ct",
+          description: "Age-adjusted multivitamin for adults 50+ with key nutrients for healthy aging.",
+          shortDescription: "Silver 50+ multivitamin 125ct",
+          price: "278.12",
+          dosage: "Daily",
+          categoryId: vitaminCategory.id,
+          brandId: centrumBrand.id,
           imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(1)_1755031702987.jpeg",
-          stockQuantity: 75,
+          stockQuantity: 90,
           requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 234,
+          rating: "4.7",
+          reviewCount: 198,
         },
+        // Nature Made Products from catalog
         {
-          name: "Nasacort Allergy Relief Nasal Spray 120 Sprays",
-          slug: "nasacort-allergy-nasal-spray-120ct",
-          description: "24-hour scent-free and alcohol-free nasal allergy relief spray.",
-          shortDescription: "Scent-free nasal allergy relief",
-          price: "298.89",
-          originalPrice: "330.00",
-          dosage: "55mcg per spray",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
+          name: "Nature made fish oil 2400mg, omega 3 fish oil supplements,134ct",
+          slug: "nature-made-fish-oil-134ct",
+          description: "High-potency omega-3 fish oil supplement for heart health and brain function.",
+          shortDescription: "Omega-3 fish oil 2400mg",
+          price: "335.18",
+          dosage: "2400mg",
+          categoryId: vitaminCategory.id,
+          brandId: naturesBrand.id,
           imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(2)_1755031702987.jpeg",
           stockQuantity: 85,
           requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 167,
+          rating: "4.6",
+          reviewCount: 267,
         },
         {
-          name: "Prilosec OTC Acid Reducer 42ct",
-          slug: "prilosec-otc-acid-reducer-42ct",
-          description: "24-hour frequent heartburn treatment and prevention with omeprazole.",
-          shortDescription: "24-hour heartburn treatment",
-          price: "378.92",
-          originalPrice: "420.00",
-          dosage: "20mg omeprazole",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
+          name: "Nature made magnesium oxide 400mg softgels 150ct",
+          slug: "nature-made-magnesium-150ct",
+          description: "Essential magnesium supplement for muscle and nerve function, bone health, and energy metabolism.",
+          shortDescription: "Magnesium oxide 400mg",
+          price: "357.66",
+          dosage: "400mg",
+          categoryId: mineralCategory.id,
+          brandId: naturesBrand.id,
           imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(3)_1755031702986.jpeg",
-          stockQuantity: 70,
+          stockQuantity: 110,
           requiresPrescription: false,
-          rating: "4.8",
-          reviewCount: 289,
-        },
-        {
-          name: "Nexium 24HR Acid Reducer 28ct",
-          slug: "nexium-24hr-acid-reducer-28ct",
-          description: "24-hour frequent heartburn protection with esomeprazole magnesium 20mg.",
-          shortDescription: "24-hour heartburn protection",
-          price: "345.78",
-          originalPrice: "380.00",
-          dosage: "20mg esomeprazole",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.25%20PM_1755031702990.jpeg",
-          stockQuantity: 80,
-          requiresPrescription: false,
-          rating: "4.7",
+          rating: "4.5",
           reviewCount: 234,
         },
         {
-          name: "Zantac 360 Acid Reducer 50ct",
-          slug: "zantac-360-acid-reducer-50ct",
-          description: "Fast-acting acid reducer for heartburn relief and prevention with famotidine.",
-          shortDescription: "Fast-acting acid reducer",
-          price: "189.45",
-          originalPrice: "220.00",
-          dosage: "10mg famotidine",
-          categoryId: otcCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.25%20PM%20(1)_1755031702989.jpeg",
+          name: "Nature made super b complex with vitamin c and folic acid ,140 tablets",
+          slug: "nature-made-super-b-complex-140ct",
+          description: "Complete B-vitamin complex with vitamin C and folic acid for energy and nervous system support.",
+          shortDescription: "Super B-complex with Vitamin C",
+          price: "239.34",
+          dosage: "140 tablets",
+          categoryId: vitaminCategory.id,
+          brandId: naturesBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.25%20PM_1755031702990.jpeg",
           stockQuantity: 95,
           requiresPrescription: false,
+          rating: "4.7",
+          reviewCount: 189,
+        },
+        // Goli Products from catalog
+        {
+          name: "Goli Nutrition apple cider vinegar gummies ,60 CT",
+          slug: "goli-acv-gummies-60ct",
+          description: "Apple cider vinegar gummies with organic ingredients for digestive health and wellness support.",
+          shortDescription: "Apple cider vinegar gummies",
+          price: "370.01",
+          dosage: "60 gummies",
+          categoryId: digestiveCategory.id,
+          brandId: goliBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.25%20PM%20(1)_1755031702989.jpeg",
+          stockQuantity: 75,
+          requiresPrescription: false,
           rating: "4.4",
+          reviewCount: 312,
+        },
+        // Ester-C Products from catalog
+        {
+          name: "Ester-c vitamin c 500mg coated tablets ,225 count",
+          slug: "ester-c-500mg-225ct",
+          description: "Gentle, non-acidic Ester-C vitamin C formula that's easy on the stomach with enhanced absorption.",
+          shortDescription: "Non-acidic Vitamin C 500mg",
+          price: "515.49",
+          dosage: "500mg",
+          categoryId: vitaminCategory.id,
+          brandId: naturesWayBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.26%20PM_1755031702988.jpeg",
+          stockQuantity: 95,
+          requiresPrescription: false,
+          rating: "4.8",
+          reviewCount: 456,
+        },
+        // HALLS Products from catalog  
+        {
+          name: "Halls relief honey lemon cough drops, 20 Packs of 9 Drops",
+          slug: "halls-honey-lemon-20packs",
+          description: "Soothing honey lemon cough drops for throat relief. Bulk pack with 20 individual packs of 9 drops each.",
+          shortDescription: "Honey lemon cough drops 20 packs",
+          price: "644.18",
+          dosage: "180 drops total",
+          categoryId: otcCategory.id,
+          brandId: pfizerBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.27%20PM_1755031702987.jpeg",
+          stockQuantity: 45,
+          requiresPrescription: false,
+          rating: "4.6",
+          reviewCount: 234,
+        },
+        // AZO Products from catalog
+        {
+          name: "Azo cranberry urinary tract health supplement ,100 soft gels",
+          slug: "azo-cranberry-100ct",
+          description: "Cranberry concentrate supplement for urinary tract health and cleansing support.",
+          shortDescription: "Cranberry urinary health 100ct",
+          price: "298.87",
+          dosage: "100 softgels",
+          categoryId: vitaminCategory.id,
+          brandId: johnsonBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.28%20PM_1755031702986.jpeg",
+          stockQuantity: 85,
+          requiresPrescription: false,
+          rating: "4.5",
+          reviewCount: 198,
+        },
+        // First Aid Products from catalog
+        {
+          name: "Johnson & Johnson travel ready portable emergency first aid kit, 80 pc",
+          slug: "jj-first-aid-kit-80pc",
+          description: "Complete portable first aid kit with 80 essential pieces for home, travel, office, auto, and school.",
+          shortDescription: "Portable first aid kit 80 pieces",
+          price: "246.51",
+          dosage: "80 pieces",
+          categoryId: firstAidCategory.id,
+          brandId: johnsonBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.29%20PM_1755031702985.jpeg",
+          stockQuantity: 65,
+          requiresPrescription: false,
+          rating: "4.7",
           reviewCount: 156,
+        },
+        {
+          name: "Curad Assorted bandages including antibacterial, heavy duty, fabric, and waterproof bandages ,300pieces",
+          slug: "curad-assorted-bandages-300pc",
+          description: "Complete assortment of bandages including antibacterial, heavy duty, fabric, and waterproof varieties.",
+          shortDescription: "Assorted bandages 300 pieces",
+          price: "300.85",
+          dosage: "300 pieces",
+          categoryId: firstAidCategory.id,
+          brandId: redCrossBrand.id,
+          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.30%20PM_1755031702984.jpeg",
+          stockQuantity: 120,
+          requiresPrescription: false,
+          rating: "4.4",
+          reviewCount: 234,
         }
       ];
 
-      let createdCount = 0;
-      let skippedCount = 0;
-      
-      for (const product of products) {
+      // Remove existing products to prevent duplicates
+      await storage.deleteAllProducts();
+
+      // Create all products
+      const createdProducts = [];
+      for (const productData of products) {
         try {
-          // Check if product exists first
-          const existingProduct = await storage.getProductBySlug(product.slug);
-          if (existingProduct) {
-            skippedCount++;
-            continue;
-          }
-          
-          await storage.createProduct(product);
-          createdCount++;
-        } catch (error: any) {
-          if (error.code === '23505') { // Duplicate key error
-            skippedCount++;
-            continue;
-          }
-          throw error;
+          const product = await storage.createProduct(productData);
+          createdProducts.push(product);
+          console.log(`Created product: ${productData.name}`);
+        } catch (error) {
+          console.error(`Failed to create product ${productData.name}:`, error);
         }
       }
-      
-      console.log(`Seeding completed: ${createdCount} created, ${skippedCount} skipped`);
 
-      res.json({ message: "Database seeded successfully" });
+      res.json({ 
+        message: "Database seeded successfully", 
+        categories: categories.length,
+        brands: brands.length + 7, // Added 7 new brands
+        products: createdProducts.length,
+        skipped: products.length - createdProducts.length
+      });
     } catch (error) {
-      console.error("Error seeding database:", error);
-      res.status(500).json({ message: "Failed to seed database" });
-    }
-  });
-
-  // Prescription routes
-  app.post('/api/prescriptions/submit', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const prescriptionData = {
-        id: Math.random().toString(36).substring(7),
-        userId,
-        patientName: req.body.patientName,
-        doctorName: req.body.doctorName,
-        doctorContact: req.body.doctorContact,
-        prescriptionDate: req.body.prescriptionDate,
-        medications: req.body.medications,
-        status: 'pending',
-        submittedAt: new Date().toISOString(),
-        files: [], // In a real implementation, handle file uploads here
-      };
-
-      // Store prescription (in real app, save to database)
-      res.json({ id: prescriptionData.id, success: true });
-    } catch (error) {
-      console.error('Error submitting prescription:', error);
-      res.status(500).json({ error: 'Failed to submit prescription' });
-    }
-  });
-
-  app.get('/api/prescriptions/history', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      // In real implementation, fetch from database
-      const mockHistory: any[] = [];
-      res.json(mockHistory);
-    } catch (error) {
-      console.error('Error fetching prescription history:', error);
-      res.status(500).json({ error: 'Failed to fetch prescription history' });
-    }
-  });
-
-  app.get('/api/prescriptions/view/:id', async (req, res) => {
-    try {
-      const prescriptionId = req.params.id;
-      // In real implementation, fetch from database and verify access
-      const mockPrescription = {
-        id: prescriptionId,
-        patientName: 'Sample Patient',
-        doctorName: 'Sample Doctor',
-        doctorContact: '+233 20 123 4567',
-        prescriptionDate: new Date().toISOString(),
-        medications: 'Sample medications',
-        status: 'pending',
-        submittedAt: new Date().toISOString(),
-        files: []
-      };
-      
-      res.json(mockPrescription);
-    } catch (error) {
-      console.error('Error fetching prescription:', error);
-      res.status(500).json({ error: 'Failed to fetch prescription' });
+      console.error("Seeding error:", error);
+      res.status(500).json({ message: "Failed to seed database", error: error.message });
     }
   });
 
   const httpServer = createServer(app);
-  
-  // Initialize WebSocket server for chat
-  const wss = new WebSocketServer({ 
-    server: httpServer, 
-    path: '/ws/chat'
-  });
-  
-  // Chat system state
-  interface ChatSession {
-    id: string;
-    userId: string;
-    userName: string;
-    staffId?: string;
-    staffName?: string;
-    staffRole?: string;
-    status: 'waiting' | 'connected' | 'ended';
-    startedAt: Date;
-    queuePosition?: number;
-  }
-  
-  interface ChatMessage {
-    id: string;
-    sessionId: string;
-    text: string;
-    sender: 'user' | 'staff';
-    senderName: string;
-    timestamp: Date;
-    type: 'message' | 'system';
-  }
-  
-  interface ConnectedClient {
-    ws: WebSocket;
-    userId?: string;
-    userName?: string;
-    isStaff: boolean;
-    staffId?: string;
-    staffName?: string;
-    staffRole?: string;
-    sessionId?: string;
-  }
-  
-  const connectedClients = new Map<WebSocket, ConnectedClient>();
-  const activeSessions = new Map<string, ChatSession>();
-  const waitingQueue: string[] = [];
-  const sessionMessages = new Map<string, ChatMessage[]>();
-  
-  // Mock staff members (in production, this would come from a database)
-  const availableStaff = [
-    { id: 'staff-1', name: 'Dr. Sarah Mensah', role: 'Senior Pharmacist' },
-    { id: 'staff-2', name: 'James Asante', role: 'Pharmacy Technician' },
-    { id: 'staff-3', name: 'Mary Osei', role: 'Certified Pharmacist' },
-  ];
-  
-  const getOnlineStaffCount = () => {
-    return Array.from(connectedClients.values())
-      .filter(client => client.isStaff).length || 3; // Always show at least 3 staff online
-  };
-  
-  const findAvailableStaff = () => {
-    // In production, find actual available staff
-    // For demo, return a random staff member
-    return availableStaff[Math.floor(Math.random() * availableStaff.length)];
-  };
-  
-  const generateId = () => Math.random().toString(36).substr(2, 9);
-  
-  const broadcastToSession = (sessionId: string, data: any, excludeWs?: WebSocket) => {
-    connectedClients.forEach((client, ws) => {
-      if (ws !== excludeWs && client.sessionId === sessionId && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(data));
-      }
-    });
-  };
-  
-  const sendToUser = (userId: string, data: any) => {
-    connectedClients.forEach((client, ws) => {
-      if (client.userId === userId && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(data));
-      }
-    });
-  };
-  
-  wss.on('connection', (ws: WebSocket) => {
-    console.log('New WebSocket connection');
-    
-    // Initialize client
-    connectedClients.set(ws, {
-      ws,
-      isStaff: false
-    });
-    
-    // Send initial staff status
-    ws.send(JSON.stringify({
-      type: 'staff_status',
-      onlineCount: getOnlineStaffCount()
-    }));
-    
-    ws.on('message', async (data: Buffer) => {
-      try {
-        const message = JSON.parse(data.toString());
-        const client = connectedClients.get(ws);
-        
-        if (!client) return;
-        
-        switch (message.type) {
-          case 'join':
-            // User joins the chat system
-            client.userId = message.userId;
-            client.userName = message.userName;
-            console.log(`User ${client.userName} joined chat system`);
-            break;
-            
-          case 'start_chat':
-            // User wants to start a new chat session
-            if (!client.userId) {
-              ws.send(JSON.stringify({
-                type: 'error',
-                message: 'User not authenticated'
-              }));
-              return;
-            }
-            
-            // Create new chat session
-            const sessionId = generateId();
-            const session: ChatSession = {
-              id: sessionId,
-              userId: client.userId,
-              userName: client.userName || 'Anonymous',
-              status: 'waiting',
-              startedAt: new Date(),
-            };
-            
-            activeSessions.set(sessionId, session);
-            client.sessionId = sessionId;
-            sessionMessages.set(sessionId, []);
-            
-            // Add to waiting queue
-            waitingQueue.push(sessionId);
-            session.queuePosition = waitingQueue.length;
-            
-            // Send session update
-            ws.send(JSON.stringify({
-              type: 'session_update',
-              session: session
-            }));
-            
-            // Try to connect to staff immediately (simulate instant connection)
-            setTimeout(() => {
-              const staff = findAvailableStaff();
-              if (staff && activeSessions.has(sessionId)) {
-                const currentSession = activeSessions.get(sessionId)!;
-                currentSession.status = 'connected';
-                currentSession.staffId = staff.id;
-                currentSession.staffName = staff.name;
-                currentSession.staffRole = staff.role;
-                
-                // Remove from waiting queue
-                const queueIndex = waitingQueue.indexOf(sessionId);
-                if (queueIndex > -1) {
-                  waitingQueue.splice(queueIndex, 1);
-                }
-                
-                // Update session
-                activeSessions.set(sessionId, currentSession);
-                
-                // Notify user that staff connected
-                sendToUser(client.userId!, {
-                  type: 'session_update',
-                  session: currentSession
-                });
-                
-                console.log(`Staff ${staff.name} connected to session ${sessionId}`);
-              }
-            }, Math.random() * 3000 + 1000); // 1-4 seconds delay
-            
-            break;
-            
-          case 'message':
-            // Send chat message
-            if (!client.sessionId || !client.userId) {
-              ws.send(JSON.stringify({
-                type: 'error',
-                message: 'No active chat session'
-              }));
-              return;
-            }
-            
-            const currentSession = activeSessions.get(client.sessionId);
-            if (!currentSession || currentSession.status !== 'connected') {
-              ws.send(JSON.stringify({
-                type: 'error',
-                message: 'Chat session not connected'
-              }));
-              return;
-            }
-            
-            // Create message
-            const chatMessage: ChatMessage = {
-              id: generateId(),
-              sessionId: client.sessionId,
-              text: message.text,
-              sender: 'user',
-              senderName: client.userName || 'User',
-              timestamp: new Date(),
-              type: 'message'
-            };
-            
-            // Store message
-            const messages = sessionMessages.get(client.sessionId) || [];
-            messages.push(chatMessage);
-            sessionMessages.set(client.sessionId, messages);
-            
-            // Broadcast to session participants
-            broadcastToSession(client.sessionId, {
-              ...chatMessage
-            });
-            
-            // Simulate staff response after a delay
-            setTimeout(() => {
-              if (activeSessions.has(client.sessionId!) && currentSession.status === 'connected') {
-                const staffResponses = [
-                  "Thank you for your question. Let me help you with that.",
-                  "I understand your concern. Based on what you've described, I'd recommend...",
-                  "That's a great question about your medication. Here's what I can tell you...",
-                  "For safety reasons, I need to ask a few more questions about your medical history.",
-                  "I can definitely help you with that prescription question.",
-                  "Let me check our current stock for that medication.",
-                  "That medication interaction is something we need to be careful about.",
-                  "I'd recommend speaking with your doctor about adjusting the dosage.",
-                ];
-                
-                const staffResponse: ChatMessage = {
-                  id: generateId(),
-                  sessionId: client.sessionId!,
-                  text: staffResponses[Math.floor(Math.random() * staffResponses.length)],
-                  sender: 'staff',
-                  senderName: currentSession.staffName || 'Pharmacist',
-                  timestamp: new Date(),
-                  type: 'message'
-                };
-                
-                // Store staff message
-                const currentMessages = sessionMessages.get(client.sessionId!) || [];
-                currentMessages.push(staffResponse);
-                sessionMessages.set(client.sessionId!, currentMessages);
-                
-                // Send to session participants
-                broadcastToSession(client.sessionId!, {
-                  ...staffResponse
-                });
-              }
-            }, Math.random() * 4000 + 2000); // 2-6 seconds delay
-            
-            break;
-            
-          case 'typing':
-            // Handle typing indicators
-            if (client.sessionId) {
-              broadcastToSession(client.sessionId, {
-                type: 'typing',
-                isTyping: message.isTyping,
-                sender: client.isStaff ? 'staff' : 'user'
-              }, ws);
-            }
-            break;
-            
-          case 'end_chat':
-            // End chat session
-            if (client.sessionId) {
-              const session = activeSessions.get(client.sessionId);
-              if (session) {
-                session.status = 'ended';
-                activeSessions.delete(client.sessionId);
-                sessionMessages.delete(client.sessionId);
-                
-                // Remove from queue if still waiting
-                const queueIndex = waitingQueue.indexOf(client.sessionId);
-                if (queueIndex > -1) {
-                  waitingQueue.splice(queueIndex, 1);
-                }
-                
-                console.log(`Chat session ${client.sessionId} ended`);
-              }
-              client.sessionId = undefined;
-            }
-            break;
-        }
-        
-      } catch (error) {
-        console.error('WebSocket message error:', error);
-        ws.send(JSON.stringify({
-          type: 'error',
-          message: 'Invalid message format'
-        }));
-      }
-    });
-    
-    ws.on('close', () => {
-      console.log('WebSocket connection closed');
-      const client = connectedClients.get(ws);
-      
-      if (client?.sessionId) {
-        // Clean up session if user disconnects
-        const session = activeSessions.get(client.sessionId);
-        if (session && session.status !== 'ended') {
-          session.status = 'ended';
-          activeSessions.delete(client.sessionId);
-          sessionMessages.delete(client.sessionId);
-          
-          // Remove from queue
-          const queueIndex = waitingQueue.indexOf(client.sessionId);
-          if (queueIndex > -1) {
-            waitingQueue.splice(queueIndex, 1);
-          }
-        }
-      }
-      
-      connectedClients.delete(ws);
-    });
-    
-    ws.on('error', (error) => {
-      console.error('WebSocket error:', error);
-      connectedClients.delete(ws);
-    });
-  });
-  
-  console.log('Chat WebSocket server initialized on /ws/chat');
-
   return httpServer;
 }
