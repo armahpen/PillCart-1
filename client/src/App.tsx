@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Shop from "@/pages/shop";
+import Browse from "@/pages/browse";
 import ProductDetail from "@/pages/product-detail";
 import Cart from "@/pages/cart";
 import Checkout from "@/pages/checkout";
@@ -28,6 +29,7 @@ function Router() {
         <>
           <Route path="/" component={Landing} />
           <Route path="/shop" component={Shop} />
+          <Route path="/browse" component={Browse} />
           <Route path="/product/:slug" component={ProductDetail} />
           <Route path="/prescription" component={Prescription} />
           <Route path="/prescription-view/:id" component={PrescriptionView} />
@@ -39,6 +41,7 @@ function Router() {
         <>
           <Route path="/" component={Home} />
           <Route path="/shop" component={Shop} />
+          <Route path="/browse" component={Browse} />
           <Route path="/product/:slug" component={ProductDetail} />
           <Route path="/prescription" component={Prescription} />
           <Route path="/prescription-view/:id" component={PrescriptionView} />
