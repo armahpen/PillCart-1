@@ -39,6 +39,7 @@ export interface IStorage {
 
   // Brand operations
   getBrands(): Promise<Brand[]>;
+  getBrandByName(name: string): Promise<Brand | undefined>;
   createBrand(brand: InsertBrand): Promise<Brand>;
 
   // Product operations
@@ -119,6 +120,11 @@ export class DatabaseStorage implements IStorage {
   // Brand operations
   async getBrands(): Promise<Brand[]> {
     return await db.select().from(brands).orderBy(brands.name);
+  }
+
+  async getBrandByName(name: string): Promise<Brand | undefined> {
+    const [brand] = await db.select().from(brands).where(eq(brands.name, name));
+    return brand;
   }
 
   async createBrand(brand: InsertBrand): Promise<Brand> {

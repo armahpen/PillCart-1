@@ -850,9 +850,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       ];
 
+      let createdCount = 0;
+      let skippedCount = 0;
+      
       for (const product of products) {
-        await storage.createProduct(product);
+        try {
+          // Check if product exists first
+          const existingProduct = await storage.getProductBySlug(product.slug);
+          if (existingProduct) {
+            skippedCount++;
+            continue;
+          }
+          
+          await storage.createProduct(product);
+          createdCount++;
+        } catch (error: any) {
+          if (error.code === '23505') { // Duplicate key error
+            skippedCount++;
+            continue;
+          }
+          throw error;
+        }
       }
+      
+      console.log(`Seeding completed: ${createdCount} created, ${skippedCount} skipped`);
 
       res.json({ message: "Database seeded successfully" });
     } catch (error) {
@@ -890,7 +911,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       // In real implementation, fetch from database
-      const mockHistory = [];
+      const mockHistory: any[] = [];
       res.json(mockHistory);
     } catch (error) {
       console.error('Error fetching prescription history:', error);
