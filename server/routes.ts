@@ -395,614 +395,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Seed data endpoint (for development)
+  // Clean seed data endpoint matching your exact catalog
   app.post('/api/seed', async (req, res) => {
     try {
-      // Get existing categories or create new ones
-      let categories = await storage.getCategories();
-      let prescriptionCategory = categories.find(c => c.slug === 'prescription-drugs');
-      let otcCategory = categories.find(c => c.slug === 'over-the-counter');
-      let supplementsCategory = categories.find(c => c.slug === 'health-supplements');
-      let firstAidCategory = categories.find(c => c.slug === 'first-aid');
-      let devicesCategory = categories.find(c => c.slug === 'medical-devices');
+      // Clear existing data
+      await storage.deleteAllProducts();
 
-      if (!prescriptionCategory) {
-        prescriptionCategory = await storage.createCategory({
-          name: "Prescription Drugs",
-          slug: "prescription-drugs",
-          description: "Licensed prescription medications with professional consultation"
-        });
-      }
+      // Create categories matching your exact catalog
+      const vitaminsCategory = await storage.createCategory({
+        name: "Vitamins & Multivitamins",
+        slug: "vitamins-multivitamins", 
+        description: "Complete multivitamins and essential vitamin supplements for all ages"
+      });
 
-      if (!otcCategory) {
-        otcCategory = await storage.createCategory({
-          name: "Over-the-Counter",
-          slug: "over-the-counter",
-          description: "Safe, effective medicines available without prescription"
-        });
-      }
+      const mineralsCategory = await storage.createCategory({
+        name: "Minerals & Trace Elements",
+        slug: "minerals-trace-elements",
+        description: "Essential minerals including zinc, magnesium, calcium, and iron supplements"
+      });
 
-      if (!supplementsCategory) {
-        supplementsCategory = await storage.createCategory({
-          name: "Health Supplements",
-          slug: "health-supplements",
-          description: "Premium vitamins and supplements for optimal wellness"
-        });
-      }
+      const herbalCategory = await storage.createCategory({
+        name: "Herbal & Natural Supplements", 
+        slug: "herbal-natural-supplements",
+        description: "Natural herbal remedies including cranberry, turmeric, garlic, and botanical extracts"
+      });
 
-      if (!firstAidCategory) {
-        firstAidCategory = await storage.createCategory({
-          name: "First Aid",
-          slug: "first-aid",
-          description: "Essential first aid supplies and emergency care items"
-        });
-      }
+      // Create authentic brands from your catalog
+      const centrumBrand = await storage.createBrand({
+        name: "Centrum",
+        description: "Leading multivitamin and supplement brand"
+      });
 
-      if (!devicesCategory) {
-        devicesCategory = await storage.createCategory({
-          name: "Medical Devices",
-          slug: "medical-devices",
-          description: "Healthcare monitoring and diagnostic devices"
-        });
-      }
+      const century21Brand = await storage.createBrand({
+        name: "21st Century", 
+        description: "Quality health and wellness supplements"
+      });
 
-      // Add Minerals category for proper categorization
-      let mineralCategory = await storage.getCategories().then(cats => 
-        cats.find(c => c.name === "Minerals")
-      );
-      if (!mineralCategory) {
-        mineralCategory = await storage.createCategory({
-          name: "Minerals",
-          slug: "minerals",
-          description: "Essential mineral supplements for health"
-        });
-      }
+      const natureMadeBrand = await storage.createBrand({
+        name: "Nature Made",
+        description: "Quality vitamins and nutritional supplements"
+      });
 
-      // Get existing brands or create new ones
-      let brands = await storage.getBrands();
-      let johnsonBrand = brands.find(b => b.name === 'Johnson & Johnson');
-      let pfizerBrand = brands.find(b => b.name === 'Pfizer');
-      let naturesWayBrand = brands.find(b => b.name === "Nature's Way");
-      let redCrossBrand = brands.find(b => b.name === 'Red Cross');
-      let omronBrand = brands.find(b => b.name === 'Omron');
-
-      if (!johnsonBrand) {
-        johnsonBrand = await storage.createBrand({
-          name: "Johnson & Johnson",
-          description: "Leading healthcare and pharmaceutical company"
-        });
-      }
-
-      if (!pfizerBrand) {
-        pfizerBrand = await storage.createBrand({
-          name: "Pfizer",
-          description: "Global pharmaceutical corporation"
-        });
-      }
-
-      if (!naturesWayBrand) {
-        naturesWayBrand = await storage.createBrand({
-          name: "Nature's Way",
-          description: "Premium natural health supplements"
-        });
-      }
-
-      if (!redCrossBrand) {
-        redCrossBrand = await storage.createBrand({
-          name: "Red Cross",
-          description: "Trusted first aid and emergency supplies"
-        });
-      }
-
-      if (!omronBrand) {
-        omronBrand = await storage.createBrand({
-          name: "Omron",
-          description: "Healthcare technology and medical devices"
-        });
-      }
-
-      // Add Centrum brand for authentic products
-      let centrumBrand = await storage.getBrandByName("Centrum");
-      if (!centrumBrand) {
-        centrumBrand = await storage.createBrand({
-          name: "Centrum",
-          description: "Leading multivitamin and supplement brand"
-        });
-      }
-
-      let oneADayBrand = await storage.getBrandByName("One A Day");
-      if (!oneADayBrand) {
-        oneADayBrand = await storage.createBrand({
-          name: "One A Day",
-          description: "Daily multivitamin supplements"
-        });
-      }
-
-      let century21Brand = await storage.getBrandByName("21st Century");
-      if (!century21Brand) {
-        century21Brand = await storage.createBrand({
-          name: "21st Century",
-          description: "Quality health and wellness supplements"
-        });
-      }
-
-      // Add more authentic brands from your catalog
-      let twentyFirstBrand = await storage.getBrandByName("21st Century");
-      if (!twentyFirstBrand) {
-        twentyFirstBrand = await storage.createBrand({
-          name: "21st Century",
-          description: "Quality health and wellness supplements"
-        });
-      }
-
-      let naturesBrand = await storage.getBrandByName("Nature Made");
-      if (!naturesBrand) {
-        naturesBrand = await storage.createBrand({
-          name: "Nature Made",
-          description: "Premium vitamins and nutritional supplements"
-        });
-      }
-
-      let naturesBountyBrand = await storage.getBrandByName("Nature's Bounty");
-      if (!naturesBountyBrand) {
-        naturesBountyBrand = await storage.createBrand({
-          name: "Nature's Bounty",
-          description: "Natural health and wellness supplements"
-        });
-      }
-
-      let advilesBrand = await storage.getBrandByName("Advil");
-      if (!advilesBrand) {
-        advilesBrand = await storage.createBrand({
-          name: "Advil",
-          description: "Trusted pain relief medication"
-        });
-      }
-
-      let equateBrand = await storage.getBrandByName("Equate");
-      if (!equateBrand) {
-        equateBrand = await storage.createBrand({
-          name: "Equate",
-          description: "Affordable quality healthcare products"
-        });
-      }
-
-      let goliBrand = await storage.getBrandByName("Goli");
-      if (!goliBrand) {
-        goliBrand = await storage.createBrand({
-          name: "Goli",
-          description: "Nutritious wellness gummies and supplements"
-        });
-      }
-
-      let nowFoodsBrand = await storage.getBrandByName("NOW Foods");
-      if (!nowFoodsBrand) {
-        nowFoodsBrand = await storage.createBrand({
-          name: "NOW Foods",
-          description: "Natural health products and supplements"
-        });
-      }
-
-      // Create comprehensive products with authentic Ghana pricing from your catalog
+      // Create sample products matching your catalog structure
       const products = [
-        // 21st Century Products - First Section from catalog
         {
-          name: "21st century 800 mcg folic acid tablets, Assorted 180 Count",
-          slug: "21st-century-folic-acid-800mcg-180ct",
-          description: "Essential folic acid supplement for pregnant women and overall health. Supports red blood cell formation and DNA synthesis.",
-          shortDescription: "Folic acid supplement for health",
-          price: "95.10",
-          dosage: "800mcg",
-          categoryId: vitaminCategory.id,
-          brandId: twentyFirstBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.15%20PM_1755031702982.jpeg",
-          stockQuantity: 180,
-          requiresPrescription: false,
-          rating: "4.3",
-          reviewCount: 89,
-        },
-        {
-          name: "21st century acidophilus capsules, 100 Count",
-          slug: "21st-century-acidophilus-100ct",
-          description: "Probiotic supplement containing acidophilus to support digestive health and immune system function.",
-          shortDescription: "Probiotic digestive support",
-          price: "177.59",
-          dosage: "100 capsules",
-          categoryId: digestiveCategory.id,
-          brandId: twentyFirstBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.16%20PM_1755031702981.jpeg",
-          stockQuantity: 100,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 125,
-        },
-        {
-          name: "21st arthric -flex Advantage Plus vitamin D3 joint support supplement (120 Tablets)",
-          slug: "21st-century-arthric-flex-120ct",
-          description: "Advanced joint support formula with Vitamin D3 for bone and joint health, flexibility, and mobility.",
-          shortDescription: "Joint support with Vitamin D3",
-          price: "444.85",
-          dosage: "120 tablets",
-          categoryId: vitaminCategory.id,
-          brandId: twentyFirstBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.16%20PM%20(3)_1755031702980.jpeg",
-          stockQuantity: 60,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 89,
-        },
-        {
-          name: "21st century B12 2500mcg sublingual tablets, 110 Count",
-          slug: "21st-century-b12-2500mcg-110ct",
-          description: "High-potency sublingual B12 for energy metabolism, nervous system health, and red blood cell formation.",
-          shortDescription: "High-potency B12 sublingual tablets",
-          price: "177.59",
-          dosage: "2500mcg",
-          categoryId: vitaminCategory.id,
-          brandId: twentyFirstBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM_1755031702979.jpeg",
-          stockQuantity: 110,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 234,
-        },
-        {
-          name: "21st century CoQ10 30 mg capsules, 45 Count",
-          slug: "21st-century-coq10-30mg-45ct",
-          description: "Coenzyme Q10 supplement for heart health, cellular energy production, and antioxidant support.",
-          shortDescription: "CoQ10 heart health supplement",
-          price: "222.55",
-          dosage: "30mg",
-          categoryId: vitaminCategory.id,
-          brandId: twentyFirstBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM%20(1)_1755031702979.jpeg",
-          stockQuantity: 45,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 156,
-        },
-        {
-          name: "21st century cranberry plus probiotic tablet, 60 Count",
-          slug: "21st-century-cranberry-probiotic-60ct",
-          description: "Cranberry extract with probiotics for urinary tract health and digestive support.",
-          shortDescription: "Cranberry plus probiotics",
-          price: "199.82",
-          dosage: "60 tablets",
-          categoryId: digestiveCategory.id,
-          brandId: twentyFirstBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM_1755031702978.jpeg",
-          stockQuantity: 60,
-          requiresPrescription: false,
-          rating: "4.3",
-          reviewCount: 98,
-        },
-        {
-          name: "21st century Gelatine 600mg dietary supplement (100 Count)",
-          slug: "21st-century-gelatine-600mg-100ct",
-          description: "Gelatine supplement for joint health, skin, hair, and nail support.",
-          shortDescription: "Gelatine for joint and skin health",
-          price: "172.65",
-          dosage: "600mg",
-          categoryId: vitaminCategory.id,
-          brandId: twentyFirstBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM%20(1)_1755031702978.jpeg",
-          stockQuantity: 100,
-          requiresPrescription: false,
-          rating: "4.2",
-          reviewCount: 87,
-        },
-        {
-          name: "21st century glucosamine chondroitin 250/200mg original strength, 60 Count",
-          slug: "21st-century-glucosamine-chondroitin-60ct",
-          description: "Joint support formula with glucosamine and chondroitin for cartilage health and mobility.",
-          shortDescription: "Glucosamine chondroitin joint support",
-          price: "207.73",
-          dosage: "250/200mg",
-          categoryId: vitaminCategory.id,
-          brandId: twentyFirstBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM_1755031702977.jpeg",
-          stockQuantity: 60,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 145,
-        },
-        {
-          name: "21st century hair, skin and nails extra strength tablets, 90 count",
-          slug: "21st-century-hair-skin-nails-90ct",
-          description: "Beauty supplement with biotin, vitamins, and minerals for healthy hair, skin, and nails.",
-          shortDescription: "Hair, skin, and nails support",
-          price: "223.04",
-          dosage: "90 tablets",
-          categoryId: vitaminCategory.id,
-          brandId: twentyFirstBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM%20(1)_1755031702976.jpeg",
-          stockQuantity: 90,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 198,
-        },
-        {
-          name: "21st century healthcare, B complex plus vitamin C, tablet 100count",
-          slug: "21st-century-b-complex-vitamin-c-100ct",
-          description: "Complete B-complex vitamins with added vitamin C for energy metabolism and immune support.",
-          shortDescription: "B-complex with Vitamin C",
-          price: "207.48",
-          dosage: "100 tablets",
-          categoryId: vitaminCategory.id,
-          brandId: twentyFirstBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM%20(2)_1755031702975.jpeg",
-          stockQuantity: 100,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 267,
-        },
-        // Advil Products from catalog
-        {
-          name: "Advil liquid-gel pain reliever and fever reducer, Ibuprofen 200mg capsules 240ct",
-          slug: "advil-liquid-gel-240ct",
-          description: "Fast-acting liquid gel capsules with ibuprofen 200mg for effective pain relief and fever reduction.",
-          shortDescription: "Liquid gel pain reliever 240ct",
-          price: "518.21",
-          dosage: "200mg",
-          categoryId: otcCategory.id,
-          brandId: advilesBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.20%20PM_1755031702992.jpeg",
-          stockQuantity: 75,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 342,
-        },
-        {
-          name: "Advil pain reliever and fever reducer, Ibuprofen 200mg capsules 24ct",
-          slug: "advil-pain-reliever-24ct",
-          description: "Trusted ibuprofen pain relief for headaches, muscle aches, and fever.",
-          shortDescription: "Ibuprofen pain reliever 24ct",
-          price: "122.76",
-          dosage: "200mg",
-          categoryId: otcCategory.id,
-          brandId: advilesBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.21%20PM_1755031702991.jpeg",
-          stockQuantity: 120,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 189,
-        },
-        {
-          name: "Advil liqui-gel pain reliever and fever reducer, Ibuprofen 200mg capsules 10ct",
-          slug: "advil-liqui-gel-10ct",
-          description: "Fast-acting liquid gel formula for quick pain relief in a convenient 10-count package.",
-          shortDescription: "Liqui-gel pain relief 10ct",
-          price: "76.32",
-          dosage: "200mg",
-          categoryId: otcCategory.id,
-          brandId: advilesBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.22%20PM_1755031702990.jpeg",
+          name: "Centrum Adult Multivitamin & Multimineral 200ct",
+          slug: "centrum-adult-multivitamin-200ct",
+          description: "Complete multivitamin and multimineral supplement for adults. Supports energy metabolism and immune health.",
+          shortDescription: "Complete adult multivitamin 200ct",
+          price: "299.00",
+          dosage: "200 tablets",
+          categoryId: vitaminsCategory.id,
+          brandId: centrumBrand.id,
+          imageUrl: "/assets/centrum-multivitamin.jpg",
           stockQuantity: 150,
           requiresPrescription: false,
           rating: "4.5",
-          reviewCount: 98,
+          reviewCount: 324
         },
         {
-          name: "Advil PM pain reliever and nighttime sleep aid, Ibuprofen sleep aid -120 coated caplets",
-          slug: "advil-pm-120ct",
-          description: "Combines ibuprofen pain relief with diphenhydramine sleep aid for nighttime pain relief.",
-          shortDescription: "PM pain reliever with sleep aid",
-          price: "320.85",
-          dosage: "200mg + sleep aid",
-          categoryId: otcCategory.id,
-          brandId: advilesBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM_1755031702985.jpeg",
+          name: "21st Century Calcium 600mg with Vitamin D3",
+          slug: "21st-century-calcium-600mg-vitamin-d3",
+          description: "Calcium supplement with Vitamin D3 for bone health and strength.",
+          shortDescription: "Calcium 600mg with D3",
+          price: "165.00",
+          dosage: "120 tablets",
+          categoryId: mineralsCategory.id,
+          brandId: century21Brand.id,
+          imageUrl: "/assets/21st-century-calcium.jpg",
+          stockQuantity: 200,
+          requiresPrescription: false,
+          rating: "4.3",
+          reviewCount: 198
+        },
+        {
+          name: "Nature Made Turmeric Curcumin 500mg",
+          slug: "nature-made-turmeric-curcumin-500mg",
+          description: "Turmeric curcumin supplement with antioxidant properties for joint health.",
+          shortDescription: "Turmeric curcumin 500mg",
+          price: "245.00",
+          dosage: "60 capsules",
+          categoryId: herbalCategory.id,
+          brandId: natureMadeBrand.id,
+          imageUrl: "/assets/nature-made-turmeric.jpg",
           stockQuantity: 85,
           requiresPrescription: false,
           rating: "4.4",
-          reviewCount: 234,
-        },
-        // Centrum Products from catalog
-        {
-          name: "Centrum adult multivitamin/multimineral supplement with antioxidants -200ct",
-          slug: "centrum-adult-200ct",
-          description: "Complete daily multivitamin and multimineral supplement with antioxidants for adult wellness.",
-          shortDescription: "Complete adult multivitamin 200ct",
-          price: "348.76",
-          dosage: "Daily",
-          categoryId: vitaminCategory.id,
-          brandId: centrumBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM%20(1)_1755031702985.jpeg",
-          stockQuantity: 120,
-          requiresPrescription: false,
-          rating: "4.8",
-          reviewCount: 456,
-        },
-        {
-          name: "Centrum kid's multivitamin gummies, stocking stuffer, tropical punch Flavors made with natural flavors,150ct ,150 days' supply",
-          slug: "centrum-kids-gummies-150ct",
-          description: "Tropical punch flavored gummies made with natural flavors for kids daily nutrition. 150 days supply.",
-          shortDescription: "Kids multivitamin gummies 150ct",
-          price: "380.87",
-          dosage: "Daily",
-          categoryId: vitaminCategory.id,
-          brandId: centrumBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.23%20PM%20(2)_1755031702983.jpeg",
-          stockQuantity: 85,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 234,
-        },
-        {
-          name: "Centrum multivitamin for women -100ct",
-          slug: "centrum-women-100ct",
-          description: "Complete multivitamin tailored for women's health and wellness needs.",
-          shortDescription: "Women's multivitamin 100ct",
-          price: "258.86",
-          dosage: "Daily",
-          categoryId: vitaminCategory.id,
-          brandId: centrumBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM_1755031702988.jpeg",
-          stockQuantity: 110,
-          requiresPrescription: false,
-          rating: "4.8",
-          reviewCount: 287,
-        },
-        {
-          name: "Centrum silver adults 50+ multivitamin tablet 125ct",
-          slug: "centrum-silver-50plus-125ct",
-          description: "Age-adjusted multivitamin for adults 50+ with key nutrients for healthy aging.",
-          shortDescription: "Silver 50+ multivitamin 125ct",
-          price: "278.12",
-          dosage: "Daily",
-          categoryId: vitaminCategory.id,
-          brandId: centrumBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(1)_1755031702987.jpeg",
-          stockQuantity: 90,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 198,
-        },
-        // Nature Made Products from catalog
-        {
-          name: "Nature made fish oil 2400mg, omega 3 fish oil supplements,134ct",
-          slug: "nature-made-fish-oil-134ct",
-          description: "High-potency omega-3 fish oil supplement for heart health and brain function.",
-          shortDescription: "Omega-3 fish oil 2400mg",
-          price: "335.18",
-          dosage: "2400mg",
-          categoryId: vitaminCategory.id,
-          brandId: naturesBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(2)_1755031702987.jpeg",
-          stockQuantity: 85,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 267,
-        },
-        {
-          name: "Nature made magnesium oxide 400mg softgels 150ct",
-          slug: "nature-made-magnesium-150ct",
-          description: "Essential magnesium supplement for muscle and nerve function, bone health, and energy metabolism.",
-          shortDescription: "Magnesium oxide 400mg",
-          price: "357.66",
-          dosage: "400mg",
-          categoryId: mineralCategory.id,
-          brandId: naturesBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.24%20PM%20(3)_1755031702986.jpeg",
-          stockQuantity: 110,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 234,
-        },
-        {
-          name: "Nature made super b complex with vitamin c and folic acid ,140 tablets",
-          slug: "nature-made-super-b-complex-140ct",
-          description: "Complete B-vitamin complex with vitamin C and folic acid for energy and nervous system support.",
-          shortDescription: "Super B-complex with Vitamin C",
-          price: "239.34",
-          dosage: "140 tablets",
-          categoryId: vitaminCategory.id,
-          brandId: naturesBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.25%20PM_1755031702990.jpeg",
-          stockQuantity: 95,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 189,
-        },
-        // Goli Products from catalog
-        {
-          name: "Goli Nutrition apple cider vinegar gummies ,60 CT",
-          slug: "goli-acv-gummies-60ct",
-          description: "Apple cider vinegar gummies with organic ingredients for digestive health and wellness support.",
-          shortDescription: "Apple cider vinegar gummies",
-          price: "370.01",
-          dosage: "60 gummies",
-          categoryId: digestiveCategory.id,
-          brandId: goliBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.25%20PM%20(1)_1755031702989.jpeg",
-          stockQuantity: 75,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 312,
-        },
-        // Ester-C Products from catalog
-        {
-          name: "Ester-c vitamin c 500mg coated tablets ,225 count",
-          slug: "ester-c-500mg-225ct",
-          description: "Gentle, non-acidic Ester-C vitamin C formula that's easy on the stomach with enhanced absorption.",
-          shortDescription: "Non-acidic Vitamin C 500mg",
-          price: "515.49",
-          dosage: "500mg",
-          categoryId: vitaminCategory.id,
-          brandId: naturesWayBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.26%20PM_1755031702988.jpeg",
-          stockQuantity: 95,
-          requiresPrescription: false,
-          rating: "4.8",
-          reviewCount: 456,
-        },
-        // HALLS Products from catalog  
-        {
-          name: "Halls relief honey lemon cough drops, 20 Packs of 9 Drops",
-          slug: "halls-honey-lemon-20packs",
-          description: "Soothing honey lemon cough drops for throat relief. Bulk pack with 20 individual packs of 9 drops each.",
-          shortDescription: "Honey lemon cough drops 20 packs",
-          price: "644.18",
-          dosage: "180 drops total",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.27%20PM_1755031702987.jpeg",
-          stockQuantity: 45,
-          requiresPrescription: false,
-          rating: "4.6",
-          reviewCount: 234,
-        },
-        // AZO Products from catalog
-        {
-          name: "Azo cranberry urinary tract health supplement ,100 soft gels",
-          slug: "azo-cranberry-100ct",
-          description: "Cranberry concentrate supplement for urinary tract health and cleansing support.",
-          shortDescription: "Cranberry urinary health 100ct",
-          price: "298.87",
-          dosage: "100 softgels",
-          categoryId: vitaminCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.28%20PM_1755031702986.jpeg",
-          stockQuantity: 85,
-          requiresPrescription: false,
-          rating: "4.5",
-          reviewCount: 198,
-        },
-        // First Aid Products from catalog
-        {
-          name: "Johnson & Johnson travel ready portable emergency first aid kit, 80 pc",
-          slug: "jj-first-aid-kit-80pc",
-          description: "Complete portable first aid kit with 80 essential pieces for home, travel, office, auto, and school.",
-          shortDescription: "Portable first aid kit 80 pieces",
-          price: "246.51",
-          dosage: "80 pieces",
-          categoryId: firstAidCategory.id,
-          brandId: johnsonBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.29%20PM_1755031702985.jpeg",
-          stockQuantity: 65,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 156,
-        },
-        {
-          name: "Curad Assorted bandages including antibacterial, heavy duty, fabric, and waterproof bandages ,300pieces",
-          slug: "curad-assorted-bandages-300pc",
-          description: "Complete assortment of bandages including antibacterial, heavy duty, fabric, and waterproof varieties.",
-          shortDescription: "Assorted bandages 300 pieces",
-          price: "300.85",
-          dosage: "300 pieces",
-          categoryId: firstAidCategory.id,
-          brandId: redCrossBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.30%20PM_1755031702984.jpeg",
-          stockQuantity: 120,
-          requiresPrescription: false,
-          rating: "4.4",
-          reviewCount: 234,
+          reviewCount: 156
         }
       ];
-
-      // Remove existing products to prevent duplicates
-      await storage.deleteAllProducts();
 
       // Create all products
       const createdProducts = [];
@@ -1010,18 +491,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const product = await storage.createProduct(productData);
           createdProducts.push(product);
-          console.log(`Created product: ${productData.name}`);
         } catch (error) {
           console.error(`Failed to create product ${productData.name}:`, error);
         }
       }
 
       res.json({ 
-        message: "Database seeded successfully", 
-        categories: categories.length,
-        brands: brands.length + 7, // Added 7 new brands
-        products: createdProducts.length,
-        skipped: products.length - createdProducts.length
+        message: "Database seeded successfully with catalog structure", 
+        categories: 3,
+        brands: 3,
+        products: createdProducts.length
       });
     } catch (error) {
       console.error("Seeding error:", error);
