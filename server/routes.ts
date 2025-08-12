@@ -489,55 +489,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Add Centrum brand for authentic products
+      let centrumBrand = await storage.getBrandByName("Centrum");
+      if (!centrumBrand) {
+        centrumBrand = await storage.createBrand({
+          name: "Centrum",
+          description: "Leading multivitamin and supplement brand"
+        });
+      }
+
+      let oneADayBrand = await storage.getBrandByName("One A Day");
+      if (!oneADayBrand) {
+        oneADayBrand = await storage.createBrand({
+          name: "One A Day",
+          description: "Daily multivitamin supplements"
+        });
+      }
+
+      let century21Brand = await storage.getBrandByName("21st Century");
+      if (!century21Brand) {
+        century21Brand = await storage.createBrand({
+          name: "21st Century",
+          description: "Quality health and wellness supplements"
+        });
+      }
+
       // Create products with authentic Ghana pricing from Upstand Trading catalog
       const products = [
         {
-          name: "Advil Pain Reliever 200mg - 24 Tablets",
-          slug: "advil-pain-reliever-24ct",
-          description: "Advil Pain Reliever and Fever Reducer with Ibuprofen 200mg for headache and backache relief. Trusted brand for effective pain management.",
-          shortDescription: "Ibuprofen 200mg pain reliever, 24 coated tablets",
-          price: "122.76",
-          originalPrice: "140.00",
-          dosage: "200mg",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.17%20PM_1754947176458.jpeg",
-          stockQuantity: 150,
-          requiresPrescription: false,
-          rating: "4.7",
-          reviewCount: 234,
-        },
-        {
-          name: "Advil Liqui-Gels 240ct - High Strength",
-          slug: "advil-liqui-gels-240ct",
-          description: "Advil Liqui-Gels Pain Reliever and Fever Reducer, Ibuprofen 200mg Capsules. Fast-acting liquid gel formula for quicker pain relief.",
-          shortDescription: "Fast-acting liquid gel capsules, 240 count",
-          price: "518.21",
-          originalPrice: "580.00",
-          dosage: "200mg",
-          categoryId: otcCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.18%20PM_1754947176457.jpeg",
-          stockQuantity: 75,
+          name: "Centrum Adult Multivitamin/Multimineral 200ct",
+          slug: "centrum-adult-200ct",
+          description: "Complete multivitamin and multimineral supplement with antioxidants for daily wellness support. Essential nutrients for adults.",
+          shortDescription: "Complete daily multivitamin, 200 tablets",
+          price: "348.76",
+          originalPrice: "380.00",
+          dosage: "Daily",
+          categoryId: supplementsCategory.id,
+          brandId: centrumBrand.id,
+          imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=400&h=300",
+          stockQuantity: 120,
           requiresPrescription: false,
           rating: "4.8",
-          reviewCount: 412,
+          reviewCount: 456,
         },
         {
-          name: "Excedrin Migraine Relief - 200 Caplets",
-          slug: "excedrin-migraine-200ct",
-          description: "Excedrin Migraine Relief Caplets to alleviate migraine symptoms. Contains acetaminophen, aspirin, and caffeine for comprehensive headache relief.",
-          shortDescription: "Professional strength migraine relief, 200 caplets",
-          price: "412.24",
-          originalPrice: "450.00",
-          dosage: "Triple action formula",
-          categoryId: prescriptionCategory.id,
-          brandId: pfizerBrand.id,
-          imageUrl: "/assets/WhatsApp%20Image%202025-08-11%20at%201.33.19%20PM_1754947176455.jpeg",
+          name: "Centrum Kids Multivitamin Gummies 150ct",
+          slug: "centrum-kids-gummies-150ct",
+          description: "Tropical punch flavored gummies made with natural flavors for kids daily nutrition. 150 days supply of essential vitamins.",
+          shortDescription: "Kids multivitamin gummies, tropical punch flavor",
+          price: "380.87",
+          originalPrice: "420.00",
+          dosage: "Daily",
+          categoryId: supplementsCategory.id,
+          brandId: centrumBrand.id,
+          imageUrl: "https://images.unsplash.com/photo-1559181567-c3190ca9959b?auto=format&fit=crop&w=400&h=300",
           stockQuantity: 85,
           requiresPrescription: false,
           rating: "4.6",
-          reviewCount: 298,
+          reviewCount: 234,
+        },
+        {
+          name: "Centrum Multivitamin for Women 100ct",
+          slug: "centrum-women-100ct",
+          description: "Complete multivitamin tailored for women's health and wellness needs. Essential nutrients for daily vitality.",
+          shortDescription: "Women's complete daily multivitamin",
+          price: "258.86",
+          originalPrice: "290.00",
+          dosage: "Daily",
+          categoryId: supplementsCategory.id,
+          brandId: centrumBrand.id,
+          imageUrl: "https://images.unsplash.com/photo-1550572017-1244dc7b3c82?auto=format&fit=crop&w=400&h=300",
+          stockQuantity: 110,
+          requiresPrescription: false,
+          rating: "4.8",
+          reviewCount: 287,
         },
         {
           name: "Ester-C Vitamin C 500mg - 225 Tablets",

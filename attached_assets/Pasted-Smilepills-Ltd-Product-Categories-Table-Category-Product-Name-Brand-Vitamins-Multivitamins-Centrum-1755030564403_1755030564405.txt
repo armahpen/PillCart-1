@@ -1,0 +1,59 @@
+Smilepills Ltd Product Categories Table
+Category	Product Name	Brand
+Vitamins & Multivitamins	Centrum Adult Multivitamin/Multimineral 200ct	Centrum
+Centrum Kids Multivitamin Gummies 150ct	Centrum
+Centrum Multivitamin for Men 100ct	Centrum
+Centrum Multivitamin for Women 100ct	Centrum
+Centrum Silver Adults 50+ 125ct	Centrum
+Centrum Silver Women’s 50+ 65ct	Centrum
+One A Day Men’s Multivitamin Daily Essentials 150ct	One A Day
+One A Day Men’s Multivitamin Daily Essentials 200ct	One A Day
+One A Day Women’s 50+ Multivitamin 200ct	One A Day
+One A Day Women’s Gummy Multivitamin 80ct	One A Day
+Flintstone Gummies Kid’s Vitamins with Immunity Support 150ct	Flintstone
+Geritol Multivitamin Supplement 40 Tablets	Geritol
+L’il Critters Gummy Vites Multivitamin 70ct	L’il Critters
+L’il Critters Paw Patrol Gummy Vites 60ct	L’il Critters
+Kiddivit Baby Multivitamin Liquid 120ml	Kiddivit
+Spring Valley Super B-Complex 100ct	Spring Valley
+Spring Valley Vitamin E Dietary Supplement 200ct	Spring Valley
+21st Century Mega Multi for Women 90ct	21st Century
+21st Century One Daily Men’s 50+ 100ct	21st Century
+21st Century One Daily Women 50+ 100ct	21st Century
+21st Century One Daily Men’s Health 100ct	21st Century
+21st Century One Daily Women’s 100ct	21st Century
+
+Category	Product Name	Brand
+Minerals & Trace Elements	Zinc Chewable with Vitamin C & B6 90ct	21st Century
+Zinc 50mg Citrate 90ct	Life Extension
+Zinc 30mg Tablets	Nature Made
+Zinc Glycinate 30mg 120 Softgels	NOW Foods
+Magnesium Oxide 400mg 150ct	Nature Made
+Magnesium Glycinate 240mg 180ct	Nature’s Bounty
+Magnesium Glycinate Capsules 200mg 60ct	Nature’s Truth
+Potassium Gluconate 550mg 100 Tablets	Nature Made
+Potassium 99mg 100 Caplets	Nature’s Bounty
+Calcium Magnesium & Zinc Caplets 100ct	Nature’s Bounty
+Calcium Magnesium & Zinc Plus Vitamin D3 250ct	Spring Valley
+Iron 65mg (Ferrous Sulfate 325mg) 100 Tablets	Nature’s Bounty
+Selenium 100mcg 100 Tablets	NOW Foods
+
+Category	Product Name	Brand
+Herbal & Natural Supplements	Cranberry Plus Probiotic 60ct	21st Century
+Cranberry 4200mg with Vitamin C 250ct	Nature’s Bounty
+Cranberry Supplement 500mg with Vitamin C 60ct	Nature Made
+Cranberry Gummies 500mg 60ct	Spring Valley
+Extra Strength Cranberry Capsules 15,000mg 60ct	Spring Valley
+Garlic Extract Supplement 5000mcg Allicin 60 Caplets	Garlique
+Healthy Blood Pressure Support (Odor Free Garlic) 60ct	Garlique
+Black Cohosh Root 540mg 100 Capsules	Nature’s Bounty
+Turmeric Capsules 450mg 60ct	Nature’s Bounty
+Turmeric with Black Pepper Extract 1000mg 60ct	Nature’s Bounty
+Green Tea Weight Loss Supplement 90ct	Applied Nutrition
+Green Tea Pills 315mg 100ct	Nature’s Bounty
+Beet Root Dietary Supplement 1000mg 90ct	Spring Valley
+Beetroot Gummies 500mg 60ct	Spring Valley
+Organic Best Beet Powder 290g	Spring Valley
+Ashwagandha Gummies 60ct	Goli Nutrition
+Ashwagandha 1000mg Vegetarian Capsules 150ct	Youtheory
+Berberine 1000mg 60 Capsules	Nature’s Bounty
