@@ -36,11 +36,13 @@ export interface IStorage {
   // Category operations
   getCategories(): Promise<Category[]>;
   createCategory(category: InsertCategory): Promise<Category>;
+  deleteAllCategories(): Promise<void>;
 
   // Brand operations
   getBrands(): Promise<Brand[]>;
   getBrandByName(name: string): Promise<Brand | undefined>;
   createBrand(brand: InsertBrand): Promise<Brand>;
+  deleteAllBrands(): Promise<void>;
 
   // Product operations
   getProducts(filters?: {
@@ -58,6 +60,7 @@ export interface IStorage {
   createProduct(product: InsertProduct): Promise<Product>;
   updateProductStock(id: string, quantity: number): Promise<Product>;
   deleteAllProducts(): Promise<void>;
+  clearAllData(): Promise<void>;
 
   // Cart operations
   getCartItems(userId: string): Promise<CartItemWithProduct[]>;
@@ -118,6 +121,10 @@ export class DatabaseStorage implements IStorage {
     return newCategory;
   }
 
+  async deleteAllCategories(): Promise<void> {
+    await db.delete(categories);
+  }
+
   // Brand operations
   async getBrands(): Promise<Brand[]> {
     return await db.select().from(brands).orderBy(brands.name);
@@ -131,6 +138,10 @@ export class DatabaseStorage implements IStorage {
   async createBrand(brand: InsertBrand): Promise<Brand> {
     const [newBrand] = await db.insert(brands).values(brand).returning();
     return newBrand;
+  }
+
+  async deleteAllBrands(): Promise<void> {
+    await db.delete(brands);
   }
 
   // Product operations
@@ -209,6 +220,16 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAllProducts(): Promise<void> {
     await db.delete(products);
+  }
+
+  async clearAllData(): Promise<void> {
+    // Delete in correct order to respect foreign key constraints
+    await db.delete(orderItems);
+    await db.delete(orders);  
+    await db.delete(cartItems);
+    await db.delete(products);
+    await db.delete(categories);
+    await db.delete(brands);
   }
 
   // Cart operations
