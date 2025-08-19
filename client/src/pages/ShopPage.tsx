@@ -134,9 +134,9 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
               onLoad={() => console.log('Image loaded successfully:', product['Product Name'])}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 flex flex-col items-center justify-center p-4">
-              <div className="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mb-3">
-                <ShoppingCart className="h-8 w-8 text-secondary" />
+            <div className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 flex flex-col items-center justify-center p-5">
+              <div className="w-20 h-20 bg-secondary/20 rounded-full flex items-center justify-center mb-4">
+                <ShoppingCart className="h-10 w-10 text-secondary" />
               </div>
               <span className="text-sm text-gray-600 text-center font-medium">
                 {product.Brand}
@@ -147,11 +147,11 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             </div>
           )}
         </div>
-        <div className="p-2">
-          <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 mb-1 min-h-[1.5rem] text-sm">
+        <div className="p-3">
+          <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 mb-2 min-h-[2rem] text-sm">
             {product['Product Name']}
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-500 mb-1 truncate">
+          <p className="text-xs text-gray-500 dark:text-gray-500 mb-2 truncate">
             {product.Brand}
           </p>
           <div className="flex items-center justify-between">
@@ -161,7 +161,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             <Button
               size="sm"
               onClick={handleAddToCart}
-              className={`h-6 px-2 text-xs ${
+              className={`h-7 px-3 text-xs ${
                 isInCart(product) 
                   ? 'bg-green-600 hover:bg-green-700 text-white' 
                   : 'bg-secondary hover:bg-secondary/90'
@@ -530,7 +530,7 @@ export function ShopPage() {
                 </Badge>
               </div>
               
-              <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
+              <div className={`grid gap-4 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
                 {filteredProducts.map((product, index) => (
                   <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                 ))}
@@ -551,7 +551,7 @@ export function ShopPage() {
                       </Badge>
                     </div>
                     
-                    <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
+                    <div className={`grid gap-4 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
                       {categoryProducts.map((product, index) => (
                         <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                       ))}
