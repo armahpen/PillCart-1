@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -44,30 +44,19 @@ export function ShopPage() {
       .then(response => response.json())
       .then(data => {
         // Filter out products with missing essential data
-        const validProducts = data.filter((item: Product) => {
-          const hasValidName = item.ProductName && item.ProductName.trim() !== '';
-          const hasValidPrice = item['Price(Ghc)'] !== null && 
-                               item['Price(Ghc)'] !== undefined && 
-                               item['Price(Ghc)'] !== '' && 
-                               Number(item['Price(Ghc)']) > 0;
-          const hasValidBrand = item.Brand && item.Brand.trim() !== '';
-          
-          return hasValidName && hasValidPrice && hasValidBrand;
-        });
+        const validProducts = data.filter((item: Product) => 
+          item.ProductName && 
+          item.ProductName.trim() !== '' && 
+          item['Price(Ghc)'] && 
+          item['Price(Ghc)'] !== '' &&
+          Number(item['Price(Ghc)']) !== 0
+        );
         setProducts(validProducts);
         setFilteredProducts(validProducts);
         const uniqueCategories = Array.from(new Set(validProducts.map((item: Product) => item.Category).filter(Boolean))) as string[];
         setCategories(uniqueCategories);
         setLoading(false);
         console.log(`Loaded ${validProducts.length} valid products out of ${data.length} total products`);
-        
-        // Debug: Check for any remaining products with missing data
-        const remaining = validProducts.filter((item: Product) => 
-          !item.ProductName || !item['Price(Ghc)'] || !item.Brand
-        );
-        if (remaining.length > 0) {
-          console.warn(`Warning: ${remaining.length} products still have missing data after filtering`);
-        }
       })
       .catch(error => {
         console.error('Error loading product catalog:', error);
@@ -167,141 +156,151 @@ export function ShopPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Horizontal Filters Bar */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Filters
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-              {/* Search */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar Filters */}
+          <div className="lg:w-1/4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 space-y-6">
               <div>
-                <label className="text-sm font-medium mb-2 block">Search Products</label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                    data-testid="input-search"
-                  />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                  <Filter className="h-5 w-5 mr-2" />
+                  Filters
+                </h3>
+                
+                {/* Search */}
+                <div className="mb-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      type="text"
+                      placeholder="Search products..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                      data-testid="input-search"
+                    />
+                  </div>
+                </div>
+
+                {/* Category Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Category
+                  </label>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger data-testid="select-category">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Categories</SelectItem>
+                      {categories.map(category => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Sort By */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Sort By
+                  </label>
+                  <Select value={sortBy} onValueChange={(value: 'name' | 'price' | 'brand') => setSortBy(value)}>
+                    <SelectTrigger data-testid="select-sort">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="name">Product Name</SelectItem>
+                      <SelectItem value="price">Price</SelectItem>
+                      <SelectItem value="brand">Brand</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              {/* Category Filter */}
+              {/* Category Summary */}
               <div>
-                <label className="text-sm font-medium mb-2 block">Category</label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger data-testid="select-category">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="All">All Categories</SelectItem>
-                    {categories.map(category => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Sort By */}
-              <div>
-                <label className="text-sm font-medium mb-2 block">Sort By</label>
-                <Select value={sortBy} onValueChange={(value: 'name' | 'price' | 'brand') => setSortBy(value)}>
-                  <SelectTrigger data-testid="select-sort">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="name">Product Name</SelectItem>
-                    <SelectItem value="price">Price</SelectItem>
-                    <SelectItem value="brand">Brand</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Clear Filters */}
-              <div>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setSearchQuery('');
-                    setSelectedCategory('All');
-                    setSortBy('name');
-                  }}
-                  className="w-full"
-                  data-testid="button-clear-filters"
-                >
-                  Clear Filters
-                </Button>
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Categories ({categories.length})
+                </h4>
+                <div className="space-y-2">
+                  {categories.slice(0, 8).map(category => {
+                    const count = products.filter(p => p.Category === category).length;
+                    return (
+                      <div
+                        key={category}
+                        className="flex justify-between text-sm cursor-pointer hover:text-blue-600"
+                        onClick={() => setSelectedCategory(category)}
+                      >
+                        <span className="truncate">{category}</span>
+                        <Badge variant="secondary" className="ml-2">{count}</Badge>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Products Grid */}
-        <div>
-          {selectedCategory !== 'All' ? (
-            /* Single Category View */
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {selectedCategory}
-                </h2>
-                <Badge variant="outline" data-testid="text-product-count">
-                  {filteredProducts.length} products
-                </Badge>
+          {/* Products Grid */}
+          <div className="lg:w-3/4">
+            {selectedCategory !== 'All' ? (
+              /* Single Category View */
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {selectedCategory}
+                  </h2>
+                  <Badge variant="outline" data-testid="text-product-count">
+                    {filteredProducts.length} products
+                  </Badge>
+                </div>
+                
+                <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+                  {filteredProducts.map((product, index) => (
+                    <ProductCard key={`${product.ProductName}-${index}`} product={product} viewMode={viewMode} />
+                  ))}
+                </div>
               </div>
-              
-              <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1'}`}>
-                {filteredProducts.map((product, index) => (
-                  <ProductCard key={`${product.ProductName}-${index}`} product={product} viewMode={viewMode} />
+            ) : (
+              /* All Categories View - Grouped */
+              <div className="space-y-12">
+                {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
+                  <div key={category}>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {category}
+                      </h2>
+                      <Badge variant="outline" data-testid={`text-category-${category.toLowerCase().replace(/[^a-z0-9]/g, '-')}-count`}>
+                        {categoryProducts.length} products
+                      </Badge>
+                    </div>
+                    
+                    <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+                      {categoryProducts.map((product, index) => (
+                        <ProductCard key={`${product.ProductName}-${index}`} product={product} viewMode={viewMode} />
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
-            </div>
-          ) : (
-            /* All Categories View - Grouped */
-            <div className="space-y-12">
-              {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
-                <div key={category}>
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {category}
-                    </h2>
-                    <Badge variant="outline" data-testid={`text-category-${category.toLowerCase().replace(/[^a-z0-9]/g, '-')}-count`}>
-                      {categoryProducts.length} products
-                    </Badge>
-                  </div>
-                  
-                  <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1'}`}>
-                    {categoryProducts.map((product, index) => (
-                      <ProductCard key={`${product.ProductName}-${index}`} product={product} viewMode={viewMode} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+            )}
 
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <Search className="h-12 w-12 mx-auto mb-4" />
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <Search className="h-12 w-12 mx-auto mb-4" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  No products found
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Try adjusting your search criteria or category filter
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                No products found
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Try adjusting your search criteria or category filter
-              </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
