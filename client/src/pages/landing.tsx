@@ -1,8 +1,60 @@
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const Index = () => {
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  
+  const reviews = [
+    {
+      text: "Great communication. Quick to respond to any queries I had. Fast and efficient.",
+      rating: "★★★★☆",
+      author: "KIM BOUGHLITA"
+    },
+    {
+      text: "Prompt and professional service. Dealt with my order promptly and professionally. My order was received quickly, happy with the service I received.",
+      rating: "★★★★☆",
+      author: "Judy Coetzee"
+    },
+    {
+      text: "Best service. Very quick compared to any other totally recommend 5 star service in my opinion. Shop here for best results.",
+      rating: "★★★★☆",
+      author: "Joanne wills"
+    },
+    {
+      text: "Excellent support and fast delivery. Really impressed with the care taken with my order.",
+      rating: "★★★★☆",
+      author: "Esi Amoako"
+    },
+    {
+      text: "Very reliable service. My medication arrived on time and the staff were very helpful.",
+      rating: "★★★★☆",
+      author: "Akua Gyamfi"
+    },
+    {
+      text: "Fantastic experience. The customer service was top-notch and the process was smooth.",
+      rating: "★★★★☆",
+      author: "Yaa Dankwa"
+    }
+  ];
+
+  const getVisibleReviews = () => {
+    const visible = [];
+    for (let i = 0; i < 3; i++) {
+      const index = (currentReviewIndex + i) % reviews.length;
+      visible.push(reviews[index]);
+    }
+    return visible;
+  };
+
+  const nextReviews = () => {
+    setCurrentReviewIndex((prev) => (prev + 1) % reviews.length);
+  };
+
+  const prevReviews = () => {
+    setCurrentReviewIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+  };
+
   const orgJsonLd = useMemo(() => ({
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -187,57 +239,31 @@ const Index = () => {
             
             <div className="flex justify-center items-center gap-6 mb-8">
               {/* Left Arrow */}
-              <button className="text-white border-none text-2xl cursor-pointer w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 transform hover:scale-110 shadow-lg" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
+              <button 
+                onClick={prevReviews}
+                className="text-white border-none text-2xl cursor-pointer w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 transform hover:scale-110 shadow-lg" 
+                style={{ backgroundColor: 'rgb(0, 224, 188)' }}
+              >
                 &lt;
               </button>
               
               {/* Review Cards */}
-              <div className="flex gap-6 flex-wrap justify-center max-w-5xl">
-                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
-                  <p className="mb-4 text-gray-700">Great communication. Quick to respond to any queries I had. Fast and efficient.</p>
-                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>KIM BOUGHLITA</div>
-                  <div className="text-gray-500 text-sm">today</div>
-                </div>
-                
-                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
-                  <p className="mb-4 text-gray-700">Prompt and professional service. Dealt with my order promptly and professionally. My order was received quickly, happy with the service I received.</p>
-                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Judy Coetzee</div>
-                  <div className="text-gray-500 text-sm">one day ago</div>
-                </div>
-                
-                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
-                  <p className="mb-4 text-gray-700">Best service. Very quick compared to any other totally recommend 5 star service in my opinion. Shop here for best results.</p>
-                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Joanne wills</div>
-                  <div className="text-gray-500 text-sm">2 days ago</div>
-                </div>
-                
-                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
-                  <p className="mb-4 text-gray-700">Excellent support and fast delivery. Really impressed with the care taken with my order.</p>
-                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Esi Amoako</div>
-                  <div className="text-gray-500 text-sm">3 days ago</div>
-                </div>
-                
-                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
-                  <p className="mb-4 text-gray-700">Very reliable service. My medication arrived on time and the staff were very helpful.</p>
-                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Akua Gyamfi</div>
-                  <div className="text-gray-500 text-sm">4 days ago</div>
-                </div>
-                
-                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
-                  <p className="mb-4 text-gray-700">Fantastic experience. The customer service was top-notch and the process was smooth.</p>
-                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Yaa Dankwa</div>
-                  <div className="text-gray-500 text-sm">5 days ago</div>
-                </div>
+              <div className="flex gap-6 justify-center">
+                {getVisibleReviews().map((review, index) => (
+                  <div key={`${currentReviewIndex}-${index}`} className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
+                    <p className="mb-4 text-gray-700">{review.text}</p>
+                    <div className="text-yellow-500 text-lg mb-2">{review.rating}</div>
+                    <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>{review.author}</div>
+                  </div>
+                ))}
               </div>
               
               {/* Right Arrow */}
-              <button className="text-white border-none text-2xl cursor-pointer w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 transform hover:scale-110 shadow-lg" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
+              <button 
+                onClick={nextReviews}
+                className="text-white border-none text-2xl cursor-pointer w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 transform hover:scale-110 shadow-lg" 
+                style={{ backgroundColor: 'rgb(0, 224, 188)' }}
+              >
                 &gt;
               </button>
             </div>
