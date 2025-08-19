@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import * as XLSX from 'xlsx';
+import { useCart } from '@/hooks/useCart';
+import { useToast } from '@/hooks/use-toast';
 
 interface Product {
   Category: string;
@@ -22,10 +24,15 @@ interface ProductCardProps {
 
 function ProductCard({ product, viewMode }: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
+  const { addToCart, isInCart } = useCart();
+  const { toast } = useToast();
 
   const handleAddToCart = () => {
-    console.log('Adding to cart:', product['Product Name']);
-    // TODO: Implement add to cart functionality
+    addToCart(product);
+    toast({
+      title: "Added to cart",
+      description: `${product['Product Name']} has been added to your cart.`,
+    });
   };
 
   if (viewMode === 'list') {

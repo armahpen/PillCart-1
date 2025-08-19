@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import CartSidebar from "@/components/cart/cart-sidebar";
+import { CartBadge } from "@/components/cart/CartBadge";
 import { Link, useLocation } from "wouter";
 import { 
   ShoppingCart, 

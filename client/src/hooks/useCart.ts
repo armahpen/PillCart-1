@@ -1,160 +1,131 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { isUnauthorizedError } from "@/lib/authUtils";
+import { useState, useEffect } from 'react';
+
+interface CartItem {
+  id: string;
+  name: string;
+  brand: string;
+  price: number;
+  quantity: number;
+  imageUrl?: string;
+}
+
+interface Product {
+  'Product Name': string;
+  Brand: string;
+  Price: number;
+  ImageURL?: string;
+}
+
+const CART_STORAGE_KEY = 'smile-pills-cart';
 
 export function useCart() {
-  const { isAuthenticated } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const { data: cartItems, isLoading } = useQuery({
-    queryKey: ["/api/cart"],
-    enabled: isAuthenticated,
-  });
+  useEffect(() => {
+    loadCart();
+  }, []);
 
-  const addToCartMutation = useMutation({
-    mutationFn: async ({ productId, quantity }: { productId: string; quantity: number }) => {
-      const response = await apiRequest("POST", "/api/cart", { productId, quantity });
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
-      toast({
-        title: "Added to Cart",
-        description: "Item has been added to your cart.",
-      });
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Please Login",
-          description: "You need to be logged in to add items to cart.",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 1000);
-        return;
+  const loadCart = () => {
+    try {
+      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+      if (savedCart) {
+        setCartItems(JSON.parse(savedCart));
       }
-      toast({
-        title: "Error",
-        description: "Failed to add item to cart.",
-        variant: "destructive",
-      });
-    },
-  });
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      localStorage.removeItem(CART_STORAGE_KEY);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const updateQuantityMutation = useMutation({
-    mutationFn: async ({ productId, quantity }: { productId: string; quantity: number }) => {
-      const response = await apiRequest("PUT", `/api/cart/${productId}`, { quantity });
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Session Expired",
-          description: "Please login again to continue.",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 1000);
-        return;
-      }
-      toast({
-        title: "Error",
-        description: "Failed to update cart item.",
-        variant: "destructive",
-      });
-    },
-  });
+  const saveCart = (items: CartItem[]) => {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+      setCartItems(items);
+      
+      // Dispatch custom event for cart updates
+      window.dispatchEvent(new CustomEvent('cartUpdated', { 
+        detail: { items, count: items.length } 
+      }));
+    } catch (error) {
+      console.error('Error saving cart:', error);
+    }
+  };
 
-  const removeFromCartMutation = useMutation({
-    mutationFn: async (productId: string) => {
-      const response = await apiRequest("DELETE", `/api/cart/${productId}`);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
-      toast({
-        title: "Item Removed",
-        description: "Item has been removed from your cart.",
-      });
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Session Expired",
-          description: "Please login again to continue.",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 1000);
-        return;
-      }
-      toast({
-        title: "Error",
-        description: "Failed to remove item from cart.",
-        variant: "destructive",
-      });
-    },
-  });
+  const addToCart = (product: Product, quantity: number = 1) => {
+    const productId = `${product['Product Name']}-${product.Brand}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    
+    const existingItem = cartItems.find(item => item.id === productId);
+    
+    if (existingItem) {
+      // Update quantity if item already exists
+      const updatedItems = cartItems.map(item =>
+        item.id === productId 
+          ? { ...item, quantity: item.quantity + quantity }
+          : item
+      );
+      saveCart(updatedItems);
+    } else {
+      // Add new item
+      const newItem: CartItem = {
+        id: productId,
+        name: product['Product Name'],
+        brand: product.Brand,
+        price: product.Price,
+        quantity,
+        imageUrl: product.ImageURL
+      };
+      saveCart([...cartItems, newItem]);
+    }
+  };
 
-  const clearCartMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("DELETE", "/api/cart");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
-      toast({
-        title: "Cart Cleared",
-        description: "All items have been removed from your cart.",
-      });
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Session Expired",
-          description: "Please login again to continue.",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 1000);
-        return;
-      }
-      toast({
-        title: "Error",
-        description: "Failed to clear cart.",
-        variant: "destructive",
-      });
-    },
-  });
+  const removeFromCart = (productId: string) => {
+    const updatedItems = cartItems.filter(item => item.id !== productId);
+    saveCart(updatedItems);
+  };
 
-  const cartItemCount = cartItems?.length || 0;
-  const cartTotal = cartItems?.reduce((total: number, item: any) => {
-    return total + (parseFloat(item.product.price) * item.quantity);
-  }, 0) || 0;
+  const updateQuantity = (productId: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+
+    const updatedItems = cartItems.map(item =>
+      item.id === productId 
+        ? { ...item, quantity: newQuantity }
+        : item
+    );
+    saveCart(updatedItems);
+  };
+
+  const clearCart = () => {
+    saveCart([]);
+  };
+
+  const getCartCount = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const getCartTotal = () => {
+    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  const isInCart = (product: Product) => {
+    const productId = `${product['Product Name']}-${product.Brand}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    return cartItems.some(item => item.id === productId);
+  };
 
   return {
     cartItems,
-    cartItemCount,
-    cartTotal,
-    isLoading,
-    addToCart: addToCartMutation.mutate,
-    updateQuantity: updateQuantityMutation.mutate,
-    removeFromCart: removeFromCartMutation.mutate,
-    clearCart: clearCartMutation.mutate,
-    isAdding: addToCartMutation.isPending,
-    isUpdating: updateQuantityMutation.isPending,
-    isRemoving: removeFromCartMutation.isPending,
-    isClearing: clearCartMutation.isPending,
+    loading,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    getCartCount,
+    getCartTotal,
+    isInCart
   };
 }

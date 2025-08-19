@@ -11,6 +11,7 @@ import Shop from "@/pages/shop";
 import Browse from "@/pages/browse";
 import ProductDetail from "@/pages/product-detail";
 import Cart from "@/pages/cart";
+import { CartPage } from "@/pages/CartPage";
 import Checkout from "@/pages/checkout";
 import CheckoutReturn from "@/pages/checkout-return";
 import About from "@/pages/about";
@@ -48,7 +49,7 @@ function Router() {
           <Route path="/product/:slug" component={ProductDetail} />
           <Route path="/prescription" component={Prescription} />
           <Route path="/prescription-view/:id" component={PrescriptionView} />
-          <Route path="/cart" component={Cart} />
+          <Route path="/cart" component={CartPage} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/checkout/return" component={CheckoutReturn} />
           <Route path="/about" component={About} />
