@@ -21,7 +21,7 @@ const Index = () => {
           {/* Background Image */}
           <div className="absolute inset-0">
             <img 
-              src="/assets/female-doctor-showing-her-right-hand_1755610231724.jpg"
+              src="https://lh3.googleusercontent.com/d/1g-Wndw3JAuCTqawSBqXIZoi4J7x9YRlT=w1200"
               alt="Female doctor showing professional healthcare services"
               className="w-full h-full object-cover object-center"
             />
