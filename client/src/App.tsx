@@ -29,7 +29,7 @@ function Router() {
       {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
-          <Route path="/shop" component={Shop} />
+          <Route path="/shop" component={ShopPage} />
           <Route path="/shop-catalog" component={ShopPage} />
           <Route path="/browse" component={Browse} />
           <Route path="/product/:slug" component={ProductDetail} />
@@ -42,7 +42,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
-          <Route path="/shop" component={Shop} />
+          <Route path="/shop" component={ShopPage} />
           <Route path="/shop-catalog" component={ShopPage} />
           <Route path="/browse" component={Browse} />
           <Route path="/product/:slug" component={ProductDetail} />

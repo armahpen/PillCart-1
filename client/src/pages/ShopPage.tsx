@@ -1,31 +1,121 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter, ShoppingCart, Grid, List } from 'lucide-react';
-
-const getDirectDriveLink = (url: string) => {
-  if (!url) return "";
-  
-  // Extract file ID from Google Drive URL
-  const match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (match) {
-    const fileId = match[1];
-    // Try multiple Google Drive URL formats
-    return `https://lh3.googleusercontent.com/d/${fileId}=w400`;
-  }
-  
-  return url;
-};
+import { useState, useEffect } from "react";
+import { Search, Grid, List, Filter, ChevronDown, ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import * as XLSX from 'xlsx';
 
 interface Product {
   Category: string;
-  ProductName: string;
+  'Product Name': string;
   Brand: string;
-  'Price(Ghc)': number;
-  Direct_Link: string;
+  Price: number;
+  ImageURL: string;
+}
+
+interface ProductCardProps {
+  product: Product;
+  viewMode: 'grid' | 'list';
+}
+
+function ProductCard({ product, viewMode }: ProductCardProps) {
+  const [imageError, setImageError] = useState(false);
+
+  const handleAddToCart = () => {
+    console.log('Adding to cart:', product['Product Name']);
+    // TODO: Implement add to cart functionality
+  };
+
+  if (viewMode === 'list') {
+    return (
+      <Card className="hover:shadow-lg transition-shadow duration-200">
+        <CardContent className="p-4">
+          <div className="flex gap-4">
+            <div className="w-24 h-24 flex-shrink-0">
+              {!imageError && product.ImageURL ? (
+                <img
+                  src={product.ImageURL}
+                  alt={product['Product Name']}
+                  className="w-full h-full object-cover rounded-md"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
+                  <span className="text-gray-400 text-xs">No Image</span>
+                </div>
+              )}
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 mb-1">
+                {product['Product Name']}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                {product.Brand}
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-bold text-secondary">
+                  ₵{product.Price.toFixed(2)}
+                </span>
+                <Button
+                  size="sm"
+                  onClick={handleAddToCart}
+                  className="bg-secondary hover:bg-secondary/90"
+                  data-testid={`button-add-cart-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-1" />
+                  Add to Cart
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+      <CardContent className="p-0">
+        <div className="aspect-square w-full">
+          {!imageError && product.ImageURL ? (
+            <img
+              src={product.ImageURL}
+              alt={product['Product Name']}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-400">No Image</span>
+            </div>
+          )}
+        </div>
+        <div className="p-4">
+          <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 mb-2 min-h-[3rem]">
+            {product['Product Name']}
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            {product.Brand}
+          </p>
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold text-secondary">
+              ₵{product.Price.toFixed(2)}
+            </span>
+            <Button
+              size="sm"
+              onClick={handleAddToCart}
+              className="bg-secondary hover:bg-secondary/90"
+              data-testid={`button-add-cart-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+            >
+              <ShoppingCart className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 export function ShopPage() {
@@ -37,54 +127,75 @@ export function ShopPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'brand'>('name');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load product catalog from JSON file
-    console.log('Starting to fetch product catalog...');
-    fetch('/product_catalog.json')
-      .then(response => {
-        console.log('Fetch response status:', response.status);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Raw data loaded:', data?.length, 'items');
-        console.log('Sample item:', data[0]);
-        
-        // Filter out products with missing essential data
-        const validProducts = data.filter((item: Product) => {
-          const hasName = item.ProductName && item.ProductName.trim() !== '';
-          const hasPrice = item['Price(Ghc)'] !== null && 
-                          item['Price(Ghc)'] !== undefined && 
-                          item['Price(Ghc)'] !== '';
-          const hasValidPrice = hasPrice && Number(item['Price(Ghc)']) > 0;
-          
-          const isValid = hasName && hasValidPrice;
+    loadProductsFromExcel();
+  }, []);
+
+  const loadProductsFromExcel = async () => {
+    try {
+      console.log('Loading Excel file...');
+      const response = await fetch('/product_catalog.xlsx');
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch Excel file: ${response.status}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
+      
+      // Get the first worksheet
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      // Convert to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
+      
+      console.log('Raw Excel data:', jsonData.length, 'rows');
+      console.log('Sample row:', jsonData[0]);
+
+      // Map and validate the data
+      const validProducts = jsonData
+        .map((row: any) => ({
+          Category: row.Category || row.category || '',
+          'Product Name': row['Product Name'] || row.ProductName || row['product name'] || '',
+          Brand: row.Brand || row.brand || '',
+          Price: parseFloat(row.Price || row.price || row['Price(Ghc)'] || '0') || 0,
+          ImageURL: row.ImageURL || row.imageurl || row['Image URL'] || row.DirectLink || row['Direct_Link'] || ''
+        }))
+        .filter((product: Product) => {
+          const isValid = product['Product Name'].trim() !== '' && 
+                          product.Price > 0 && 
+                          product.Category.trim() !== '';
           
           if (!isValid) {
-            console.log('Invalid product filtered out:', item);
+            console.log('Filtered out invalid product:', product);
           }
           return isValid;
         });
-        
-        console.log(`Loaded ${validProducts.length} valid products out of ${data.length} total products`);
-        console.log('Valid products sample:', validProducts.slice(0, 3));
-        
-        setProducts(validProducts);
-        setFilteredProducts(validProducts);
-        const uniqueCategories = Array.from(new Set(validProducts.map((item: Product) => item.Category).filter(Boolean))) as string[];
-        setCategories(uniqueCategories);
-        console.log('Categories found:', uniqueCategories);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error loading product catalog:', error);
-        setLoading(false);
-      });
-  }, []);
 
+      console.log(`Loaded ${validProducts.length} valid products from Excel`);
+      
+      setProducts(validProducts);
+      setFilteredProducts(validProducts);
+      
+      const uniqueCategories = Array.from(
+        new Set(validProducts.map(p => p.Category).filter(Boolean))
+      ) as string[];
+      setCategories(uniqueCategories);
+      
+      console.log('Categories found:', uniqueCategories);
+      setLoading(false);
+
+    } catch (err) {
+      console.error('Error loading Excel file:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load products');
+      setLoading(false);
+    }
+  };
+
+  // Filter and sort products
   useEffect(() => {
     let filtered = products;
 
@@ -94,10 +205,11 @@ export function ShopPage() {
     }
 
     // Filter by search query
-    if (searchQuery) {
+    if (searchQuery.trim()) {
       filtered = filtered.filter(product =>
-        product.ProductName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.Brand.toLowerCase().includes(searchQuery.toLowerCase())
+        product['Product Name'].toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.Brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.Category.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -105,11 +217,9 @@ export function ShopPage() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'name':
-          return a.ProductName.localeCompare(b.ProductName);
+          return a['Product Name'].localeCompare(b['Product Name']);
         case 'price':
-          const priceA = typeof a['Price(Ghc)'] === 'number' ? a['Price(Ghc)'] : Number(a['Price(Ghc)']);
-          const priceB = typeof b['Price(Ghc)'] === 'number' ? b['Price(Ghc)'] : Number(b['Price(Ghc)']);
-          return priceA - priceB;
+          return a.Price - b.Price;
         case 'brand':
           return a.Brand.localeCompare(b.Brand);
         default:
@@ -120,21 +230,47 @@ export function ShopPage() {
     setFilteredProducts(filtered);
   }, [products, selectedCategory, searchQuery, sortBy]);
 
-  const groupedProducts = filteredProducts.reduce((acc, product) => {
-    const category = product.Category || 'Uncategorized';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(product);
+  // Group products by category for "All" view
+  const groupedProducts = categories.reduce((acc, category) => {
+    acc[category] = filteredProducts.filter(p => p.Category === category);
     return acc;
   }, {} as Record<string, Product[]>);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading authentic catalog...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-center min-h-96">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary mx-auto mb-4"></div>
+              <p className="text-gray-600 dark:text-gray-400">Loading products from Excel...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-center min-h-96">
+            <div className="text-center">
+              <div className="text-red-500 mb-4">
+                <Search className="h-12 w-12 mx-auto mb-4" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Failed to load products
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                {error}
+              </p>
+              <Button onClick={loadProductsFromExcel}>
+                Try Again
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -142,70 +278,43 @@ export function ShopPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Smile Pills Ltd Catalog
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                {filteredProducts.length} authentic pharmaceutical products
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  data-testid="button-grid-view"
-                >
-                  <Grid className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  data-testid="button-list-view"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+      {/* Hero Section */}
+      <div className="bg-white dark:bg-gray-800 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Shop Our Products
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Browse our comprehensive collection of pharmaceutical products and health supplements
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Horizontal Filters Bar */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b">
+      {/* Filters Bar */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filters:</span>
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+                data-testid="input-search"
+              />
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              {/* Search */}
-              <div className="relative min-w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                  data-testid="input-search"
-                />
-              </div>
 
+            <div className="flex items-center gap-4">
               {/* Category Filter */}
               <div className="min-w-48">
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger data-testid="select-category">
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All">All Categories</SelectItem>
@@ -231,6 +340,28 @@ export function ShopPage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* View Mode Toggle */}
+              <div className="flex border border-gray-200 dark:border-gray-700 rounded-md">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className="rounded-r-none"
+                  data-testid="button-view-grid"
+                >
+                  <Grid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className="rounded-l-none"
+                  data-testid="button-view-list"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -246,7 +377,7 @@ export function ShopPage() {
               onClick={() => setSelectedCategory('All')}
               className="text-xs"
             >
-              All ({filteredProducts.length})
+              All ({products.length})
             </Button>
             {categories.slice(0, 8).map(category => {
               const count = products.filter(p => p.Category === category).length;
@@ -265,7 +396,7 @@ export function ShopPage() {
           </div>
         </div>
 
-        {/* Debug Info */}
+        {/* Debug Info (development only) */}
         {process.env.NODE_ENV === 'development' && (
           <div className="mb-6 p-4 bg-yellow-100 border border-yellow-300 rounded">
             <h3 className="font-semibold">Debug Info:</h3>
@@ -273,25 +404,31 @@ export function ShopPage() {
             <p>Filtered products: {filteredProducts.length}</p>
             <p>Categories: {categories.length}</p>
             <p>Selected category: {selectedCategory}</p>
-            <p>Loading state: {loading ? 'true' : 'false'}</p>
+            <p>Search query: "{searchQuery}"</p>
           </div>
         )}
 
         {/* Products Grid */}
         <div>
-          {products.length === 0 && !loading ? (
+          {filteredProducts.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-red-500 mb-4">
+              <div className="text-gray-400 mb-4">
                 <Search className="h-12 w-12 mx-auto mb-4" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Failed to load products
+                No products found
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                The product catalog couldn't be loaded. Check the browser console for details.
+                Try adjusting your search or filter criteria
               </p>
-              <Button onClick={() => window.location.reload()}>
-                Reload Page
+              <Button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('All');
+                }}
+                variant="outline"
+              >
+                Clear Filters
               </Button>
             </div>
           ) : selectedCategory !== 'All' ? (
@@ -308,7 +445,7 @@ export function ShopPage() {
               
               <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
                 {filteredProducts.map((product, index) => (
-                  <ProductCard key={`${product.ProductName}-${index}`} product={product} viewMode={viewMode} />
+                  <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                 ))}
               </div>
             </div>
@@ -316,182 +453,29 @@ export function ShopPage() {
             /* All Categories View - Grouped */
             <div className="space-y-12">
               {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
-                <div key={category}>
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {category}
-                    </h2>
-                    <Badge variant="outline" data-testid={`text-category-${category.toLowerCase().replace(/[^a-z0-9]/g, '-')}-count`}>
-                      {categoryProducts.length} products
-                    </Badge>
+                categoryProducts.length > 0 && (
+                  <div key={category}>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {category}
+                      </h2>
+                      <Badge variant="outline" data-testid={`text-category-${category.toLowerCase().replace(/[^a-z0-9]/g, '-')}-count`}>
+                        {categoryProducts.length} products
+                      </Badge>
+                    </div>
+                    
+                    <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+                      {categoryProducts.map((product, index) => (
+                        <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
+                      ))}
+                    </div>
                   </div>
-                  
-                  <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
-                    {categoryProducts.map((product, index) => (
-                      <ProductCard key={`${product.ProductName}-${index}`} product={product} viewMode={viewMode} />
-                    ))}
-                  </div>
-                </div>
+                )
               ))}
-            </div>
-          )}
-
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <Search className="h-12 w-12 mx-auto mb-4" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                No products found
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Try adjusting your search criteria or category filter
-              </p>
             </div>
           )}
         </div>
       </div>
     </div>
-  );
-}
-
-interface ProductCardProps {
-  product: Product;
-  viewMode: 'grid' | 'list';
-}
-
-function ProductCard({ product, viewMode }: ProductCardProps) {
-  const [imageError, setImageError] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
-
-  const handleImageError = () => {
-    console.log('Image failed to load:', product.Direct_Link, 'Converted to:', getDirectDriveLink(product.Direct_Link));
-    setImageError(true);
-    setImageLoading(false);
-  };
-
-  const handleImageLoad = () => {
-    console.log('Image loaded successfully:', product.Direct_Link, 'Converted to:', getDirectDriveLink(product.Direct_Link));
-    setImageLoading(false);
-  };
-
-  if (viewMode === 'list') {
-    return (
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200" data-testid={`card-product-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-        <CardContent className="p-0">
-          <div className="flex">
-            <div className="w-32 h-32 flex-shrink-0 relative bg-gray-100 dark:bg-gray-700">
-              {imageLoading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                </div>
-              )}
-              {!imageError && product.Direct_Link ? (
-                <img
-                  src={getDirectDriveLink(product.Direct_Link)}
-                  alt={product.ProductName}
-                  className="w-full h-full object-cover"
-                  onError={handleImageError}
-                  onLoad={handleImageLoad}
-                  data-testid={`img-product-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 dark:from-gray-600 dark:to-gray-700 flex flex-col items-center justify-center p-2">
-                  <div className="w-12 h-12 bg-blue-500 dark:bg-blue-400 rounded-lg flex items-center justify-center mb-2">
-                    <ShoppingCart className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-gray-600 dark:text-gray-300 text-xs text-center font-medium">
-                    {product.Brand}
-                  </span>
-                  <span className="text-gray-500 dark:text-gray-400 text-xs text-center">
-                    Product Image
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className="flex-1 p-4">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2" data-testid={`text-name-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
-                  {product.ProductName || 'Product Name Unavailable'}
-                </h3>
-                <div className="text-right ml-4">
-                  <p className="text-xl font-bold text-blue-600" data-testid={`text-price-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
-                    ₵{(typeof product['Price(Ghc)'] === 'number' ? product['Price(Ghc)'] : parseFloat(product['Price(Ghc)'] as string) || 0).toFixed(2)}
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2" data-testid={`text-brand-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
-                {product.Brand || 'Brand Unavailable'}
-              </p>
-              <Badge variant="outline" className="mb-4" data-testid={`badge-category-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
-                {product.Category || 'Uncategorized'}
-              </Badge>
-              <Button className="w-full" data-testid={`button-add-to-cart-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Add to Cart
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200" data-testid={`card-product-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-      <CardContent className="p-0">
-        <div className="aspect-square relative bg-gray-100 dark:bg-gray-700">
-          {imageLoading && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          )}
-          {!imageError && product.Direct_Link ? (
-            <img
-              src={getDirectDriveLink(product.Direct_Link)}
-              alt={product.ProductName || 'Product'}
-              className="w-full h-full object-cover"
-              onError={handleImageError}
-              onLoad={handleImageLoad}
-              data-testid={`img-product-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 dark:from-gray-600 dark:to-gray-700 flex flex-col items-center justify-center p-4">
-              <div className="w-16 h-16 bg-blue-500 dark:bg-blue-400 rounded-lg flex items-center justify-center mb-3">
-                <ShoppingCart className="h-8 w-8 text-white" />
-              </div>
-              <span className="text-gray-600 dark:text-gray-300 text-sm text-center font-medium">
-                {product.Brand}
-              </span>
-              <span className="text-gray-500 dark:text-gray-400 text-xs text-center">
-                Product Image
-              </span>
-            </div>
-          )}
-        </div>
-        <div className="p-4">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1" data-testid={`text-name-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
-              {product.ProductName || 'Product Name Unavailable'}
-            </h3>
-          </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2" data-testid={`text-brand-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
-            {product.Brand || 'Brand Unavailable'}
-          </p>
-          <Badge variant="outline" className="mb-4" data-testid={`badge-category-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
-            {product.Category || 'Uncategorized'}
-          </Badge>
-          <div className="flex justify-between items-center">
-            <p className="text-xl font-bold text-blue-600" data-testid={`text-price-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
-              ₵{(typeof product['Price(Ghc)'] === 'number' ? product['Price(Ghc)'] : parseFloat(product['Price(Ghc)'] as string) || 0).toFixed(2)}
-            </p>
-            <Button size="sm" data-testid={`button-add-to-cart-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
-              <ShoppingCart className="h-4 w-4 mr-1" />
-              Add
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
