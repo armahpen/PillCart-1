@@ -55,12 +55,13 @@ export function ShopPage() {
         
         // Filter out products with missing essential data
         const validProducts = data.filter((item: Product) => {
-          const isValid = item.ProductName && 
-            item.ProductName.trim() !== '' && 
-            item['Price(Ghc)'] !== null &&
-            item['Price(Ghc)'] !== undefined &&
-            item['Price(Ghc)'] !== '' &&
-            (typeof item['Price(Ghc)'] === 'number' ? item['Price(Ghc)'] > 0 : typeof item['Price(Ghc)'] === 'string' && !isNaN(Number(item['Price(Ghc)'])) && Number(item['Price(Ghc)']) > 0);
+          const hasName = item.ProductName && item.ProductName.trim() !== '';
+          const hasPrice = item['Price(Ghc)'] !== null && 
+                          item['Price(Ghc)'] !== undefined && 
+                          item['Price(Ghc)'] !== '';
+          const hasValidPrice = hasPrice && Number(item['Price(Ghc)']) > 0;
+          
+          const isValid = hasName && hasValidPrice;
           
           if (!isValid) {
             console.log('Invalid product filtered out:', item);
@@ -264,9 +265,36 @@ export function ShopPage() {
           </div>
         </div>
 
+        {/* Debug Info */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mb-6 p-4 bg-yellow-100 border border-yellow-300 rounded">
+            <h3 className="font-semibold">Debug Info:</h3>
+            <p>Total products loaded: {products.length}</p>
+            <p>Filtered products: {filteredProducts.length}</p>
+            <p>Categories: {categories.length}</p>
+            <p>Selected category: {selectedCategory}</p>
+            <p>Loading state: {loading ? 'true' : 'false'}</p>
+          </div>
+        )}
+
         {/* Products Grid */}
         <div>
-          {selectedCategory !== 'All' ? (
+          {products.length === 0 && !loading ? (
+            <div className="text-center py-12">
+              <div className="text-red-500 mb-4">
+                <Search className="h-12 w-12 mx-auto mb-4" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Failed to load products
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                The product catalog couldn't be loaded. Check the browser console for details.
+              </p>
+              <Button onClick={() => window.location.reload()}>
+                Reload Page
+              </Button>
+            </div>
+          ) : selectedCategory !== 'All' ? (
             /* Single Category View */
             <div>
               <div className="flex items-center justify-between mb-6">
