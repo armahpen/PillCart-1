@@ -36,6 +36,7 @@ function Router() {
           <Route path="/product/:slug" component={ProductDetail} />
           <Route path="/prescription" component={Prescription} />
           <Route path="/prescription-view/:id" component={PrescriptionView} />
+          <Route path="/cart" component={CartPage} />
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/privacy" component={Privacy} />

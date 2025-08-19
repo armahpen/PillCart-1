@@ -119,19 +119,17 @@ export default function Header() {
               </Button>
 
               {/* Cart */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative"
-                onClick={() => setIsCartOpen(true)}
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {cartItemCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 bg-secondary text-white text-xs w-5 h-5 flex items-center justify-center p-0">
-                    {cartItemCount}
-                  </Badge>
-                )}
-              </Button>
+              <Link href="/cart">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative"
+                  data-testid="button-cart-header"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  <CartBadge />
+                </Button>
+              </Link>
 
               {/* Wishlist */}
               <Button variant="ghost" size="sm" className="relative hidden sm:block">
