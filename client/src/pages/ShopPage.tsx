@@ -41,13 +41,31 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                   className="w-full h-full object-cover rounded-md"
                   onError={(e) => {
                     console.log('Image load error for:', product['Product Name'], 'URL:', product.ImageURL);
+                    // Try fallback URL format
+                    const img = e.target as HTMLImageElement;
+                    if (img.src.includes('thumbnail?id=')) {
+                      // Extract file ID and try direct uc format
+                      const fileIdMatch = img.src.match(/id=([a-zA-Z0-9_-]+)/);
+                      if (fileIdMatch) {
+                        const fallbackUrl = `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+                        if (img.src !== fallbackUrl) {
+                          img.src = fallbackUrl;
+                          return;
+                        }
+                      }
+                    }
                     setImageError(true);
                   }}
                   onLoad={() => console.log('Image loaded successfully:', product['Product Name'])}
                 />
               ) : (
-                <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
-                  <span className="text-gray-400 text-xs">No Image</span>
+                <div className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 rounded-md flex flex-col items-center justify-center p-2">
+                  <div className="w-8 h-8 bg-secondary/20 rounded-full flex items-center justify-center mb-1">
+                    <ShoppingCart className="h-4 w-4 text-secondary" />
+                  </div>
+                  <span className="text-xs text-gray-600 text-center leading-tight">
+                    {product.Brand}
+                  </span>
                 </div>
               )}
             </div>
@@ -90,13 +108,34 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
               onError={(e) => {
                 console.log('Image load error for:', product['Product Name'], 'URL:', product.ImageURL);
+                // Try fallback URL format
+                const img = e.target as HTMLImageElement;
+                if (img.src.includes('thumbnail?id=')) {
+                  // Extract file ID and try direct uc format
+                  const fileIdMatch = img.src.match(/id=([a-zA-Z0-9_-]+)/);
+                  if (fileIdMatch) {
+                    const fallbackUrl = `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+                    if (img.src !== fallbackUrl) {
+                      img.src = fallbackUrl;
+                      return;
+                    }
+                  }
+                }
                 setImageError(true);
               }}
               onLoad={() => console.log('Image loaded successfully:', product['Product Name'])}
             />
           ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-400">No Image</span>
+            <div className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 flex flex-col items-center justify-center p-4">
+              <div className="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mb-3">
+                <ShoppingCart className="h-8 w-8 text-secondary" />
+              </div>
+              <span className="text-sm text-gray-600 text-center font-medium">
+                {product.Brand}
+              </span>
+              <span className="text-xs text-gray-500 text-center mt-1">
+                Product Image
+              </span>
             </div>
           )}
         </div>
@@ -167,11 +206,6 @@ export function ShopPage() {
       const convertGoogleDriveUrl = (url: string): string => {
         if (!url) return '';
         
-        // If it's already a direct Google Drive URL, return as is
-        if (url.includes('drive.google.com/uc?export=view&id=')) {
-          return url;
-        }
-        
         // Extract file ID from various Google Drive URL formats
         let fileId = '';
         
@@ -180,7 +214,7 @@ export function ShopPage() {
           const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
           if (match) fileId = match[1];
         } else if (url.includes('id=')) {
-          // Format: https://drive.google.com/open?id=FILE_ID
+          // Format: https://drive.google.com/open?id=FILE_ID or uc?export=view&id=FILE_ID
           const match = url.match(/id=([a-zA-Z0-9_-]+)/);
           if (match) fileId = match[1];
         } else if (url.includes('/d/')) {
@@ -189,9 +223,10 @@ export function ShopPage() {
           if (match) fileId = match[1];
         }
         
-        // Convert to direct image URL if file ID found
+        // Convert to thumbnail format which works better for public access
         if (fileId) {
-          return `https://drive.google.com/uc?export=view&id=${fileId}`;
+          // Try Google Drive thumbnail API which is more reliable for public files
+          return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400-h400`;
         }
         
         return url; // Return original if no conversion possible
