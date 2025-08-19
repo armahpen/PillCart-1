@@ -44,19 +44,29 @@ export function ShopPage() {
       .then(response => response.json())
       .then(data => {
         // Filter out products with missing essential data
-        const validProducts = data.filter((item: Product) => 
-          item.ProductName && 
-          item.ProductName.trim() !== '' && 
-          item['Price(Ghc)'] && 
-          item['Price(Ghc)'] !== '' &&
-          Number(item['Price(Ghc)']) !== 0
-        );
+        const validProducts = data.filter((item: Product) => {
+          const hasValidName = item.ProductName && item.ProductName.trim() !== '';
+          const hasValidPrice = item['Price(Ghc)'] && 
+                               item['Price(Ghc)'] !== '' && 
+                               Number(item['Price(Ghc)']) > 0;
+          const hasValidBrand = item.Brand && item.Brand.trim() !== '';
+          
+          return hasValidName && hasValidPrice && hasValidBrand;
+        });
         setProducts(validProducts);
         setFilteredProducts(validProducts);
         const uniqueCategories = Array.from(new Set(validProducts.map((item: Product) => item.Category).filter(Boolean))) as string[];
         setCategories(uniqueCategories);
         setLoading(false);
         console.log(`Loaded ${validProducts.length} valid products out of ${data.length} total products`);
+        
+        // Debug: Check for any remaining products with missing data
+        const remaining = validProducts.filter(item => 
+          !item.ProductName || !item['Price(Ghc)'] || !item.Brand
+        );
+        if (remaining.length > 0) {
+          console.warn(`Warning: ${remaining.length} products still have missing data after filtering`);
+        }
       })
       .catch(error => {
         console.error('Error loading product catalog:', error);
