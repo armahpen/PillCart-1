@@ -530,7 +530,7 @@ export function ShopPage() {
                 </Badge>
               </div>
               
-              <div className={`grid gap-4 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
+              <div className={`grid gap-6 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
                 {filteredProducts.map((product, index) => (
                   <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                 ))}
@@ -551,7 +551,7 @@ export function ShopPage() {
                       </Badge>
                     </div>
                     
-                    <div className={`grid gap-4 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
+                    <div className={`grid gap-6 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
                       {categoryProducts.map((product, index) => (
                         <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                       ))}
