@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, MessageCircle } from 'lucide-react';
 import { Link } from 'wouter';
 
 interface CartItem {
@@ -301,11 +301,12 @@ export function CartPage() {
                     <Button
                       onClick={initiateWhatsAppOrder}
                       variant="outline"
-                      className="w-full border-green-600 text-green-600 hover:bg-green-50"
+                      className="w-full border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-950"
                       size="lg"
                       data-testid="button-whatsapp-order"
                     >
-                      📱 Order via WhatsApp
+                      <MessageCircle className="h-5 w-5 mr-2" />
+                      Order via WhatsApp
                     </Button>
                   </div>
 
