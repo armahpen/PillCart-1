@@ -43,11 +43,20 @@ export function ShopPage() {
     fetch('/product_catalog.json')
       .then(response => response.json())
       .then(data => {
-        setProducts(data);
-        setFilteredProducts(data);
-        const uniqueCategories = Array.from(new Set(data.map((item: Product) => item.Category).filter(Boolean)));
+        // Filter out products with missing essential data
+        const validProducts = data.filter((item: Product) => 
+          item.ProductName && 
+          item.ProductName.trim() !== '' && 
+          item['Price(Ghc)'] && 
+          item['Price(Ghc)'] !== '' &&
+          Number(item['Price(Ghc)']) !== 0
+        );
+        setProducts(validProducts);
+        setFilteredProducts(validProducts);
+        const uniqueCategories = Array.from(new Set(validProducts.map((item: Product) => item.Category).filter(Boolean))) as string[];
         setCategories(uniqueCategories);
         setLoading(false);
+        console.log(`Loaded ${validProducts.length} valid products out of ${data.length} total products`);
       })
       .catch(error => {
         console.error('Error loading product catalog:', error);
@@ -354,22 +363,22 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             </div>
             <div className="flex-1 p-4">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2" data-testid={`text-name-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-                  {product.ProductName}
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2" data-testid={`text-name-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
+                  {product.ProductName || 'Product Name Unavailable'}
                 </h3>
                 <div className="text-right ml-4">
-                  <p className="text-xl font-bold text-blue-600" data-testid={`text-price-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-                    ₵{(product['Price(Ghc)'] || 0).toFixed(2)}
+                  <p className="text-xl font-bold text-blue-600" data-testid={`text-price-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
+                    ₵{(typeof product['Price(Ghc)'] === 'number' ? product['Price(Ghc)'] : parseFloat(product['Price(Ghc)'] as string) || 0).toFixed(2)}
                   </p>
                 </div>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2" data-testid={`text-brand-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-                {product.Brand}
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2" data-testid={`text-brand-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
+                {product.Brand || 'Brand Unavailable'}
               </p>
-              <Badge variant="outline" className="mb-4" data-testid={`badge-category-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-                {product.Category}
+              <Badge variant="outline" className="mb-4" data-testid={`badge-category-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
+                {product.Category || 'Uncategorized'}
               </Badge>
-              <Button className="w-full" data-testid={`button-add-to-cart-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
+              <Button className="w-full" data-testid={`button-add-to-cart-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
                 <ShoppingCart className="h-4 w-4 mr-2" />
                 Add to Cart
               </Button>
@@ -392,11 +401,11 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
           {!imageError && product.Direct_Link ? (
             <img
               src={getDirectDriveLink(product.Direct_Link)}
-              alt={product.ProductName}
+              alt={product.ProductName || 'Product'}
               className="w-full h-full object-cover"
               onError={handleImageError}
               onLoad={handleImageLoad}
-              data-testid={`img-product-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+              data-testid={`img-product-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 dark:from-gray-600 dark:to-gray-700 flex flex-col items-center justify-center p-4">
@@ -414,21 +423,21 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
         </div>
         <div className="p-4">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1" data-testid={`text-name-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-              {product.ProductName}
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1" data-testid={`text-name-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
+              {product.ProductName || 'Product Name Unavailable'}
             </h3>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2" data-testid={`text-brand-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-            {product.Brand}
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2" data-testid={`text-brand-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
+            {product.Brand || 'Brand Unavailable'}
           </p>
-          <Badge variant="outline" className="mb-4" data-testid={`badge-category-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-            {product.Category}
+          <Badge variant="outline" className="mb-4" data-testid={`badge-category-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
+            {product.Category || 'Uncategorized'}
           </Badge>
           <div className="flex justify-between items-center">
-            <p className="text-xl font-bold text-blue-600" data-testid={`text-price-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-              ₵{(product['Price(Ghc)'] || 0).toFixed(2)}
+            <p className="text-xl font-bold text-blue-600" data-testid={`text-price-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
+              ₵{(typeof product['Price(Ghc)'] === 'number' ? product['Price(Ghc)'] : parseFloat(product['Price(Ghc)'] as string) || 0).toFixed(2)}
             </p>
-            <Button size="sm" data-testid={`button-add-to-cart-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
+            <Button size="sm" data-testid={`button-add-to-cart-${product.ProductName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'unnamed'}`}>
               <ShoppingCart className="h-4 w-4 mr-1" />
               Add
             </Button>
