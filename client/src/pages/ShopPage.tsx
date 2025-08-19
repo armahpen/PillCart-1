@@ -46,7 +46,8 @@ export function ShopPage() {
         // Filter out products with missing essential data
         const validProducts = data.filter((item: Product) => {
           const hasValidName = item.ProductName && item.ProductName.trim() !== '';
-          const hasValidPrice = item['Price(Ghc)'] && 
+          const hasValidPrice = item['Price(Ghc)'] !== null && 
+                               item['Price(Ghc)'] !== undefined && 
                                item['Price(Ghc)'] !== '' && 
                                Number(item['Price(Ghc)']) > 0;
           const hasValidBrand = item.Brand && item.Brand.trim() !== '';
@@ -61,7 +62,7 @@ export function ShopPage() {
         console.log(`Loaded ${validProducts.length} valid products out of ${data.length} total products`);
         
         // Debug: Check for any remaining products with missing data
-        const remaining = validProducts.filter(item => 
+        const remaining = validProducts.filter((item: Product) => 
           !item.ProductName || !item['Price(Ghc)'] || !item.Brand
         );
         if (remaining.length > 0) {
