@@ -39,7 +39,11 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                   src={product.ImageURL}
                   alt={product['Product Name']}
                   className="w-full h-full object-cover rounded-md"
-                  onError={() => setImageError(true)}
+                  onError={(e) => {
+                    console.log('Image load error for:', product['Product Name'], 'URL:', product.ImageURL);
+                    setImageError(true);
+                  }}
+                  onLoad={() => console.log('Image loaded successfully:', product['Product Name'])}
                 />
               ) : (
                 <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
@@ -84,7 +88,11 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
               src={product.ImageURL}
               alt={product['Product Name']}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-              onError={() => setImageError(true)}
+              onError={(e) => {
+                console.log('Image load error for:', product['Product Name'], 'URL:', product.ImageURL);
+                setImageError(true);
+              }}
+              onLoad={() => console.log('Image loaded successfully:', product['Product Name'])}
             />
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -155,15 +163,53 @@ export function ShopPage() {
       console.log('Raw Excel data:', jsonData.length, 'rows');
       console.log('Sample row:', jsonData[0]);
 
+      // Helper function to convert Google Drive URLs to direct image URLs
+      const convertGoogleDriveUrl = (url: string): string => {
+        if (!url) return '';
+        
+        // If it's already a direct Google Drive URL, return as is
+        if (url.includes('drive.google.com/uc?export=view&id=')) {
+          return url;
+        }
+        
+        // Extract file ID from various Google Drive URL formats
+        let fileId = '';
+        
+        if (url.includes('/file/d/')) {
+          // Format: https://drive.google.com/file/d/FILE_ID/view
+          const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+          if (match) fileId = match[1];
+        } else if (url.includes('id=')) {
+          // Format: https://drive.google.com/open?id=FILE_ID
+          const match = url.match(/id=([a-zA-Z0-9_-]+)/);
+          if (match) fileId = match[1];
+        } else if (url.includes('/d/')) {
+          // Format: https://drive.google.com/d/FILE_ID
+          const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+          if (match) fileId = match[1];
+        }
+        
+        // Convert to direct image URL if file ID found
+        if (fileId) {
+          return `https://drive.google.com/uc?export=view&id=${fileId}`;
+        }
+        
+        return url; // Return original if no conversion possible
+      };
+
       // Map and validate the data
       const validProducts = jsonData
-        .map((row: any) => ({
-          Category: row.Category || row.category || '',
-          'Product Name': row['Product Name'] || row.ProductName || row['product name'] || '',
-          Brand: row.Brand || row.brand || '',
-          Price: parseFloat(row.Price || row.price || row['Price(Ghc)'] || '0') || 0,
-          ImageURL: row.ImageURL || row.imageurl || row['Image URL'] || row.DirectLink || row['Direct_Link'] || ''
-        }))
+        .map((row: any) => {
+          const rawImageUrl = row.ImageURL || row.imageurl || row['Image URL'] || row.DirectLink || row['Direct_Link'] || '';
+          
+          return {
+            Category: row.Category || row.category || '',
+            'Product Name': row['Product Name'] || row.ProductName || row['product name'] || '',
+            Brand: row.Brand || row.brand || '',
+            Price: parseFloat(row.Price || row.price || row['Price(Ghc)'] || '0') || 0,
+            ImageURL: convertGoogleDriveUrl(rawImageUrl)
+          };
+        })
         .filter((product: Product) => {
           const isValid = product['Product Name'].trim() !== '' && 
                           product.Price > 0 && 
