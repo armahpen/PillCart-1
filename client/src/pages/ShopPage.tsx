@@ -236,13 +236,20 @@ export function ShopPage() {
       const validProducts = jsonData
         .map((row: any) => {
           const rawImageUrl = row.ImageURL || row.imageurl || row['Image URL'] || row.DirectLink || row['Direct_Link'] || '';
+          const productName = row['Product Name'] || row.ProductName || row['product name'] || '';
+          
+          // Special case for the folic acid product - use local image
+          let finalImageUrl = convertGoogleDriveUrl(rawImageUrl);
+          if (productName === '21st century 800 mcg folic acid tablets, Assorted 180 Count') {
+            finalImageUrl = '/folic-acid-21st-century.png';
+          }
           
           return {
             Category: row.Category || row.category || '',
-            'Product Name': row['Product Name'] || row.ProductName || row['product name'] || '',
+            'Product Name': productName,
             Brand: row.Brand || row.brand || '',
             Price: parseFloat(row.Price || row.price || row['Price(Ghc)'] || '0') || 0,
-            ImageURL: convertGoogleDriveUrl(rawImageUrl)
+            ImageURL: finalImageUrl
           };
         })
         .filter((product: Product) => {
