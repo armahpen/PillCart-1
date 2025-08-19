@@ -477,17 +477,7 @@ export function ShopPage() {
           </div>
         </div>
 
-        {/* Debug Info (development only) */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mb-6 p-4 bg-yellow-100 border border-yellow-300 rounded">
-            <h3 className="font-semibold">Debug Info:</h3>
-            <p>Total products loaded: {products.length}</p>
-            <p>Filtered products: {filteredProducts.length}</p>
-            <p>Categories: {categories.length}</p>
-            <p>Selected category: {selectedCategory}</p>
-            <p>Search query: "{searchQuery}"</p>
-          </div>
-        )}
+
 
         {/* Products Grid */}
         <div>
