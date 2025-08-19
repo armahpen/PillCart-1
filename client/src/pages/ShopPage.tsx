@@ -6,6 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter, ShoppingCart, Grid, List } from 'lucide-react';
 
+const getDirectDriveLink = (url: string) => {
+  if (!url) return "";
+  const match = url.match(/\/d\/(.*?)\//);
+  return match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : url;
+};
+
 interface Product {
   Category: string;
   ProductName: string;
@@ -315,7 +321,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
               )}
               {!imageError && product.Direct_Link ? (
                 <img
-                  src={product.Direct_Link}
+                  src={getDirectDriveLink(product.Direct_Link)}
                   alt={product.ProductName}
                   className="w-full h-full object-cover"
                   onError={handleImageError}
@@ -367,7 +373,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
           )}
           {!imageError && product.Direct_Link ? (
             <img
-              src={product.Direct_Link}
+              src={getDirectDriveLink(product.Direct_Link)}
               alt={product.ProductName}
               className="w-full h-full object-cover"
               onError={handleImageError}
