@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import * as XLSX from 'xlsx';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
+import Header from '@/components/layout/header';
 
 interface Product {
   Category: string;
@@ -371,6 +372,9 @@ export function ShopPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <Header />
+      
       {/* Hero Section */}
       <div className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

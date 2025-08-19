@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, MessageCircle } from 'lucide-react';
 import { Link } from 'wouter';
+import Header from '@/components/layout/header';
 
 interface CartItem {
   id: string;
@@ -114,6 +115,9 @@ export function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <Header />
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center mb-8">
