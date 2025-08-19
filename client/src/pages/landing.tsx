@@ -179,43 +179,43 @@ const Index = () => {
         </section>
 
         {/* Reviews Section */}
-        <section className="py-16 bg-white text-center text-blue-600 font-sans">
+        <section className="py-16 bg-white text-center font-sans" style={{ color: 'rgb(0, 224, 188)' }}>
           <div className="container mx-auto px-4">
-            <h2 className="text-4xl font-bold mb-4 text-blue-800">Feeling better together</h2>
-            <p className="text-lg mb-8 text-blue-600">Real client feedback from people we've helped take back control of their health.</p>
-            <div className="text-xl mb-8 text-blue-700">Client Reviews</div>
+            <h2 className="text-4xl font-bold mb-4" style={{ color: 'rgb(0, 224, 188)' }}>Feeling better together</h2>
+            <p className="text-lg mb-8" style={{ color: 'rgb(0, 224, 188)' }}>Real client feedback from people we've helped take back control of their health.</p>
+            <div className="text-xl mb-8" style={{ color: 'rgb(0, 224, 188)' }}>Client Reviews</div>
             
             <div className="flex justify-center gap-6 flex-wrap mb-8">
               <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
                 <p className="mb-4 text-gray-700">Great communication. Quick to respond to any queries I had. Fast and efficient.</p>
                 <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                <div className="font-bold text-blue-600 mb-1">KIM BOUGHLITA</div>
+                <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>KIM BOUGHLITA</div>
                 <div className="text-gray-500 text-sm">today</div>
               </div>
               
               <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
                 <p className="mb-4 text-gray-700">Prompt and professional service. Dealt with my order promptly and professionally. My order was received quickly, happy with the service I received.</p>
                 <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                <div className="font-bold text-blue-600 mb-1">Judy Coetzee</div>
+                <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Judy Coetzee</div>
                 <div className="text-gray-500 text-sm">one day ago</div>
               </div>
               
               <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
                 <p className="mb-4 text-gray-700">Best service. Very quick compared to any other totally recommend 5 star service in my opinion. Shop here for best results.</p>
                 <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                <div className="font-bold text-blue-600 mb-1">Joanne wills</div>
+                <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Joanne wills</div>
                 <div className="text-gray-500 text-sm">2 days ago</div>
               </div>
             </div>
             
             <div className="flex justify-center gap-6 items-center">
-              <button className="bg-blue-600 text-white border-none text-lg cursor-pointer px-4 py-2 rounded hover:bg-blue-700 transition-all duration-200 transform hover:scale-105">
+              <button className="text-white border-none text-lg cursor-pointer px-4 py-2 rounded transition-all duration-200 transform hover:scale-105" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
                 &lt;
               </button>
-              <button className="bg-blue-600 text-white border-none text-lg cursor-pointer px-6 py-2 rounded hover:bg-blue-700 transition-all duration-200 transform hover:scale-105">
+              <button className="text-white border-none text-lg cursor-pointer px-6 py-2 rounded transition-all duration-200 transform hover:scale-105" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
                 See more reviews
               </button>
-              <button className="bg-blue-600 text-white border-none text-lg cursor-pointer px-4 py-2 rounded hover:bg-blue-700 transition-all duration-200 transform hover:scale-105">
+              <button className="text-white border-none text-lg cursor-pointer px-4 py-2 rounded transition-all duration-200 transform hover:scale-105" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
                 &gt;
               </button>
             </div>
