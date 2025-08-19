@@ -3,16 +3,22 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/hooks/useCart';
 
 export function CartBadge() {
-  const { getCartCount } = useCart();
+  const { cartItems, getCartCount } = useCart();
   const [count, setCount] = useState(0);
 
+  // Update count whenever cartItems changes
   useEffect(() => {
-    // Initial count
-    setCount(getCartCount());
-    
-    // Listen for cart updates
+    const newCount = getCartCount();
+    console.log('CartBadge: Updating count to:', newCount);
+    setCount(newCount);
+  }, [cartItems, getCartCount]);
+
+  useEffect(() => {
+    // Listen for cart updates as backup
     const handleCartUpdate = (event: CustomEvent) => {
-      setCount(event.detail.items.reduce((total: number, item: any) => total + item.quantity, 0));
+      const newCount = event.detail.count;
+      console.log('CartBadge: Received cartUpdated event with count:', newCount);
+      setCount(newCount);
     };
 
     window.addEventListener('cartUpdated', handleCartUpdate as EventListener);
@@ -20,7 +26,7 @@ export function CartBadge() {
     return () => {
       window.removeEventListener('cartUpdated', handleCartUpdate as EventListener);
     };
-  }, [getCartCount]);
+  }, []);
 
   if (count === 0) return null;
 
