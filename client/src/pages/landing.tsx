@@ -102,10 +102,10 @@ const Index = () => {
             <div className="max-w-4xl mx-auto">
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  { title: "Cough & Cold" },
+                  { title: "Vitamins & Multivitamins" },
                   { title: "Pain Relief" },
-                  { title: "Allergy" },
-                  { title: "Skincare" },
+                  { title: "Dietary Supplements" },
+                  { title: "Skin Care & Acne" },
                 ].map((c) => (
                   <article key={c.title} className="text-center p-8 rounded-xl border bg-white hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
                     <h3 className="text-xl font-bold mb-2 text-gray-900">{c.title}</h3>
