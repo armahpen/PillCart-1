@@ -185,37 +185,38 @@ const Index = () => {
             <p className="text-lg mb-8" style={{ color: 'rgb(0, 224, 188)' }}>Real client feedback from people we've helped take back control of their health.</p>
             <div className="text-xl mb-8" style={{ color: 'rgb(0, 224, 188)' }}>Client Reviews</div>
             
-            <div className="flex justify-center gap-6 flex-wrap mb-8">
-              <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
-                <p className="mb-4 text-gray-700">Great communication. Quick to respond to any queries I had. Fast and efficient.</p>
-                <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>KIM BOUGHLITA</div>
-                <div className="text-gray-500 text-sm">today</div>
-              </div>
-              
-              <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
-                <p className="mb-4 text-gray-700">Prompt and professional service. Dealt with my order promptly and professionally. My order was received quickly, happy with the service I received.</p>
-                <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Judy Coetzee</div>
-                <div className="text-gray-500 text-sm">one day ago</div>
-              </div>
-              
-              <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
-                <p className="mb-4 text-gray-700">Best service. Very quick compared to any other totally recommend 5 star service in my opinion. Shop here for best results.</p>
-                <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
-                <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Joanne wills</div>
-                <div className="text-gray-500 text-sm">2 days ago</div>
-              </div>
-            </div>
-            
-            <div className="flex justify-center gap-6 items-center">
-              <button className="text-white border-none text-lg cursor-pointer px-4 py-2 rounded transition-all duration-200 transform hover:scale-105" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
+            <div className="flex justify-center items-center gap-6 mb-8">
+              {/* Left Arrow */}
+              <button className="text-white border-none text-2xl cursor-pointer w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 transform hover:scale-110 shadow-lg" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
                 &lt;
               </button>
-              <button className="text-white border-none text-lg cursor-pointer px-6 py-2 rounded transition-all duration-200 transform hover:scale-105" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
-                See more reviews
-              </button>
-              <button className="text-white border-none text-lg cursor-pointer px-4 py-2 rounded transition-all duration-200 transform hover:scale-105" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
+              
+              {/* Review Cards */}
+              <div className="flex gap-6 flex-wrap justify-center">
+                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
+                  <p className="mb-4 text-gray-700">Great communication. Quick to respond to any queries I had. Fast and efficient.</p>
+                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
+                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>KIM BOUGHLITA</div>
+                  <div className="text-gray-500 text-sm">today</div>
+                </div>
+                
+                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
+                  <p className="mb-4 text-gray-700">Prompt and professional service. Dealt with my order promptly and professionally. My order was received quickly, happy with the service I received.</p>
+                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
+                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Judy Coetzee</div>
+                  <div className="text-gray-500 text-sm">one day ago</div>
+                </div>
+                
+                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
+                  <p className="mb-4 text-gray-700">Best service. Very quick compared to any other totally recommend 5 star service in my opinion. Shop here for best results.</p>
+                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
+                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Joanne wills</div>
+                  <div className="text-gray-500 text-sm">2 days ago</div>
+                </div>
+              </div>
+              
+              {/* Right Arrow */}
+              <button className="text-white border-none text-2xl cursor-pointer w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 transform hover:scale-110 shadow-lg" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
                 &gt;
               </button>
             </div>
