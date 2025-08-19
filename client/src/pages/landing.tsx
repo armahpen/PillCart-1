@@ -129,27 +129,16 @@ const Index = () => {
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4 max-w-4xl">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Featured Content</h2>
-              <p className="text-gray-600">Learn more about our pharmacy services</p>
+              <h2 className="text-3xl font-bold text-gray-900">Medication Made Simple</h2>
             </div>
             <div className="relative w-full h-0 pb-[56.25%] shadow-lg overflow-hidden rounded-lg">
               <iframe 
                 loading="lazy" 
                 className="absolute w-full h-full top-0 left-0 border-none p-0 m-0"
-                src="https://www.canva.com/design/DAGwhpJVoO0/GKbLynMW5PBfZA20aQAfvg/view?embed&autoplay=1&loop=1" 
+                src="https://www.canva.com/design/DAGwhpJVoO0/GKbLynMW5PBfZA20aQAfvg/view?embed" 
                 allowFullScreen 
-                allow="fullscreen; autoplay">
+                allow="fullscreen">
               </iframe>
-            </div>
-            <div className="text-center text-sm text-gray-600 mt-4">
-              <a 
-                href="https://www.canva.com/design/DAGwhpJVoO0/GKbLynMW5PBfZA20aQAfvg/view?utm_content=DAGwhpJVoO0&utm_campaign=designshare&utm_medium=embeds&utm_source=link" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:text-primary/80 transition-colors"
-              >
-                Diskon
-              </a> by Evans Armah
             </div>
           </div>
         </section>
