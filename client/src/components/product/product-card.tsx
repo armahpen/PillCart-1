@@ -228,19 +228,7 @@ export default function ProductCard({ product, variant = "grid" }: ProductCardPr
           </div>
           
           {/* Wishlist button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`absolute top-3 left-3 bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-opacity ${
-              isHovered ? 'opacity-100' : 'opacity-0'
-            }`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <Heart className="h-4 w-4 text-gray-400 hover:text-red-500" />
-          </Button>
+
 
           {!isInStock && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

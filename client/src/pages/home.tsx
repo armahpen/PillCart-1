@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { 
   ShoppingCart, 
-  Heart, 
   Package, 
   TrendingUp,
   ArrowRight,

@@ -8,7 +8,6 @@ import { CartBadge } from "@/components/cart/CartBadge";
 import { Link, useLocation } from "wouter";
 import { 
   ShoppingCart, 
-  Heart, 
   User, 
   Phone, 
   Mail,
@@ -131,13 +130,7 @@ export default function Header() {
                 </Button>
               </Link>
 
-              {/* Wishlist */}
-              <Button variant="ghost" size="sm" className="relative hidden sm:block">
-                <Heart className="h-5 w-5" />
-                <Badge className="absolute -top-2 -right-2 bg-accent text-white text-xs w-5 h-5 flex items-center justify-center p-0">
-                  0
-                </Badge>
-              </Button>
+
             </div>
           </nav>
 
