@@ -126,10 +126,10 @@ const Index = () => {
         </section>
 
         {/* Embedded Video Section */}
-        <section className="py-12 bg-white">
+        <section className="py-12" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
           <div className="container mx-auto px-4 max-w-4xl">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900">Medication Made Simple</h2>
+              <h2 className="text-3xl font-bold text-white">Medication Made Simple</h2>
             </div>
             <div className="relative w-full h-0 pb-[56.25%] shadow-lg overflow-hidden rounded-lg">
               <iframe 
