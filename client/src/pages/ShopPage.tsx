@@ -40,16 +40,25 @@ export function ShopPage() {
 
   useEffect(() => {
     // Load product catalog from JSON file
+    console.log('Starting to fetch product catalog...');
     fetch('/product_catalog.json')
-      .then(response => response.json())
+      .then(response => {
+        console.log('Fetch response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
+        console.log('Raw data loaded:', data?.length, 'items');
         // Filter out products with missing essential data
         const validProducts = data.filter((item: Product) => 
           item.ProductName && 
           item.ProductName.trim() !== '' && 
-          item['Price(Ghc)'] && 
+          item['Price(Ghc)'] !== null &&
+          item['Price(Ghc)'] !== undefined &&
           item['Price(Ghc)'] !== '' &&
-          Number(item['Price(Ghc)']) !== 0
+          (typeof item['Price(Ghc)'] === 'number' ? item['Price(Ghc)'] > 0 : Number(item['Price(Ghc)']) > 0)
         );
         setProducts(validProducts);
         setFilteredProducts(validProducts);
