@@ -33,7 +33,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
       <Card className="hover:shadow-lg transition-shadow duration-200">
         <CardContent className="p-4">
           <div className="flex gap-4">
-            <div className="w-24 h-24 flex-shrink-0">
+            <div className="w-16 h-16 flex-shrink-0">
               {!imageError && product.ImageURL ? (
                 <img
                   src={product.ImageURL}
@@ -139,24 +139,24 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             </div>
           )}
         </div>
-        <div className="p-4">
-          <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 mb-2 min-h-[3rem]">
+        <div className="p-3">
+          <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 mb-1 min-h-[2.5rem] text-sm">
             {product['Product Name']}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
             {product.Brand}
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-secondary">
+            <span className="text-base font-bold text-secondary">
               ₵{product.Price.toFixed(2)}
             </span>
             <Button
               size="sm"
               onClick={handleAddToCart}
-              className="bg-secondary hover:bg-secondary/90"
+              className="bg-secondary hover:bg-secondary/90 h-7 w-7 p-0"
               data-testid={`button-add-cart-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
             >
-              <ShoppingCart className="h-4 w-4" />
+              <ShoppingCart className="h-3 w-3" />
             </Button>
           </div>
         </div>
@@ -524,7 +524,7 @@ export function ShopPage() {
                 </Badge>
               </div>
               
-              <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+              <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6' : 'grid-cols-1'}`}>
                 {filteredProducts.map((product, index) => (
                   <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                 ))}
@@ -545,7 +545,7 @@ export function ShopPage() {
                       </Badge>
                     </div>
                     
-                    <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+                    <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6' : 'grid-cols-1'}`}>
                       {categoryProducts.map((product, index) => (
                         <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                       ))}
