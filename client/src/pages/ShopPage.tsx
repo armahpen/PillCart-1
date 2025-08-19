@@ -6,7 +6,19 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter, ShoppingCart, Grid, List } from 'lucide-react';
 
-// Google Drive URLs are already in the correct format from the Excel file
+const getDirectDriveLink = (url: string) => {
+  if (!url) return "";
+  
+  // Extract file ID from Google Drive URL
+  const match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (match) {
+    const fileId = match[1];
+    // Try multiple Google Drive URL formats
+    return `https://lh3.googleusercontent.com/d/${fileId}=w400`;
+  }
+  
+  return url;
+};
 
 interface Product {
   Category: string;
@@ -296,13 +308,13 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
   const [imageLoading, setImageLoading] = useState(true);
 
   const handleImageError = () => {
-    console.log('Image failed to load:', product.Direct_Link);
+    console.log('Image failed to load:', product.Direct_Link, 'Converted to:', getDirectDriveLink(product.Direct_Link));
     setImageError(true);
     setImageLoading(false);
   };
 
   const handleImageLoad = () => {
-    console.log('Image loaded successfully:', product.Direct_Link);
+    console.log('Image loaded successfully:', product.Direct_Link, 'Converted to:', getDirectDriveLink(product.Direct_Link));
     setImageLoading(false);
   };
 
@@ -319,7 +331,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
               )}
               {!imageError && product.Direct_Link ? (
                 <img
-                  src={product.Direct_Link}
+                  src={getDirectDriveLink(product.Direct_Link)}
                   alt={product.ProductName}
                   className="w-full h-full object-cover"
                   onError={handleImageError}
@@ -327,8 +339,16 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                   data-testid={`img-product-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                 />
               ) : (
-                <div className="w-full h-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                  <span className="text-gray-400 text-xs">No Image</span>
+                <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 dark:from-gray-600 dark:to-gray-700 flex flex-col items-center justify-center p-2">
+                  <div className="w-12 h-12 bg-blue-500 dark:bg-blue-400 rounded-lg flex items-center justify-center mb-2">
+                    <ShoppingCart className="h-6 w-6 text-white" />
+                  </div>
+                  <span className="text-gray-600 dark:text-gray-300 text-xs text-center font-medium">
+                    {product.Brand}
+                  </span>
+                  <span className="text-gray-500 dark:text-gray-400 text-xs text-center">
+                    Product Image
+                  </span>
                 </div>
               )}
             </div>
@@ -371,7 +391,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
           )}
           {!imageError && product.Direct_Link ? (
             <img
-              src={product.Direct_Link}
+              src={getDirectDriveLink(product.Direct_Link)}
               alt={product.ProductName}
               className="w-full h-full object-cover"
               onError={handleImageError}
@@ -379,8 +399,16 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
               data-testid={`img-product-${product.ProductName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
             />
           ) : (
-            <div className="w-full h-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-              <span className="text-gray-400 text-sm">No Image</span>
+            <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 dark:from-gray-600 dark:to-gray-700 flex flex-col items-center justify-center p-4">
+              <div className="w-16 h-16 bg-blue-500 dark:bg-blue-400 rounded-lg flex items-center justify-center mb-3">
+                <ShoppingCart className="h-8 w-8 text-white" />
+              </div>
+              <span className="text-gray-600 dark:text-gray-300 text-sm text-center font-medium">
+                {product.Brand}
+              </span>
+              <span className="text-gray-500 dark:text-gray-400 text-xs text-center">
+                Product Image
+              </span>
             </div>
           )}
         </div>
