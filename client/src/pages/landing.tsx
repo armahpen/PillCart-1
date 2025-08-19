@@ -17,17 +17,36 @@ const Index = () => {
       <Header />
       <main>
         {/* Hero Section */}
-        <section className="hero relative min-h-[60vh] flex items-center bg-gradient-to-br from-primary/5 to-secondary/10 py-12">
-          <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-white"></div>
+        <section className="hero relative min-h-[70vh] flex items-center overflow-hidden">
+          {/* Background Image */}
+          <div className="absolute inset-0">
+            <img 
+              src="/assets/female-doctor-showing-her-right-hand_1755610231724.jpg"
+              alt="Female doctor showing professional healthcare services"
+              className="w-full h-full object-cover object-center"
+            />
+            {/* Light white overlay for text readability */}
+            <div className="absolute inset-0 bg-white/75"></div>
+          </div>
+          
+          {/* Content */}
           <div className="container mx-auto px-4 relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
+              <div className="space-y-6 bg-white/40 backdrop-blur-sm p-8 rounded-lg border border-white/20">
                 <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-neutral leading-tight">
                   Online Pharmacy & Prescription Services
                 </h1>
-                <p className="text-base lg:text-lg text-gray-600 leading-relaxed">
+                <p className="text-base lg:text-lg text-gray-800 leading-relaxed font-medium">
                   Order your prescriptions and shop trusted health essentials with fast, discreet delivery across Ghana.
                 </p>
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <button className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                    Order Prescription
+                  </button>
+                  <button className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200">
+                    Shop Medicines
+                  </button>
+                </div>
               </div>
             </div>
           </div>
