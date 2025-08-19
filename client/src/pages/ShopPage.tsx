@@ -105,7 +105,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             <img
               src={product.ImageURL}
               alt={product['Product Name']}
-              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200 p-2"
+              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200 p-4"
               onError={(e) => {
                 console.log('Image load error for:', product['Product Name'], 'URL:', product.ImageURL);
                 // Try fallback URL format
