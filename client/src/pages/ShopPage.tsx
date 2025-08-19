@@ -6,11 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter, ShoppingCart, Grid, List } from 'lucide-react';
 
-const getDirectDriveLink = (url: string) => {
-  if (!url) return "";
-  const match = url.match(/\/d\/(.*?)\//);
-  return match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : url;
-};
+// Google Drive URLs are already in the correct format from the Excel file
 
 interface Product {
   Category: string;
@@ -37,7 +33,7 @@ export function ShopPage() {
       .then(data => {
         setProducts(data);
         setFilteredProducts(data);
-        const uniqueCategories = [...new Set(data.map((item: Product) => item.Category).filter(Boolean))];
+        const uniqueCategories = Array.from(new Set(data.map((item: Product) => item.Category).filter(Boolean)));
         setCategories(uniqueCategories);
         setLoading(false);
       })
@@ -300,11 +296,13 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
   const [imageLoading, setImageLoading] = useState(true);
 
   const handleImageError = () => {
+    console.log('Image failed to load:', product.Direct_Link);
     setImageError(true);
     setImageLoading(false);
   };
 
   const handleImageLoad = () => {
+    console.log('Image loaded successfully:', product.Direct_Link);
     setImageLoading(false);
   };
 
@@ -321,7 +319,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
               )}
               {!imageError && product.Direct_Link ? (
                 <img
-                  src={getDirectDriveLink(product.Direct_Link)}
+                  src={product.Direct_Link}
                   alt={product.ProductName}
                   className="w-full h-full object-cover"
                   onError={handleImageError}
@@ -373,7 +371,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
           )}
           {!imageError && product.Direct_Link ? (
             <img
-              src={getDirectDriveLink(product.Direct_Link)}
+              src={product.Direct_Link}
               alt={product.ProductName}
               className="w-full h-full object-cover"
               onError={handleImageError}
