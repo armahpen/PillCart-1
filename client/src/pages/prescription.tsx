@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import Header from "@/components/layout/header";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -241,8 +242,12 @@ Please verify this prescription and confirm medication availability.`;
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <Header />
+      
+      <div className="py-8">
+        <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-neutral mb-4">Upload Your Prescription</h1>
@@ -624,6 +629,7 @@ Please verify this prescription and confirm medication availability.`;
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );
