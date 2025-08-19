@@ -35,6 +35,34 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
+  isAdmin: boolean("is_admin").default(false),
+  adminRole: varchar("admin_role", { length: 50 }), // 'super_admin', 'product_manager', 'prescription_viewer'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Admin permissions table
+export const adminPermissions = pgTable("admin_permissions", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  permission: varchar("permission", { length: 50 }).notNull(), // 'edit_products', 'add_products', 'view_prescriptions', 'manage_users'
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Prescriptions table
+export const prescriptions = pgTable("prescriptions", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  patientName: varchar("patient_name", { length: 200 }).notNull(),
+  doctorName: varchar("doctor_name", { length: 200 }).notNull(),
+  doctorContact: varchar("doctor_contact", { length: 100 }).notNull(),
+  prescriptionDate: timestamp("prescription_date").notNull(),
+  medications: text("medications"),
+  imageUrls: text("image_urls").array(),
+  status: varchar("status", { length: 20 }).default("pending"), // 'pending', 'verified', 'rejected'
+  reviewNotes: text("review_notes"),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -117,6 +145,26 @@ export const orderItems = pgTable("order_items", {
 export const usersRelations = relations(users, ({ many }) => ({
   cartItems: many(cartItems),
   orders: many(orders),
+  adminPermissions: many(adminPermissions),
+  prescriptions: many(prescriptions),
+}));
+
+export const adminPermissionsRelations = relations(adminPermissions, ({ one }) => ({
+  user: one(users, {
+    fields: [adminPermissions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const prescriptionsRelations = relations(prescriptions, ({ one }) => ({
+  user: one(users, {
+    fields: [prescriptions.userId],
+    references: [users.id],
+  }),
+  reviewer: one(users, {
+    fields: [prescriptions.reviewedBy],
+    references: [users.id],
+  }),
 }));
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
@@ -204,6 +252,17 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
   createdAt: true,
 });
 
+export const insertAdminPermissionSchema = createInsertSchema(adminPermissions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPrescriptionSchema = createInsertSchema(prescriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -219,6 +278,10 @@ export type Order = typeof orders.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
+export type AdminPermission = typeof adminPermissions.$inferSelect;
+export type InsertAdminPermission = z.infer<typeof insertAdminPermissionSchema>;
+export type Prescription = typeof prescriptions.$inferSelect;
+export type InsertPrescription = z.infer<typeof insertPrescriptionSchema>;
 
 // Extended types with relations
 export type ProductWithRelations = Product & {
@@ -234,4 +297,13 @@ export type OrderWithItems = Order & {
   orderItems: (OrderItem & {
     product: Product;
   })[];
+};
+
+export type UserWithPermissions = User & {
+  adminPermissions: AdminPermission[];
+};
+
+export type PrescriptionWithUser = Prescription & {
+  user: User;
+  reviewer?: User;
 };

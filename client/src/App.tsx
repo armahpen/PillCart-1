@@ -21,6 +21,7 @@ import Prescription from "@/pages/prescription";
 import PrescriptionView from "@/pages/prescription-view";
 import ChatWidget from "@/components/chat/chat-widget";
 import { ShopPage } from "@/pages/ShopPage";
+import AdminPage from "@/pages/AdminPage";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -40,6 +41,7 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/privacy" component={Privacy} />
+          <Route path="/admin" component={AdminPage} />
         </>
       ) : (
         <>
@@ -56,6 +58,7 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/privacy" component={Privacy} />
+          <Route path="/admin" component={AdminPage} />
         </>
       )}
       <Route component={NotFound} />

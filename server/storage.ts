@@ -6,6 +6,8 @@ import {
   cartItems,
   orders,
   orderItems,
+  adminPermissions,
+  prescriptions,
   type User,
   type UpsertUser,
   type Product,
@@ -23,6 +25,12 @@ import {
   type OrderItem,
   type InsertOrderItem,
   type OrderWithItems,
+  type AdminPermission,
+  type InsertAdminPermission,
+  type UserWithPermissions,
+  type Prescription,
+  type InsertPrescription,
+  type PrescriptionWithUser,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, ilike, sql } from "drizzle-orm";
@@ -73,6 +81,23 @@ export interface IStorage {
   getOrders(userId: string): Promise<OrderWithItems[]>;
   getOrder(id: string): Promise<OrderWithItems | undefined>;
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<OrderWithItems>;
+  
+  // Admin operations
+  getUserWithPermissions(id: string): Promise<UserWithPermissions | undefined>;
+  setUserAdmin(id: string, isAdmin: boolean, role?: string): Promise<User>;
+  addAdminPermission(userId: string, permission: string): Promise<AdminPermission>;
+  removeAdminPermission(userId: string, permission: string): Promise<void>;
+  hasAdminPermission(userId: string, permission: string): Promise<boolean>;
+  
+  // Product management operations
+  updateProduct(id: string, updates: Partial<InsertProduct>): Promise<Product>;
+  deleteProduct(id: string): Promise<void>;
+  
+  // Prescription operations
+  createPrescription(prescription: InsertPrescription): Promise<Prescription>;
+  getPrescriptions(userId?: string): Promise<PrescriptionWithUser[]>;
+  getPrescription(id: string): Promise<PrescriptionWithUser | undefined>;
+  updatePrescriptionStatus(id: string, status: string, reviewNotes?: string, reviewedBy?: string): Promise<Prescription>;
   updateOrderStatus(id: string, status: string, paymentStatus?: string): Promise<Order>;
 }
 
@@ -420,6 +445,123 @@ export class DatabaseStorage implements IStorage {
       .returning();
 
     return updatedOrder;
+  }
+
+  // Admin operations implementation
+  async getUserWithPermissions(id: string): Promise<UserWithPermissions | undefined> {
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, id),
+      with: {
+        adminPermissions: true,
+      },
+    });
+    return user;
+  }
+
+  async setUserAdmin(id: string, isAdmin: boolean, role?: string): Promise<User> {
+    const [user] = await db.update(users)
+      .set({ 
+        isAdmin, 
+        adminRole: role,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async addAdminPermission(userId: string, permission: string): Promise<AdminPermission> {
+    const [adminPermission] = await db.insert(adminPermissions)
+      .values({ userId, permission })
+      .returning();
+    return adminPermission;
+  }
+
+  async removeAdminPermission(userId: string, permission: string): Promise<void> {
+    await db.delete(adminPermissions)
+      .where(and(
+        eq(adminPermissions.userId, userId),
+        eq(adminPermissions.permission, permission)
+      ));
+  }
+
+  async hasAdminPermission(userId: string, permission: string): Promise<boolean> {
+    const permission_record = await db.query.adminPermissions.findFirst({
+      where: and(
+        eq(adminPermissions.userId, userId),
+        eq(adminPermissions.permission, permission)
+      ),
+    });
+    return !!permission_record;
+  }
+
+  async updateProduct(id: string, updates: Partial<InsertProduct>): Promise<Product> {
+    const [product] = await db.update(products)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(products.id, id))
+      .returning();
+    return product;
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    await db.delete(products).where(eq(products.id, id));
+  }
+
+  async createPrescription(prescription: InsertPrescription): Promise<Prescription> {
+    const [newPrescription] = await db.insert(prescriptions)
+      .values(prescription)
+      .returning();
+    return newPrescription;
+  }
+
+  async getPrescriptions(userId?: string): Promise<PrescriptionWithUser[]> {
+    if (userId) {
+      return await db.query.prescriptions.findMany({
+        where: eq(prescriptions.userId, userId),
+        with: {
+          user: true,
+          reviewer: true,
+        },
+        orderBy: [desc(prescriptions.createdAt)],
+      });
+    } else {
+      return await db.query.prescriptions.findMany({
+        with: {
+          user: true,
+          reviewer: true,
+        },
+        orderBy: [desc(prescriptions.createdAt)],
+      });
+    }
+  }
+
+  async getPrescription(id: string): Promise<PrescriptionWithUser | undefined> {
+    return await db.query.prescriptions.findFirst({
+      where: eq(prescriptions.id, id),
+      with: {
+        user: true,
+        reviewer: true,
+      },
+    });
+  }
+
+  async updatePrescriptionStatus(
+    id: string, 
+    status: string, 
+    reviewNotes?: string, 
+    reviewedBy?: string
+  ): Promise<Prescription> {
+    const [prescription] = await db.update(prescriptions)
+      .set({ 
+        status, 
+        reviewNotes,
+        reviewedBy,
+        reviewedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(prescriptions.id, id))
+      .returning();
+    return prescription;
   }
 }
 
