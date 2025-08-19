@@ -93,23 +93,27 @@ const Index = () => {
         </section>
 
         {/* Popular Categories */}
-        <section className="container py-16" id="shop">
-          <div className="text-center max-w-2xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-semibold">Popular Categories</h2>
-            <p className="text-muted-foreground mt-2">Browse over-the-counter medicines and everyday health essentials.</p>
-          </div>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { title: "Cough & Cold" },
-              { title: "Pain Relief" },
-              { title: "Allergy" },
-              { title: "Skincare" },
-            ].map((c) => (
-              <article key={c.title} className="p-6 rounded-lg border bg-card hover:shadow-lg transition-shadow duration-200 cursor-pointer">
-                <h3 className="font-semibold mb-1">{c.title}</h3>
-                <p className="text-sm text-muted-foreground">Shop now</p>
-              </article>
-            ))}
+        <section className="py-16 bg-gray-50" id="shop">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Popular Categories</h2>
+              <p className="text-lg text-gray-600 leading-relaxed">Browse over-the-counter medicines and everyday health essentials.</p>
+            </div>
+            <div className="max-w-4xl mx-auto">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  { title: "Cough & Cold" },
+                  { title: "Pain Relief" },
+                  { title: "Allergy" },
+                  { title: "Skincare" },
+                ].map((c) => (
+                  <article key={c.title} className="text-center p-8 rounded-xl border bg-white hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+                    <h3 className="text-xl font-bold mb-2 text-gray-900">{c.title}</h3>
+                    <p className="text-primary font-semibold hover:text-primary/80 transition-colors">Shop now</p>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
