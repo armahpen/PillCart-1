@@ -7,11 +7,12 @@ export function CartBadge() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
+    // Initial count
     setCount(getCartCount());
     
     // Listen for cart updates
     const handleCartUpdate = (event: CustomEvent) => {
-      setCount(event.detail.count);
+      setCount(event.detail.items.reduce((total: number, item: any) => total + item.quantity, 0));
     };
 
     window.addEventListener('cartUpdated', handleCartUpdate as EventListener);

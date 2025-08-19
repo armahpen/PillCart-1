@@ -47,7 +47,10 @@ export function useCart() {
       
       // Dispatch custom event for cart updates
       window.dispatchEvent(new CustomEvent('cartUpdated', { 
-        detail: { items, count: items.length } 
+        detail: { 
+          items, 
+          count: items.reduce((total, item) => total + item.quantity, 0) 
+        } 
       }));
     } catch (error) {
       console.error('Error saving cart:', error);
