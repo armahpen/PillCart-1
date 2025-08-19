@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Reviews Section</title>
+    <style>
+        .reviews-section {
+            background-color: rgb(0 224 188); /* Updated background color */
+            color: #fff;
+            padding: 40px 20px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .reviews-section h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .reviews-section p.subtitle {
+            font-size: 1em;
+            margin-bottom: 20px;
+            color: #e0f7fa;
+        }
+        .reviews-section .reviews {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .reviews-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .review-card {
+            background-color: #fff;
+            color: #333;
+            border-radius: 8px;
+            padding: 20px;
+            width: 250px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+        .review-card p {
+            margin: 10px 0;
+        }
+        .review-card .rating {
+            color: #28a745;
+            font-size: 1.1em;
+        }
+        .review-card .author {
+            font-weight: bold;
+            color: #555;
+        }
+        .review-card .date {
+            color: #777;
+            font-size: 0.9em;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .nav-buttons button {
+            background-color: #fff;
+            border: none;
+            color: #007bff;
+            font-size: 1em;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="reviews-section">
+        <h2>Feeling better together</h2>
+        <p class="subtitle">Real client feedback from people we've helped take back control of their health.</p>
+        <div class="reviews">Client Reviews</div>
+        <div class="reviews-container">
+            <div class="review-card">
+                <p>Great communication. Quick to respond to any queries I had. Fast and efficient.</p>
+                <div class="rating">★★★★☆</div>
+                <div class="author">KIM BOUGHLITA</div>
+                <div class="date">today</div>
+            </div>
+            <div class="review-card">
+                <p>Prompt and professional service. Dealt with my order promptly and professionally. My order was received quickly, happy with the service I received.</p>
+                <div class="rating">★★★★☆</div>
+                <div class="author">Judy Coetzee</div>
+                <div class="date">one day ago</div>
+            </div>
+            <div class="review-card">
+                <p>Best service. Very quick compared to any other totally recommend 5 star service in my opinion. Shop here for best results.</p>
+                <div class="rating">★★★★☆</div>
+                <div class="author">Joanne wills</div>
+                <div class="date">2 days ago</div>
+            </div>
+        </div>
+        <div class="nav-buttons">
+            <button>&lt;</button>
+            <button>See more reviews</button>
+            <button>&gt;</button>
+        </div>
+    </div>
+</body>
+</html>

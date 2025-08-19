@@ -177,6 +177,51 @@ const Index = () => {
             `
           }} />
         </section>
+
+        {/* Reviews Section */}
+        <section className="py-16 text-center text-white font-sans" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-bold mb-4">Feeling better together</h2>
+            <p className="text-lg mb-8 text-teal-100">Real client feedback from people we've helped take back control of their health.</p>
+            <div className="text-xl mb-8">Client Reviews</div>
+            
+            <div className="flex justify-center gap-6 flex-wrap mb-8">
+              <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left">
+                <p className="mb-4">Great communication. Quick to respond to any queries I had. Fast and efficient.</p>
+                <div className="text-green-600 text-lg mb-2">★★★★☆</div>
+                <div className="font-bold text-gray-600 mb-1">KIM BOUGHLITA</div>
+                <div className="text-gray-500 text-sm">today</div>
+              </div>
+              
+              <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left">
+                <p className="mb-4">Prompt and professional service. Dealt with my order promptly and professionally. My order was received quickly, happy with the service I received.</p>
+                <div className="text-green-600 text-lg mb-2">★★★★☆</div>
+                <div className="font-bold text-gray-600 mb-1">Judy Coetzee</div>
+                <div className="text-gray-500 text-sm">one day ago</div>
+              </div>
+              
+              <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left">
+                <p className="mb-4">Best service. Very quick compared to any other totally recommend 5 star service in my opinion. Shop here for best results.</p>
+                <div className="text-green-600 text-lg mb-2">★★★★☆</div>
+                <div className="font-bold text-gray-600 mb-1">Joanne wills</div>
+                <div className="text-gray-500 text-sm">2 days ago</div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center gap-6 items-center">
+              <button className="bg-white text-blue-600 border-none text-lg cursor-pointer px-4 py-2 rounded hover:bg-gray-100 transition-colors">
+                &lt;
+              </button>
+              <button className="bg-white text-blue-600 border-none text-lg cursor-pointer px-6 py-2 rounded hover:bg-gray-100 transition-colors">
+                See more reviews
+              </button>
+              <button className="bg-white text-blue-600 border-none text-lg cursor-pointer px-4 py-2 rounded hover:bg-gray-100 transition-colors">
+                &gt;
+              </button>
+            </div>
+          </div>
+        </section>
+        
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
       </main>
       <Footer />
