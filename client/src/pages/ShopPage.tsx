@@ -91,10 +91,10 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                   size="sm"
                   onClick={handleAddToCart}
                   className="bg-secondary hover:bg-secondary/90"
-                  data-testid={`button-add-cart-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                  data-testid={`button-add-cart-list-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                 >
                   <ShoppingCart className="h-4 w-4 mr-1" />
-                  Add to Cart
+                  {isInCart(product) ? 'Added' : 'Add to Cart'}
                 </Button>
               </div>
             </div>
@@ -160,10 +160,15 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             <Button
               size="sm"
               onClick={handleAddToCart}
-              className="bg-secondary hover:bg-secondary/90 h-6 w-6 p-0"
-              data-testid={`button-add-cart-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+              className={`h-6 px-2 text-xs ${
+                isInCart(product) 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                  : 'bg-secondary hover:bg-secondary/90'
+              }`}
+              data-testid={`button-add-cart-grid-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
             >
-              <ShoppingCart className="h-3 w-3" />
+              <ShoppingCart className="h-3 w-3 mr-1" />
+              {isInCart(product) ? 'Added' : 'Add'}
             </Button>
           </div>
         </div>
