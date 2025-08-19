@@ -147,11 +147,11 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             </div>
           )}
         </div>
-        <div className="p-1.5">
-          <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 mb-1 min-h-[1.5rem] text-xs">
+        <div className="p-1">
+          <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 mb-0.5 min-h-[1rem] text-xs">
             {product['Product Name']}
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-500 mb-1 truncate">
+          <p className="text-xs text-gray-500 dark:text-gray-500 mb-0.5 truncate">
             {product.Brand}
           </p>
           <div className="flex items-center justify-between">
@@ -161,14 +161,14 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             <Button
               size="sm"
               onClick={handleAddToCart}
-              className={`h-5 px-1.5 text-xs ${
+              className={`h-4 px-1 text-xs ${
                 isInCart(product) 
                   ? 'bg-green-600 hover:bg-green-700 text-white' 
                   : 'bg-secondary hover:bg-secondary/90'
               }`}
               data-testid={`button-add-cart-grid-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
             >
-              <ShoppingCart className="h-2.5 w-2.5 mr-1" />
+              <ShoppingCart className="h-2 w-2 mr-0.5" />
               {isInCart(product) ? 'Added' : 'Add'}
             </Button>
           </div>
@@ -530,7 +530,7 @@ export function ShopPage() {
                 </Badge>
               </div>
               
-              <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-4' : 'grid-cols-1'}`}>
+              <div className={`grid gap-2 ${viewMode === 'grid' ? 'grid-cols-5 sm:grid-cols-6 lg:grid-cols-8' : 'grid-cols-1'}`}>
                 {filteredProducts.map((product, index) => (
                   <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                 ))}
@@ -551,7 +551,7 @@ export function ShopPage() {
                       </Badge>
                     </div>
                     
-                    <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-4' : 'grid-cols-1'}`}>
+                    <div className={`grid gap-2 ${viewMode === 'grid' ? 'grid-cols-5 sm:grid-cols-6 lg:grid-cols-8' : 'grid-cols-1'}`}>
                       {categoryProducts.map((product, index) => (
                         <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                       ))}
