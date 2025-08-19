@@ -38,7 +38,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                 <img
                   src={product.ImageURL}
                   alt={product['Product Name']}
-                  className="w-full h-full object-cover rounded-md"
+                  className="w-full h-full object-contain rounded-md p-1"
                   onError={(e) => {
                     console.log('Image load error for:', product['Product Name'], 'URL:', product.ImageURL);
                     // Try fallback URL format
@@ -105,7 +105,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             <img
               src={product.ImageURL}
               alt={product['Product Name']}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200 p-2"
               onError={(e) => {
                 console.log('Image load error for:', product['Product Name'], 'URL:', product.ImageURL);
                 // Try fallback URL format
@@ -524,7 +524,7 @@ export function ShopPage() {
                 </Badge>
               </div>
               
-              <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8' : 'grid-cols-1'}`}>
+              <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-4' : 'grid-cols-1'}`}>
                 {filteredProducts.map((product, index) => (
                   <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                 ))}
@@ -545,7 +545,7 @@ export function ShopPage() {
                       </Badge>
                     </div>
                     
-                    <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8' : 'grid-cols-1'}`}>
+                    <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-4' : 'grid-cols-1'}`}>
                       {categoryProducts.map((product, index) => (
                         <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                       ))}
