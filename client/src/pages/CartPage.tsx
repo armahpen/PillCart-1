@@ -70,12 +70,34 @@ export function CartPage() {
   };
 
   const initiateWhatsAppOrder = () => {
-    const orderDetails = cartItems.map(item => 
-      `${item.quantity}x ${item.name} - ₵${(item.price * item.quantity).toFixed(2)}`
-    ).join('\n');
+    // Create detailed order summary
+    const orderHeader = "🛒 *NEW ORDER FROM SMILE PILLS LTD*\n" + "=" .repeat(35) + "\n\n";
     
-    const message = `Hello! I'd like to place an order from Smile Pills Ltd:\n\n${orderDetails}\n\nTotal: ₵${total.toFixed(2)}\n\nPlease confirm availability and delivery details.`;
-    const whatsappUrl = `https://wa.me/233209339912?text=${encodeURIComponent(message)}`;
+    const orderDetails = cartItems.map((item, index) => {
+      const itemTotal = item.price * item.quantity;
+      return `${index + 1}. *${item.name}*\n` +
+             `   Brand: ${item.brand}\n` +
+             `   Quantity: ${item.quantity}\n` +
+             `   Unit Price: ₵${item.price.toFixed(2)}\n` +
+             `   Subtotal: ₵${itemTotal.toFixed(2)}\n`;
+    }).join('\n');
+    
+    const orderSummary = "\n" + "=" .repeat(35) + "\n" +
+                        `*ORDER SUMMARY*\n` +
+                        `Subtotal: ₵${subtotal.toFixed(2)}\n` +
+                        `Shipping: ${shipping === 0 ? 'FREE' : `₵${shipping.toFixed(2)}`}\n` +
+                        `*TOTAL: ₵${total.toFixed(2)}*\n\n`;
+    
+    const customerNote = "📱 *CUSTOMER DETAILS NEEDED:*\n" +
+                        "• Full Name\n" +
+                        "• Phone Number\n" +
+                        "• Delivery Address\n" +
+                        "• Preferred delivery time\n\n" +
+                        "Please confirm availability and provide delivery details. Thank you! 🙏";
+    
+    const fullMessage = orderHeader + orderDetails + orderSummary + customerNote;
+    
+    const whatsappUrl = `https://wa.me/233209339912?text=${encodeURIComponent(fullMessage)}`;
     window.open(whatsappUrl, '_blank');
   };
 
@@ -279,12 +301,25 @@ export function CartPage() {
                     <Button
                       onClick={initiateWhatsAppOrder}
                       variant="outline"
-                      className="w-full"
+                      className="w-full border-green-600 text-green-600 hover:bg-green-50"
                       size="lg"
                       data-testid="button-whatsapp-order"
                     >
-                      Order via WhatsApp
+                      📱 Order via WhatsApp
                     </Button>
+                  </div>
+
+                  {/* WhatsApp Order Info */}
+                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <h3 className="font-medium text-green-900 dark:text-green-100 mb-2">
+                      📱 WhatsApp Ordering
+                    </h3>
+                    <p className="text-sm text-green-700 dark:text-green-300 mb-2">
+                      Order directly via WhatsApp for faster processing and personal service.
+                    </p>
+                    <p className="text-xs text-green-600 dark:text-green-400">
+                      Your order details will be automatically formatted and sent to our WhatsApp business line.
+                    </p>
                   </div>
 
                   {/* Trust Indicators */}
