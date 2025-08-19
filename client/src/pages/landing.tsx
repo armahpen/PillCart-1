@@ -133,14 +133,34 @@ const Index = () => {
             </div>
             <div className="relative w-full h-0 pb-[56.25%] shadow-lg overflow-hidden rounded-lg">
               <iframe 
+                id="canva-video-iframe"
                 loading="lazy" 
                 className="absolute w-full h-full top-0 left-0 border-none p-0 m-0"
-                src="https://www.canva.com/design/DAGwhpJVoO0/GKbLynMW5PBfZA20aQAfvg/view?embed" 
+                src="https://www.canva.com/design/DAGwhpJVoO0/GKbLynMW5PBfZA20aQAfvg/view?embed&autoplay=1" 
                 allowFullScreen 
-                allow="fullscreen">
+                allow="fullscreen; autoplay">
               </iframe>
             </div>
           </div>
+          
+          {/* JavaScript for video loop control */}
+          <script dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                let iframe = document.getElementById('canva-video-iframe');
+                if (iframe) {
+                  // Reload iframe every 3 seconds to simulate loop
+                  setInterval(function() {
+                    let currentSrc = iframe.src;
+                    iframe.src = '';
+                    setTimeout(function() {
+                      iframe.src = currentSrc;
+                    }, 100);
+                  }, 3000);
+                }
+              })();
+            `
+          }} />
         </section>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
       </main>
