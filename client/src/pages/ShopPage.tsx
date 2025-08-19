@@ -51,21 +51,32 @@ export function ShopPage() {
       })
       .then(data => {
         console.log('Raw data loaded:', data?.length, 'items');
+        console.log('Sample item:', data[0]);
+        
         // Filter out products with missing essential data
-        const validProducts = data.filter((item: Product) => 
-          item.ProductName && 
-          item.ProductName.trim() !== '' && 
-          item['Price(Ghc)'] !== null &&
-          item['Price(Ghc)'] !== undefined &&
-          item['Price(Ghc)'] !== '' &&
-          (typeof item['Price(Ghc)'] === 'number' ? item['Price(Ghc)'] > 0 : !isNaN(Number(item['Price(Ghc)'])) && Number(item['Price(Ghc)']) > 0)
-        );
+        const validProducts = data.filter((item: Product) => {
+          const isValid = item.ProductName && 
+            item.ProductName.trim() !== '' && 
+            item['Price(Ghc)'] !== null &&
+            item['Price(Ghc)'] !== undefined &&
+            item['Price(Ghc)'] !== '' &&
+            (typeof item['Price(Ghc)'] === 'number' ? item['Price(Ghc)'] > 0 : typeof item['Price(Ghc)'] === 'string' && !isNaN(Number(item['Price(Ghc)'])) && Number(item['Price(Ghc)']) > 0);
+          
+          if (!isValid) {
+            console.log('Invalid product filtered out:', item);
+          }
+          return isValid;
+        });
+        
+        console.log(`Loaded ${validProducts.length} valid products out of ${data.length} total products`);
+        console.log('Valid products sample:', validProducts.slice(0, 3));
+        
         setProducts(validProducts);
         setFilteredProducts(validProducts);
         const uniqueCategories = Array.from(new Set(validProducts.map((item: Product) => item.Category).filter(Boolean))) as string[];
         setCategories(uniqueCategories);
+        console.log('Categories found:', uniqueCategories);
         setLoading(false);
-        console.log(`Loaded ${validProducts.length} valid products out of ${data.length} total products`);
       })
       .catch(error => {
         console.error('Error loading product catalog:', error);
@@ -95,7 +106,9 @@ export function ShopPage() {
         case 'name':
           return a.ProductName.localeCompare(b.ProductName);
         case 'price':
-          return a['Price(Ghc)'] - b['Price(Ghc)'];
+          const priceA = typeof a['Price(Ghc)'] === 'number' ? a['Price(Ghc)'] : Number(a['Price(Ghc)']);
+          const priceB = typeof b['Price(Ghc)'] === 'number' ? b['Price(Ghc)'] : Number(b['Price(Ghc)']);
+          return priceA - priceB;
         case 'brand':
           return a.Brand.localeCompare(b.Brand);
         default:
