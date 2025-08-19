@@ -192,7 +192,7 @@ const Index = () => {
               </button>
               
               {/* Review Cards */}
-              <div className="flex gap-6 flex-wrap justify-center">
+              <div className="flex gap-6 flex-wrap justify-center max-w-5xl">
                 <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
                   <p className="mb-4 text-gray-700">Great communication. Quick to respond to any queries I had. Fast and efficient.</p>
                   <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
@@ -212,6 +212,27 @@ const Index = () => {
                   <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
                   <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Joanne wills</div>
                   <div className="text-gray-500 text-sm">2 days ago</div>
+                </div>
+                
+                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
+                  <p className="mb-4 text-gray-700">Excellent support and fast delivery. Really impressed with the care taken with my order.</p>
+                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
+                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Esi Amoako</div>
+                  <div className="text-gray-500 text-sm">3 days ago</div>
+                </div>
+                
+                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
+                  <p className="mb-4 text-gray-700">Very reliable service. My medication arrived on time and the staff were very helpful.</p>
+                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
+                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Akua Gyamfi</div>
+                  <div className="text-gray-500 text-sm">4 days ago</div>
+                </div>
+                
+                <div className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
+                  <p className="mb-4 text-gray-700">Fantastic experience. The customer service was top-notch and the process was smooth.</p>
+                  <div className="text-yellow-500 text-lg mb-2">★★★★☆</div>
+                  <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>Yaa Dankwa</div>
+                  <div className="text-gray-500 text-sm">5 days ago</div>
                 </div>
               </div>
               
