@@ -113,7 +113,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             <img
               src={product.ImageURL}
               alt={product['Product Name']}
-              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200 p-4"
+              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200 p-6"
               onError={(e) => {
                 console.log('Image load error for:', product['Product Name'], 'URL:', product.ImageURL);
                 // Try fallback URL format
@@ -134,9 +134,9 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
               onLoad={() => console.log('Image loaded successfully:', product['Product Name'])}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 flex flex-col items-center justify-center p-4">
-              <div className="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mb-3">
-                <ShoppingCart className="h-8 w-8 text-secondary" />
+            <div className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 flex flex-col items-center justify-center p-6">
+              <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center mb-2">
+                <ShoppingCart className="h-6 w-6 text-secondary" />
               </div>
               <span className="text-sm text-gray-600 text-center font-medium">
                 {product.Brand}
@@ -147,28 +147,28 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
             </div>
           )}
         </div>
-        <div className="p-2">
-          <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 mb-1 min-h-[2rem] text-xs">
+        <div className="p-1.5">
+          <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 mb-1 min-h-[1.5rem] text-xs">
             {product['Product Name']}
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-500 mb-1 truncate">
             {product.Brand}
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-sm font-bold text-secondary">
+            <span className="text-xs font-bold text-secondary">
               ₵{product.Price.toFixed(2)}
             </span>
             <Button
               size="sm"
               onClick={handleAddToCart}
-              className={`h-6 px-2 text-xs ${
+              className={`h-5 px-1.5 text-xs ${
                 isInCart(product) 
                   ? 'bg-green-600 hover:bg-green-700 text-white' 
                   : 'bg-secondary hover:bg-secondary/90'
               }`}
               data-testid={`button-add-cart-grid-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
             >
-              <ShoppingCart className="h-3 w-3 mr-1" />
+              <ShoppingCart className="h-2.5 w-2.5 mr-1" />
               {isInCart(product) ? 'Added' : 'Add'}
             </Button>
           </div>
