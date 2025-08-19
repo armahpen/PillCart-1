@@ -29,11 +29,13 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
   const { toast } = useToast();
 
   const handleAddToCart = () => {
+    console.log('Adding to cart:', product['Product Name']);
     addToCart(product);
     toast({
       title: "Added to cart",
       description: `${product['Product Name']} has been added to your cart.`,
     });
+    console.log('Cart updated, dispatching event');
   };
 
   if (viewMode === 'list') {

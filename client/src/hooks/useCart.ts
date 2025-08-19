@@ -42,14 +42,18 @@ export function useCart() {
 
   const saveCart = (items: CartItem[]) => {
     try {
+      console.log('useCart: saveCart called with items:', items.length);
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
       setCartItems(items);
+      
+      const count = items.reduce((total, item) => total + item.quantity, 0);
+      console.log('useCart: Dispatching cartUpdated event with count:', count);
       
       // Dispatch custom event for cart updates
       window.dispatchEvent(new CustomEvent('cartUpdated', { 
         detail: { 
           items, 
-          count: items.reduce((total, item) => total + item.quantity, 0) 
+          count 
         } 
       }));
     } catch (error) {
@@ -58,11 +62,13 @@ export function useCart() {
   };
 
   const addToCart = (product: Product, quantity: number = 1) => {
+    console.log('useCart: addToCart called with:', product['Product Name']);
     const productId = `${product['Product Name']}-${product.Brand}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
     
     const existingItem = cartItems.find(item => item.id === productId);
     
     if (existingItem) {
+      console.log('useCart: Item exists, updating quantity');
       // Update quantity if item already exists
       const updatedItems = cartItems.map(item =>
         item.id === productId 
@@ -71,6 +77,7 @@ export function useCart() {
       );
       saveCart(updatedItems);
     } else {
+      console.log('useCart: New item, adding to cart');
       // Add new item
       const newItem: CartItem = {
         id: productId,
