@@ -23,6 +23,7 @@ import ChatWidget from "@/components/chat/chat-widget";
 import { ShopPage } from "@/pages/ShopPage";
 import AdminPage from "@/pages/AdminPage";
 import PaymentPage from "@/pages/PaymentPage";
+import LoginPage from "@/pages/LoginPage";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -43,6 +44,7 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/privacy" component={Privacy} />
+          <Route path="/login" component={LoginPage} />
           <Route path="/admin" component={AdminPage} />
         </>
       ) : (
@@ -61,6 +63,7 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/privacy" component={Privacy} />
+          <Route path="/login" component={LoginPage} />
           <Route path="/admin" component={AdminPage} />
         </>
       )}

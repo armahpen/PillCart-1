@@ -5,7 +5,23 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
 import { insertProductSchema, insertPrescriptionSchema } from "@shared/schema";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 // Import removed multer as it's not needed for object storage
+
+// Enhanced authentication middleware that supports both session types
+const isAuthenticatedEnhanced = async (req: any, res: any, next: any) => {
+  // Check for traditional session-based auth first
+  if ((req.session as any)?.userId) {
+    const user = await storage.getUserById((req.session as any).userId);
+    if (user) {
+      (req as any).user = { claims: { sub: user.id }, ...user };
+      return next();
+    }
+  }
+  
+  // Fall back to Replit auth
+  return isAuthenticated(req, res, next);
+};
 
 // Admin middleware to check if user has admin permissions
 const isAdmin = async (req: any, res: any, next: any) => {
@@ -13,7 +29,9 @@ const isAdmin = async (req: any, res: any, next: any) => {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
-  const user = await storage.getUserWithPermissions(req.user.claims.sub);
+  // Handle both auth types
+  const userId = req.user.claims?.sub || req.user.id;
+  const user = await storage.getUserWithPermissions(userId);
   if (!user?.isAdmin) {
     return res.status(403).json({ error: 'Admin access required' });
   }
@@ -40,6 +58,113 @@ const checkAdminPermission = (permission: string) => {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+
+  // Traditional username/password authentication routes
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      const user = await storage.getUserByUsername(username);
+      if (!user || !user.password) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      const isValid = await bcrypt.compare(password, user.password);
+      if (!isValid) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Set session
+      (req.session as any).userId = user.id;
+      
+      // Return user data (without password)
+      const { password: _, ...userWithoutPassword } = user;
+      res.json({ 
+        message: "Login successful", 
+        user: userWithoutPassword 
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { username, email, password } = req.body;
+
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      const existingEmail = await storage.getUserByEmail(email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user
+      const newUser = await storage.createUser({
+        username,
+        email,
+        password: hashedPassword,
+        isAdmin: false,
+      });
+
+      // Set session
+      (req.session as any).userId = newUser.id;
+
+      // Return user data (without password)
+      const { password: _, ...userWithoutPassword } = newUser;
+      res.json({ 
+        message: "Registration successful", 
+        user: userWithoutPassword 
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Could not log out" });
+      }
+      res.clearCookie('connect.sid');
+      res.json({ message: "Logout successful" });
+    });
+  });
+
+  // Get current user endpoint
+  app.get("/api/auth/user", isAuthenticatedEnhanced, async (req, res) => {
+    try {
+      const userId = (req as any).user?.claims?.sub || (req as any).user?.id;
+      const user = await storage.getUserById(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const { password, ...userWithoutPassword } = user;
+      res.json({ user: userWithoutPassword });
+    } catch (error) {
+      console.error("Get user error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
 
   // Public object serving endpoint
   app.get("/public-objects/:filePath(*)", async (req, res) => {
@@ -149,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.params.id,
         status,
         reviewNotes,
-        req.adminUser.id
+        (req as any).adminUser.id
       );
       res.json({ prescription });
     } catch (error) {
@@ -188,7 +313,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Check if current user is admin
   app.get("/api/admin/me", isAuthenticated, async (req, res) => {
     try {
-      const user = await storage.getUserWithPermissions(req.user.claims.sub);
+      const user = await storage.getUserWithPermissions((req as any).user.claims.sub);
       if (!user?.isAdmin) {
         return res.status(403).json({ error: "Not an admin" });
       }
@@ -204,7 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const prescriptionData = insertPrescriptionSchema.parse({
         ...req.body,
-        userId: req.user.claims.sub,
+        userId: (req as any).user.claims.sub,
       });
 
       const prescription = await storage.createPrescription(prescriptionData);
