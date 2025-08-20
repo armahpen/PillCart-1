@@ -1,0 +1,53 @@
+Create an Admin Dashboard in this React project with the following features:
+
+1. **Admin Access / Authentication:**
+   - Add a simple login page at "/admin/login".
+   - Username: "Admin 1"
+   - Password: "pinpingofree..."
+   - Only authenticated admins can access "/admin" and its subpages.
+   - After successful login, redirect to "/admin" (dashboard homepage).
+   - If a user is not logged in and tries to access "/admin", redirect them to "/admin/login".
+
+2. **Product Management:**
+   - Display the full product list (from product_catalog_with_image_links.xlsx).
+   - Each product row should have Edit and Delete buttons.
+   - The Edit button should open a form (modal or separate page) where the admin can:
+       - Change Product Name
+       - Change Price
+       - Change Category (choose from existing categories)
+       - Change Product Image by uploading a new image (upload to Google Drive or local folder and update ImageURL)
+   - Add a floating "Add Product" button that opens a form with:
+       - Product Name (text input)
+       - Category (dropdown populated with existing categories)
+       - Price (number input)
+       - Product Image (file upload)
+   - Save changes to the Excel file or JSON datastore used by the app.
+
+3. **Logs and Payment History:**
+   - Add a tab or page called "Logs" **visible only to authenticated admin**.
+       - Display live logs of recent product updates, additions, and deletions.
+   - Add a page or tab called "Payments" **visible only to authenticated admin** that lists all user payment history:
+       - Show table columns: Customer Name (or Email), Amount, Reference, Status, Date/Time.
+       - Use the payment records stored by the PaymentPage component.
+       - Payment data can be saved in a JSON file or state array for now.
+   - Allow the admin to search and filter payment history by email, amount, or status.
+
+4. **UI Requirements:**
+   - Use React and Tailwind CSS to style the dashboard.
+   - Add a navigation sidebar with links to:
+       - Product Management
+       - Logs (admin only)
+       - Payment History (admin only)
+   - Make everything fully responsive.
+
+5. **Routing:**
+   - Add a route "/admin" to access the Admin Dashboard after login.
+   - Add a route "/admin/add-product" if you use a separate page for adding products.
+   - Add "/admin/payments" for viewing payment history.
+   - Add "/admin/logs" for viewing logs.
+
+6. **Functionality:**
+   - All admin changes (add, edit, delete product) should update dynamically without page reload.
+   - Payment history should update dynamically as new payments come in.
+   - When admin uploads a new product image, link it using the ImageURL system already in place.
+   - Ensure that logs and payment history pages are only visible after login with the credentials above.
