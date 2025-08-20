@@ -63,7 +63,7 @@ interface PaystackResponse {
 
 export default function PaymentPage() {
   const [, setLocation] = useLocation();
-  const { cartItems, getCartTotal, clearCart } = useCart();
+  const { cartItems, getCartTotal, clearCart, loading } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -103,16 +103,22 @@ export default function PaymentPage() {
     };
   }, [toast]);
 
-  // Redirect if cart is empty
+  // Redirect if cart is empty - but wait for cart to load first
   useEffect(() => {
-    if (cartItems.length === 0) {
-      toast({
-        title: "Empty Cart",
-        description: "Your cart is empty. Add items before checkout.",
-        variant: "destructive"
-      });
-      setLocation('/shop');
-    }
+    // Only check if cart is empty after it has had time to load
+    const timer = setTimeout(() => {
+      if (cartItems.length === 0) {
+        console.log('Cart is empty, redirecting to shop');
+        toast({
+          title: "Empty Cart", 
+          description: "Your cart is empty. Add items before checkout.",
+          variant: "destructive"
+        });
+        setLocation('/shop');
+      }
+    }, 100); // Small delay to let cart data load
+
+    return () => clearTimeout(timer);
   }, [cartItems, setLocation, toast]);
 
   const handleInputChange = (field: string, value: string) => {
@@ -311,8 +317,37 @@ Please confirm this order and provide delivery time.`;
     });
   };
 
+  // Debug logging
+  console.log('PaymentPage cartItems:', cartItems);
+  console.log('PaymentPage totalAmount:', totalAmount);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Loading Cart...</h2>
+            <p className="text-gray-600">Please wait while we load your cart items.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (cartItems.length === 0) {
-    return null; // Will redirect
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Cart is Empty</h2>
+            <p className="text-gray-600 mb-4">Your cart is empty. Add items before checkout.</p>
+            <Button onClick={() => setLocation('/shop')}>Browse Products</Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
