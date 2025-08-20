@@ -24,6 +24,26 @@ export function useCart() {
 
   useEffect(() => {
     loadCart();
+    
+    // Listen for storage changes from other tabs/windows
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === CART_STORAGE_KEY) {
+        loadCart();
+      }
+    };
+    
+    // Listen for custom cart update events
+    const handleCartUpdate = () => {
+      loadCart();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
   }, []);
 
   const loadCart = () => {
