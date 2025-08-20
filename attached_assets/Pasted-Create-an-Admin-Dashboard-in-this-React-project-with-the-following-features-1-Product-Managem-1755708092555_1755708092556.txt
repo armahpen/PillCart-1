@@ -1,0 +1,40 @@
+Create an Admin Dashboard in this React project with the following features:
+
+1. **Product Management:**
+   - Display the full product list (from product_catalog_with_image_links.xlsx).
+   - Each product row should have Edit and Delete buttons.
+   - The Edit button should open a form (modal or separate page) where the admin can:
+       - Change Product Name
+       - Change Price
+       - Change Category (choose from existing categories)
+       - Change Product Image by uploading a new image (upload to Google Drive or local folder and update ImageURL)
+   - Add a floating "Add Product" button that opens a form with:
+       - Product Name (text input)
+       - Category (dropdown populated with existing categories)
+       - Price (number input)
+       - Product Image (file upload)
+   - Save changes to the Excel file or JSON datastore used by the app.
+
+2. **Logs and Payment History:**
+   - Create a tab or page called "Logs" that displays:
+       - Live console logs of recent actions (product updates, adds, deletes)
+       - A list of payment history (transactions from the PaymentPage component)
+   - Payment history should include: customer email, amount, reference, and status.
+   - Payment history can be stored in a simple JSON file or array in memory for now.
+
+3. **UI Requirements:**
+   - Use React and Tailwind CSS to style the dashboard.
+   - Make it responsive for both desktop and mobile.
+   - Add navigation tabs or a sidebar for:
+       - Product Management
+       - Logs / Payment History
+   - Ensure product images update instantly when changed or added.
+
+4. **Routing:**
+   - Add a route "/admin" to access the Admin Dashboard.
+   - Add a route "/admin/add-product" if you choose to use a separate page for adding products.
+
+5. **Optional Authentication:**
+   - Include a very simple login (email + password hardcoded for now) before accessing "/admin".
+
+Make sure this dashboard updates the product data dynamically, and reflects all changes without requiring a manual page reload. Also ensure that when a new product is added, its image is uploaded and linked properly using the existing ImageURL system.
