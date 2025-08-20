@@ -84,6 +84,7 @@ export default function Header() {
     { name: "Shop", slug: "shop", href: "/shop" },
     { name: "Advice", slug: "advice", href: "#advice" },
     { name: "Help", slug: "help", href: "#help" },
+    ...(currentUser?.isAdmin ? [{ name: "Admin", slug: "admin", href: "/admin" }] : []),
   ];
 
   return (
