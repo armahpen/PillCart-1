@@ -79,7 +79,25 @@ export default function AdminPage() {
   const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paymentSearchEmail, setPaymentSearchEmail] = useState("");
+  const [paymentSearchRef, setPaymentSearchRef] = useState("");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
   const { toast } = useToast();
+
+  // Filter payments based on search criteria
+  const filteredPayments = paymentHistory.filter((payment) => {
+    const matchesEmail = payment.email.toLowerCase().includes(paymentSearchEmail.toLowerCase());
+    const matchesRef = payment.reference.toLowerCase().includes(paymentSearchRef.toLowerCase());
+    const matchesStatus = paymentStatusFilter === "all" || payment.status === paymentStatusFilter;
+    
+    return matchesEmail && matchesRef && matchesStatus;
+  });
+
+  const clearPaymentFilters = () => {
+    setPaymentSearchEmail("");
+    setPaymentSearchRef("");
+    setPaymentStatusFilter("all");
+  };
 
   // Load products from Excel file
   const loadProducts = async () => {
@@ -131,27 +149,69 @@ export default function AdminPage() {
     setLogs(prev => [newLog, ...prev.slice(0, 99)]); // Keep last 100 logs
   };
 
-  // Mock payment history (in real app, this would come from payment provider)
+  // Load payment history from localStorage and mock data
   const loadPaymentHistory = () => {
-    const mockPayments: PaymentRecord[] = [
-      {
-        id: '1',
-        email: 'customer1@example.com',
-        amount: 125.50,
-        reference: 'PAY_001',
-        status: 'success',
-        timestamp: new Date(Date.now() - 3600000).toLocaleString()
-      },
-      {
-        id: '2',
-        email: 'customer2@example.com',
-        amount: 89.75,
-        reference: 'PAY_002',
-        status: 'success',
-        timestamp: new Date(Date.now() - 7200000).toLocaleString()
+    try {
+      const savedPayments = localStorage.getItem('adminPaymentHistory');
+      let payments: PaymentRecord[] = [];
+      
+      if (savedPayments) {
+        payments = JSON.parse(savedPayments);
       }
-    ];
-    setPaymentHistory(mockPayments);
+      
+      // Add some sample payments if none exist
+      if (payments.length === 0) {
+        payments = [
+          {
+            id: '1',
+            email: 'customer1@example.com',
+            amount: 125.50,
+            reference: 'PAY_001',
+            status: 'success',
+            timestamp: new Date(Date.now() - 3600000).toISOString()
+          },
+          {
+            id: '2',
+            email: 'customer2@example.com',
+            amount: 89.75,
+            reference: 'PAY_002',
+            status: 'success',
+            timestamp: new Date(Date.now() - 7200000).toISOString()
+          },
+          {
+            id: '3',
+            email: 'john.doe@gmail.com',
+            amount: 234.20,
+            reference: 'PAY_003',
+            status: 'success',
+            timestamp: new Date(Date.now() - 86400000).toISOString()
+          },
+          {
+            id: '4',
+            email: 'sarah.wilson@yahoo.com',
+            amount: 67.30,
+            reference: 'PAY_004',
+            status: 'failed',
+            timestamp: new Date(Date.now() - 172800000).toISOString()
+          },
+          {
+            id: '5',
+            email: 'michael.brown@hotmail.com',
+            amount: 156.80,
+            reference: 'PAY_005',
+            status: 'pending',
+            timestamp: new Date(Date.now() - 259200000).toISOString()
+          }
+        ];
+        localStorage.setItem('adminPaymentHistory', JSON.stringify(payments));
+      }
+      
+      setPaymentHistory(payments);
+      addLog('Payment History Loaded', `${payments.length} payment records loaded`);
+    } catch (error) {
+      console.error('Error loading payment history:', error);
+      setPaymentHistory([]);
+    }
   };
 
   // Check admin authentication
@@ -282,7 +342,7 @@ export default function AdminPage() {
             </TabsTrigger>
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Activity Logs
+              Live Logs
             </TabsTrigger>
           </TabsList>
 
@@ -295,14 +355,21 @@ export default function AdminPage() {
               
               <Dialog open={isAddingProduct} onOpenChange={setIsAddingProduct}>
                 <DialogTrigger asChild>
-                  <Button className="flex items-center gap-2" data-testid="button-add-product">
-                    <Plus className="h-4 w-4" />
-                    Add Product
+                  <Button 
+                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-lg" 
+                    data-testid="button-add-product"
+                    size="lg"
+                  >
+                    <Plus className="h-5 w-5" />
+                    Add New Product
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-lg">
                   <DialogHeader>
-                    <DialogTitle>Add New Product</DialogTitle>
+                    <DialogTitle className="flex items-center gap-2">
+                      <Plus className="h-5 w-5" />
+                      Add New Product to Catalog
+                    </DialogTitle>
                   </DialogHeader>
                   <AddProductForm 
                     categories={categories}
@@ -384,8 +451,49 @@ export default function AdminPage() {
           <TabsContent value="payments" className="space-y-6">
             <div>
               <h2 className="text-2xl font-semibold">Payment History</h2>
-              <p className="text-gray-600">Recent payment transactions</p>
+              <p className="text-gray-600">Track customer payments and transaction details</p>
             </div>
+
+            {/* Payment Search and Filters */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Search & Filter Payments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Input
+                    placeholder="Search by email..."
+                    value={paymentSearchEmail}
+                    onChange={(e) => setPaymentSearchEmail(e.target.value)}
+                    data-testid="search-payment-email"
+                  />
+                  <Input
+                    placeholder="Search by reference..."
+                    value={paymentSearchRef}
+                    onChange={(e) => setPaymentSearchRef(e.target.value)}
+                    data-testid="search-payment-reference"
+                  />
+                  <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
+                    <SelectTrigger data-testid="filter-payment-status">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="success">Success</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="outline"
+                    onClick={clearPaymentFilters}
+                    data-testid="clear-payment-filters"
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <Card>
@@ -396,7 +504,8 @@ export default function AdminPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold">₵{paymentHistory.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</p>
+                  <p className="text-2xl font-bold">₵{filteredPayments.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</p>
+                  <p className="text-sm text-muted-foreground">From {filteredPayments.length} transactions</p>
                 </CardContent>
               </Card>
               
@@ -408,7 +517,8 @@ export default function AdminPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold">{paymentHistory.length}</p>
+                  <p className="text-2xl font-bold">{filteredPayments.length}</p>
+                  <p className="text-sm text-muted-foreground">Matching filter criteria</p>
                 </CardContent>
               </Card>
               
@@ -420,41 +530,74 @@ export default function AdminPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold">100%</p>
+                  <p className="text-2xl font-bold">
+                    {filteredPayments.length > 0 ? 
+                      Math.round((filteredPayments.filter(p => p.status === 'success').length / filteredPayments.length) * 100) : 0}%
+                  </p>
+                  <p className="text-sm text-muted-foreground">Of filtered transactions</p>
                 </CardContent>
               </Card>
             </div>
 
             <Card>
+              <CardHeader>
+                <CardTitle>Transaction Records</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Showing {filteredPayments.length} of {paymentHistory.length} total payments
+                </p>
+              </CardHeader>
               <CardContent className="p-0">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Amount</TableHead>
+                      <TableHead>Customer Email</TableHead>
+                      <TableHead>Amount (GHS)</TableHead>
                       <TableHead>Reference</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
+                      <TableHead>Transaction Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paymentHistory.map((payment) => (
-                      <TableRow key={payment.id}>
-                        <TableCell>{payment.email}</TableCell>
-                        <TableCell>
-                          <span className="font-semibold">₵{payment.amount.toFixed(2)}</span>
+                    {filteredPayments.length > 0 ? (
+                      filteredPayments.map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell>
+                            <div className="font-medium">{payment.email}</div>
+                            <div className="text-sm text-muted-foreground">Customer ID: {payment.id}</div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="font-semibold text-lg">₵{payment.amount.toFixed(2)}</span>
+                          </TableCell>
+                          <TableCell>
+                            <code className="text-sm bg-gray-100 px-2 py-1 rounded font-mono">
+                              {payment.reference}
+                            </code>
+                          </TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant={
+                                payment.status === 'success' ? 'default' : 
+                                payment.status === 'failed' ? 'destructive' : 'secondary'
+                              }
+                            >
+                              {payment.status.toUpperCase()}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium">{payment.timestamp}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {new Date(payment.timestamp).toLocaleDateString()}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          No payments match your search criteria
                         </TableCell>
-                        <TableCell>
-                          <code className="text-sm bg-gray-100 px-2 py-1 rounded">{payment.reference}</code>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={payment.status === 'success' ? 'default' : 'destructive'}>
-                            {payment.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{payment.timestamp}</TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -463,33 +606,108 @@ export default function AdminPage() {
 
           <TabsContent value="logs" className="space-y-6">
             <div>
-              <h2 className="text-2xl font-semibold">Activity Logs</h2>
-              <p className="text-gray-600">Recent system activities and changes</p>
+              <h2 className="text-2xl font-semibold">Live Activity Logs</h2>
+              <p className="text-gray-600">Real-time tracking of product updates, additions, and deletions</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Activity className="h-4 w-4" />
+                    Total Activities
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">{logs.length}</p>
+                  <p className="text-sm text-muted-foreground">Actions recorded</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Products Added
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">
+                    {logs.filter(log => log.action === 'Product Added').length}
+                  </p>
+                  <p className="text-sm text-muted-foreground">New products</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Edit className="h-4 w-4" />
+                    Products Updated
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">
+                    {logs.filter(log => log.action === 'Product Updated').length}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Modifications made</p>
+                </CardContent>
+              </Card>
             </div>
 
             <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Recent Activity Feed
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Live updates of admin actions and system changes
+                </p>
+              </CardHeader>
               <CardContent className="p-6">
-                <div className="space-y-4">
-                  {logs.map((log) => (
-                    <div key={log.id} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                      <Activity className="h-5 w-5 text-blue-500 mt-0.5" />
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {logs.map((log, index) => (
+                    <div key={log.id} className={`flex items-start gap-4 p-4 rounded-lg border-l-4 ${
+                      log.action === 'Product Added' ? 'bg-green-50 border-green-500' :
+                      log.action === 'Product Updated' ? 'bg-blue-50 border-blue-500' :
+                      log.action === 'Product Deleted' ? 'bg-red-50 border-red-500' :
+                      'bg-gray-50 border-gray-500'
+                    }`}>
+                      <div className={`p-2 rounded-full ${
+                        log.action === 'Product Added' ? 'bg-green-100' :
+                        log.action === 'Product Updated' ? 'bg-blue-100' :
+                        log.action === 'Product Deleted' ? 'bg-red-100' :
+                        'bg-gray-100'
+                      }`}>
+                        {log.action === 'Product Added' ? <Plus className="h-4 w-4 text-green-600" /> :
+                         log.action === 'Product Updated' ? <Edit className="h-4 w-4 text-blue-600" /> :
+                         log.action === 'Product Deleted' ? <Trash2 className="h-4 w-4 text-red-600" /> :
+                         <Activity className="h-4 w-4 text-gray-600" />}
+                      </div>
                       <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium">{log.action}</h4>
-                          <span className="text-sm text-gray-500">{log.timestamp}</span>
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="font-semibold text-sm">{log.action}</h4>
+                          <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded">
+                            {log.timestamp}
+                          </span>
                         </div>
-                        <p className="text-gray-600 mt-1">{log.details}</p>
+                        <p className="text-gray-700 text-sm">{log.details}</p>
                         {log.user && (
-                          <p className="text-sm text-gray-500 mt-1">by {log.user}</p>
+                          <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            by {log.user}
+                          </p>
                         )}
                       </div>
                     </div>
                   ))}
                   
                   {logs.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      <AlertCircle className="h-8 w-8 mx-auto mb-3" />
-                      <p>No activity logs yet</p>
+                    <div className="text-center py-12 text-gray-500">
+                      <AlertCircle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <h3 className="text-lg font-medium mb-2">No Activity Yet</h3>
+                      <p className="text-sm">Start managing products to see live activity logs here</p>
                     </div>
                   )}
                 </div>
