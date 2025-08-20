@@ -19,9 +19,11 @@ import {
 export default function Home() {
   const { user } = useAuth();
   
-  const { data: recentProducts, isLoading: productsLoading } = useQuery({
+  const { data: productsResponse, isLoading: productsLoading } = useQuery({
     queryKey: ["/api/products", { limit: 8 }],
   });
+  
+  const recentProducts = productsResponse?.products || [];
 
   const { data: cartItems } = useQuery({
     queryKey: ["/api/cart"],
@@ -191,7 +193,7 @@ export default function Home() {
                 <div key={i} className="bg-gray-200 animate-pulse rounded-lg h-80"></div>
               ))}
             </div>
-          ) : recentProducts && recentProducts.length > 0 ? (
+          ) : recentProducts.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {recentProducts.map((product: any) => (
                 <ProductCard key={product.id} product={product} />

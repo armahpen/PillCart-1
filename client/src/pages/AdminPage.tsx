@@ -117,7 +117,7 @@ export default function AdminPage() {
       setProducts(products);
       
       // Extract unique categories
-      const uniqueCategories = Array.from(new Set(products.map((p: any) => p.Category).filter((c: string) => c && c.trim() !== '')));
+      const uniqueCategories = Array.from(new Set(products.map((p: any) => p.Category).filter((c: string) => c && c.trim() !== ''))) as string[];
       setCategories(uniqueCategories);
       
       addLog('Products loaded', `${products.length} products loaded from API`);
@@ -475,7 +475,7 @@ export default function AdminPage() {
                         </TableCell>
                         <TableCell>{product.Brand}</TableCell>
                         <TableCell>
-                          <span className="font-semibold">₵{product.Price.toFixed(2)}</span>
+                          <span className="font-semibold">₵{(product.Price || 0).toFixed(2)}</span>
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-2 justify-end">
