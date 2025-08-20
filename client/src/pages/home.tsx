@@ -23,7 +23,7 @@ export default function Home() {
     queryKey: ["/api/products", { limit: 8 }],
   });
   
-  const recentProducts = productsResponse?.products || [];
+  const recentProducts = (productsResponse as any)?.products || [];
 
   const { data: cartItems } = useQuery({
     queryKey: ["/api/cart"],

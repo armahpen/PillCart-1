@@ -46,11 +46,17 @@ interface AdminUser {
 }
 
 interface Product {
+  id?: string;
   Category: string;
   'Product Name': string;
+  name?: string;
   Brand: string;
+  brand?: { name: string };
+  category?: { name: string };
   Price: number;
+  price?: string;
   ImageURL: string;
+  imageUrl?: string;
 }
 
 interface PaymentRecord {
@@ -70,6 +76,8 @@ interface LogEntry {
   user?: string;
 }
 
+
+
 export default function AdminPage() {
   const [, setLocation] = useLocation();
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
@@ -77,6 +85,7 @@ export default function AdminPage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -292,6 +301,8 @@ export default function AdminPage() {
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct({ ...product });
+    setIsEditDialogOpen(true);
+    addLog('Product Edit', `Started editing product: ${product.name || product['Product Name']}`);
   };
 
   const handleSaveProduct = async () => {
@@ -439,43 +450,43 @@ export default function AdminPage() {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border relative">
-                              {product.ImageURL ? (
+                              {(product.imageUrl || product.ImageURL) ? (
                                 <img 
-                                  src={product.ImageURL} 
-                                  alt={product['Product Name']}
+                                  src={product.imageUrl || product.ImageURL} 
+                                  alt={product.name || product['Product Name']}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
                                     const target = e.target as HTMLImageElement;
                                     target.style.display = 'none';
                                     const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
                                     if (fallback) fallback.style.display = 'flex';
-                                    console.log('Image failed to load:', product.ImageURL);
+                                    console.log('Image failed to load:', product.imageUrl || product.ImageURL);
                                   }}
                                   onLoad={(e) => {
                                     const fallback = (e.target as HTMLImageElement).parentElement?.querySelector('.fallback-icon') as HTMLElement;
                                     if (fallback) fallback.style.display = 'none';
-                                    console.log('Image loaded successfully:', product.ImageURL);
+                                    console.log('Image loaded successfully:', product.imageUrl || product.ImageURL);
                                   }}
                                 />
                               ) : null}
-                              <div className={`fallback-icon absolute inset-0 flex items-center justify-center bg-gray-50 ${product.ImageURL ? 'hidden' : ''}`}>
+                              <div className={`fallback-icon absolute inset-0 flex items-center justify-center bg-gray-50 ${(product.imageUrl || product.ImageURL) ? 'hidden' : ''}`}>
                                 <Package className="h-8 w-8 text-gray-400" />
                               </div>
                             </div>
                             <div className="flex flex-col">
-                              <span className="font-medium text-sm">{product['Product Name']}</span>
+                              <span className="font-medium text-sm">{product.name || product['Product Name']}</span>
                               <span className="text-xs text-gray-500">
-                                {product.ImageURL ? `Image: ${product.ImageURL.substring(0, 30)}...` : 'No image URL'}
+                                {(product.imageUrl || product.ImageURL) ? `Image: ${(product.imageUrl || product.ImageURL).substring(0, 30)}...` : 'No image URL'}
                               </span>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="secondary">{product.Category}</Badge>
+                          <Badge variant="secondary">{product.category?.name || product.Category}</Badge>
                         </TableCell>
-                        <TableCell>{product.Brand}</TableCell>
+                        <TableCell>{product.brand?.name || product.Brand}</TableCell>
                         <TableCell>
-                          <span className="font-semibold">₵{(product.Price || 0).toFixed(2)}</span>
+                          <span className="font-semibold">₵{parseFloat(product.price || product.Price || 0).toFixed(2)}</span>
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-2 justify-end">
@@ -484,16 +495,18 @@ export default function AdminPage() {
                               variant="outline"
                               onClick={() => handleEditProduct(product)}
                               data-testid={`button-edit-${index}`}
+                              className="h-8 px-2"
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="h-3 w-3" />
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleDeleteProduct(product['Product Name'])}
+                              onClick={() => handleDeleteProduct(product.name || product['Product Name'])}
                               data-testid={`button-delete-${index}`}
+                              className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
                         </TableCell>
@@ -503,6 +516,32 @@ export default function AdminPage() {
                 </Table>
               </CardContent>
             </Card>
+
+            {/* Edit Product Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Edit className="h-5 w-5" />
+                    Edit Product
+                  </DialogTitle>
+                </DialogHeader>
+                {editingProduct && (
+                  <EditProductForm
+                    product={editingProduct}
+                    categories={categories}
+                    onSave={(updatedProduct) => {
+                      handleSaveProduct();
+                      setIsEditDialogOpen(false);
+                    }}
+                    onCancel={() => {
+                      setIsEditDialogOpen(false);
+                      setEditingProduct(null);
+                    }}
+                  />
+                )}
+              </DialogContent>
+            </Dialog>
           </TabsContent>
 
           <TabsContent value="payments" className="space-y-6">
@@ -775,22 +814,30 @@ export default function AdminPage() {
       </div>
 
       {/* Edit Product Dialog */}
-      {editingProduct && (
-        <Dialog open={true} onOpenChange={() => setEditingProduct(null)}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Edit Product</DialogTitle>
-            </DialogHeader>
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit className="h-5 w-5" />
+              Edit Product
+            </DialogTitle>
+          </DialogHeader>
+          {editingProduct && (
             <EditProductForm
               product={editingProduct}
               categories={categories}
-              onChange={setEditingProduct}
-              onSave={handleSaveProduct}
-              onCancel={() => setEditingProduct(null)}
+              onSave={(updatedProduct) => {
+                handleSaveProduct();
+                setIsEditDialogOpen(false);
+              }}
+              onCancel={() => {
+                setIsEditDialogOpen(false);
+                setEditingProduct(null);
+              }}
             />
-          </DialogContent>
-        </Dialog>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -799,18 +846,33 @@ export default function AdminPage() {
 interface EditProductFormProps {
   product: Product;
   categories: string[];
-  onChange: (product: Product) => void;
-  onSave: () => void;
+  onSave: (product: Product) => void;
   onCancel: () => void;
 }
 
-function EditProductForm({ product, categories, onChange, onSave, onCancel }: EditProductFormProps) {
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const fakeUrl = URL.createObjectURL(file);
-      onChange({ ...product, ImageURL: fakeUrl });
-    }
+function EditProductForm({ product, categories, onSave, onCancel }: EditProductFormProps) {
+  const [formData, setFormData] = useState({
+    name: product.name || product['Product Name'] || '',
+    category: product.category?.name || product.Category || '',
+    brand: product.brand?.name || product.Brand || '',
+    price: (product.price || product.Price || 0).toString(),
+    imageUrl: product.imageUrl || product.ImageURL || ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const updatedProduct = {
+      ...product,
+      name: formData.name,
+      'Product Name': formData.name,
+      Category: formData.category,
+      Brand: formData.brand,
+      Price: parseFloat(formData.price) || 0,
+      price: formData.price,
+      ImageURL: formData.imageUrl,
+      imageUrl: formData.imageUrl
+    };
+    onSave(updatedProduct);
   };
 
   return (
