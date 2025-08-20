@@ -184,7 +184,7 @@ export default function PaymentPage() {
     setIsProcessing(true);
 
     const paymentConfig: PaystackConfig = {
-      key: 'c52aa0f8',
+      key: 'pk_live_95dcd63641da880d65aba9ef1f512b48d9c58ba9',
       email: customerInfo.email,
       amount: Math.round(finalAmount * 100), // Paystack amount in pesewas (GHS * 100)
       currency: 'GHS',
