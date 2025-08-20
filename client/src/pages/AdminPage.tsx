@@ -413,20 +413,33 @@ export default function AdminPage() {
                       <TableRow key={index}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden">
+                            <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border">
                               {product.ImageURL ? (
                                 <img 
                                   src={product.ImageURL} 
                                   alt={product['Product Name']}
                                   className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    target.nextElementSibling?.classList.remove('hidden');
+                                  }}
+                                  onLoad={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.nextElementSibling?.classList.add('hidden');
+                                  }}
                                 />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Package className="h-6 w-6 text-gray-400" />
-                                </div>
-                              )}
+                              ) : null}
+                              <div className={`w-full h-full flex items-center justify-center bg-gray-50 ${product.ImageURL ? 'hidden' : ''}`}>
+                                <Package className="h-8 w-8 text-gray-400" />
+                              </div>
                             </div>
-                            <span className="font-medium">{product['Product Name']}</span>
+                            <div className="flex flex-col">
+                              <span className="font-medium text-sm">{product['Product Name']}</span>
+                              <span className="text-xs text-gray-500">
+                                {product.ImageURL ? 'Image loaded' : 'No image'}
+                              </span>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
