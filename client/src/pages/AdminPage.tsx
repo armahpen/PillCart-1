@@ -104,38 +104,63 @@ export default function AdminPage() {
   // Load products from Excel file
   const loadProducts = async () => {
     try {
-      const response = await fetch('/product_catalog.xlsx');
-      if (!response.ok) throw new Error('Failed to fetch catalog');
+      // Use the same API endpoint as the shop to get properly formatted products
+      const response = await fetch('/api/products?limit=1000');
+      if (!response.ok) throw new Error('Failed to fetch products');
       
-      const arrayBuffer = await response.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(worksheet) as Product[];
+      const data = await response.json();
+      const products = data.products || [];
       
-      const validProducts = data
-        .map((row: any) => ({
-          Category: row.Category || row.category || '',
-          'Product Name': row['Product Name'] || row.ProductName || row['product name'] || '',
-          Brand: row.Brand || row.brand || '',
-          Price: parseFloat(row.Price || row.price || row['Price(Ghc)'] || '0') || 0,
-          ImageURL: row.ImageURL || row.imageurl || row['Image URL'] || row.DirectLink || row['Direct_Link'] || ''
-        }))
-        .filter((product: Product) => product['Product Name'].trim() !== '' && product.Price > 0);
-
-      setProducts(validProducts);
+      console.log('Admin: Loaded products sample:', products.slice(0, 3));
+      console.log('Admin: Products with images:', products.filter((p: any) => p.ImageURL).length);
+      
+      setProducts(products);
       
       // Extract unique categories
-      const uniqueCategories = Array.from(new Set(validProducts.map(p => p.Category).filter(c => c.trim() !== '')));
+      const uniqueCategories = Array.from(new Set(products.map((p: any) => p.Category).filter((c: string) => c && c.trim() !== '')));
       setCategories(uniqueCategories);
       
-      addLog('Products loaded', `${validProducts.length} products loaded from catalog`);
+      addLog('Products loaded', `${products.length} products loaded from API`);
     } catch (error) {
       console.error('Error loading products:', error);
       toast({
         title: "Error",
-        description: "Failed to load products catalog",
+        description: "Failed to load products from API",
         variant: "destructive",
       });
+      
+      // Fallback to Excel loading if API fails
+      try {
+        const response = await fetch('/product_catalog.xlsx');
+        if (!response.ok) throw new Error('Failed to fetch catalog');
+        
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(worksheet) as Product[];
+        
+        const validProducts = data
+          .map((row: any) => ({
+            Category: row.Category || row.category || '',
+            'Product Name': row['Product Name'] || row.ProductName || row['product name'] || '',
+            Brand: row.Brand || row.brand || '',
+            Price: parseFloat(row.Price || row.price || row['Price(Ghc)'] || '0') || 0,
+            ImageURL: row.ImageURL || row.imageurl || row['Image URL'] || row.DirectLink || row['Direct_Link'] || ''
+          }))
+          .filter((product: Product) => product['Product Name'].trim() !== '' && product.Price > 0);
+
+        setProducts(validProducts);
+        
+        // Extract unique categories
+        const uniqueCategories = Array.from(new Set(validProducts.map(p => p.Category).filter(c => c.trim() !== '')));
+        setCategories(uniqueCategories);
+        
+        addLog('Products loaded', `${validProducts.length} products loaded from Excel fallback`);
+      } catch (fallbackError) {
+        console.error('Fallback loading also failed:', fallbackError);
+        setProducts([]);
+        setCategories([]);
+      }
     }
   };
 
@@ -413,7 +438,7 @@ export default function AdminPage() {
                       <TableRow key={index}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border">
+                            <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border relative">
                               {product.ImageURL ? (
                                 <img 
                                   src={product.ImageURL} 
@@ -422,22 +447,25 @@ export default function AdminPage() {
                                   onError={(e) => {
                                     const target = e.target as HTMLImageElement;
                                     target.style.display = 'none';
-                                    target.nextElementSibling?.classList.remove('hidden');
+                                    const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                                    if (fallback) fallback.style.display = 'flex';
+                                    console.log('Image failed to load:', product.ImageURL);
                                   }}
                                   onLoad={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.nextElementSibling?.classList.add('hidden');
+                                    const fallback = (e.target as HTMLImageElement).parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                                    if (fallback) fallback.style.display = 'none';
+                                    console.log('Image loaded successfully:', product.ImageURL);
                                   }}
                                 />
                               ) : null}
-                              <div className={`w-full h-full flex items-center justify-center bg-gray-50 ${product.ImageURL ? 'hidden' : ''}`}>
+                              <div className={`fallback-icon absolute inset-0 flex items-center justify-center bg-gray-50 ${product.ImageURL ? 'hidden' : ''}`}>
                                 <Package className="h-8 w-8 text-gray-400" />
                               </div>
                             </div>
                             <div className="flex flex-col">
                               <span className="font-medium text-sm">{product['Product Name']}</span>
                               <span className="text-xs text-gray-500">
-                                {product.ImageURL ? 'Image loaded' : 'No image'}
+                                {product.ImageURL ? `Image: ${product.ImageURL.substring(0, 30)}...` : 'No image URL'}
                               </span>
                             </div>
                           </div>
