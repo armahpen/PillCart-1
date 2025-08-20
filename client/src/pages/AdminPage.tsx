@@ -83,7 +83,7 @@ export default function AdminPage() {
   const [paymentSearchEmail, setPaymentSearchEmail] = useState("");
   const [paymentSearchRef, setPaymentSearchRef] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
-  const [activeTab, setActiveTab] = useState("products");
+
   const { toast } = useToast();
 
   // Filter payments based on search criteria
@@ -332,52 +332,21 @@ export default function AdminPage() {
           </p>
         </div>
 
-        {/* Navigation Sidebar and Main Content */}
-        <div className="flex gap-6">
-          {/* Sidebar Navigation */}
-          <div className="w-64 space-y-2">
-            <Card>
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Admin Panel
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                <Button 
-                  variant={activeTab === 'products' ? 'default' : 'ghost'} 
-                  className="w-full justify-start" 
-                  onClick={() => setActiveTab('products')}
-                  data-testid="nav-products"
-                >
-                  <Package className="h-4 w-4 mr-2" />
-                  Product Management
-                </Button>
-                <Button 
-                  variant={activeTab === 'payments' ? 'default' : 'ghost'} 
-                  className="w-full justify-start" 
-                  onClick={() => setActiveTab('payments')}
-                  data-testid="nav-payments"
-                >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Payment History
-                </Button>
-                <Button 
-                  variant={activeTab === 'logs' ? 'default' : 'ghost'} 
-                  className="w-full justify-start" 
-                  onClick={() => setActiveTab('logs')}
-                  data-testid="nav-logs"
-                >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Live Logs
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content Area */}
-          <div className="flex-1">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs defaultValue="products" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="products" className="flex items-center gap-2">
+              <Package className="h-4 w-4" />
+              Product Management
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Payment History
+            </TabsTrigger>
+            <TabsTrigger value="logs" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Live Logs
+            </TabsTrigger>
+          </TabsList>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="products" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
@@ -761,9 +730,7 @@ export default function AdminPage() {
               </CardContent>
             </Card>
           </TabsContent>
-            </Tabs>
-          </div>
-        </div>
+        </Tabs>
       </div>
 
       {/* Edit Product Dialog */}
