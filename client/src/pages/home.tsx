@@ -12,7 +12,8 @@ import {
   Package, 
   TrendingUp,
   ArrowRight,
-  Star
+  Star,
+  Heart
 } from "lucide-react";
 
 export default function Home() {
