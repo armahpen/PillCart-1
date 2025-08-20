@@ -31,13 +31,13 @@ export default function Home() {
     queryKey: ["/api/orders"],
   });
 
-  const cartItemCount = cartItems?.length || 0;
-  const recentOrdersCount = orders?.filter((order: any) => {
+  const cartItemCount = Array.isArray(cartItems) ? cartItems.length : 0;
+  const recentOrdersCount = Array.isArray(orders) ? orders.filter((order: any) => {
     const orderDate = new Date(order.createdAt);
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     return orderDate >= thirtyDaysAgo;
-  }).length || 0;
+  }).length : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -49,7 +49,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                Welcome back, {user?.firstName || 'valued customer'}!
+                Welcome back, {(user as any)?.firstName || 'valued customer'}!
               </h1>
               <p className="text-blue-100 text-lg">
                 Manage your health with our trusted pharmaceutical products

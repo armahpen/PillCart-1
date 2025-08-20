@@ -212,8 +212,8 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center justify-between py-2">
             {/* Logo */}
-            <Link href="/">
-              <div className="flex items-center space-x-3 cursor-pointer">
+            <Link href={isAuthenticated ? "/" : "/"}>
+              <div className="flex items-center space-x-3 cursor-pointer" data-testid="logo-home-link">
                 <img 
                   src="/assets/IMG_1598%20(1)_1754986183203.PNG" 
                   alt="Smile Pills Ltd - Smile Forever" 
