@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CartSidebar from "@/components/cart/cart-sidebar";
 import { CartBadge } from "@/components/cart/CartBadge";
 import { Link, useLocation } from "wouter";
@@ -12,20 +14,70 @@ import {
   Phone, 
   Mail,
   Menu,
-  X
+  X,
+  Settings,
+  Shield,
+  LogOut,
+  UserCircle,
+  ChevronDown
 } from "lucide-react";
 
 export default function Header() {
   const { isAuthenticated, user } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  
   const { data: cartItems } = useQuery({
     queryKey: ["/api/cart"],
     enabled: isAuthenticated,
   });
 
   const cartItemCount = Array.isArray(cartItems) ? cartItems.length : 0;
+
+  // Check if user is admin
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setCurrentUser(user);
+    }
+  }, [isAuthenticated, user]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      window.location.href = '/';
+    }
+  };
+
+  const getUserInitials = (user: any) => {
+    if (user?.firstName && user?.lastName) {
+      return `${user.firstName[0]}${user.lastName[0]}`;
+    }
+    if (user?.username) {
+      return user.username.substring(0, 2).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.substring(0, 2).toUpperCase();
+    }
+    return 'U';
+  };
+
+  const getUserDisplayName = (user: any) => {
+    if (user?.firstName && user?.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    if (user?.username) {
+      return user.username;
+    }
+    if (user?.email) {
+      return user.email;
+    }
+    return 'User';
+  };
 
   const categories = [
     { name: "Prescription", slug: "prescriptions", href: "/prescription" },
@@ -53,34 +105,101 @@ export default function Header() {
               </div>
               
               <div className="flex items-center space-x-4">
-                {isAuthenticated ? (
-                  <>
-                    <span className="text-gray-600">
-                      Welcome, {(user as any)?.firstName || 'User'}!
-                    </span>
-                    <a 
-                      href="/api/logout" 
-                      className="text-gray-600 hover:text-primary transition-colors"
-                    >
-                      Logout
-                    </a>
-                  </>
+                {isAuthenticated && currentUser ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        className="relative h-8 w-8 rounded-full p-0"
+                        data-testid="profile-menu-trigger"
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={currentUser?.profilePicture} alt={getUserDisplayName(currentUser)} />
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {getUserInitials(currentUser)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                            {getUserDisplayName(currentUser)}
+                          </p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {currentUser?.email || 'No email'}
+                          </p>
+                          {currentUser?.isAdmin && (
+                            <Badge variant="secondary" className="mt-1 w-fit">
+                              {currentUser?.adminRole || 'Admin'}
+                            </Badge>
+                          )}
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      
+                      {currentUser?.isAdmin && (
+                        <DropdownMenuItem 
+                          onClick={() => setLocation('/admin')}
+                          data-testid="admin-dashboard-link"
+                        >
+                          <Shield className="mr-2 h-4 w-4" />
+                          <span>Admin Dashboard</span>
+                        </DropdownMenuItem>
+                      )}
+                      
+                      <DropdownMenuItem 
+                        onClick={() => setLocation('/prescription')}
+                        data-testid="prescription-link"
+                      >
+                        <UserCircle className="mr-2 h-4 w-4" />
+                        <span>My Prescriptions</span>
+                      </DropdownMenuItem>
+                      
+                      <DropdownMenuItem 
+                        onClick={() => setLocation('/cart')}
+                        data-testid="my-orders-link"
+                      >
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        <span>My Orders</span>
+                      </DropdownMenuItem>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      <DropdownMenuItem 
+                        onClick={handleLogout}
+                        data-testid="logout-button"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 ) : (
                   <>
-                    <a 
-                      href="/api/login" 
-                      className="text-gray-600 hover:text-primary transition-colors flex items-center"
-                    >
-                      <User className="h-4 w-4 mr-1" />
-                      Login
-                    </a>
+                    <Link href="/login">
+                      <Button 
+                        variant="ghost"
+                        size="sm"
+                        className="text-gray-600 hover:text-primary transition-colors flex items-center"
+                        data-testid="login-button"
+                      >
+                        <User className="h-4 w-4 mr-1" />
+                        Login
+                      </Button>
+                    </Link>
                     <span className="text-gray-300">|</span>
-                    <a 
-                      href="/api/login" 
-                      className="text-gray-600 hover:text-primary transition-colors"
-                    >
-                      Register
-                    </a>
+                    <Link href="/login">
+                      <Button 
+                        variant="ghost"
+                        size="sm"
+                        className="text-gray-600 hover:text-primary transition-colors"
+                        data-testid="register-button"
+                      >
+                        Register
+                      </Button>
+                    </Link>
                   </>
                 )}
               </div>
@@ -130,6 +249,92 @@ export default function Header() {
                 </Button>
               </Link>
 
+              {/* User Profile/Admin dropdown in main nav */}
+              {isAuthenticated && currentUser ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="relative h-8 w-8 rounded-full p-0"
+                      data-testid="profile-menu-main"
+                    >
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={currentUser?.profilePicture} alt={getUserDisplayName(currentUser)} />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                          {getUserInitials(currentUser)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {getUserDisplayName(currentUser)}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {currentUser?.email || 'No email'}
+                        </p>
+                        {currentUser?.isAdmin && (
+                          <Badge variant="secondary" className="mt-1 w-fit">
+                            {currentUser?.adminRole || 'Admin'}
+                          </Badge>
+                        )}
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    
+                    {currentUser?.isAdmin && (
+                      <DropdownMenuItem 
+                        onClick={() => setLocation('/admin')}
+                        data-testid="admin-dashboard-main"
+                      >
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>Admin Dashboard</span>
+                      </DropdownMenuItem>
+                    )}
+                    
+                    <DropdownMenuItem 
+                      onClick={() => setLocation('/prescription')}
+                      data-testid="prescription-main"
+                    >
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      <span>My Prescriptions</span>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem 
+                      onClick={() => setLocation('/cart')}
+                      data-testid="my-orders-main"
+                    >
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      <span>My Orders</span>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuSeparator />
+                    
+                    <DropdownMenuItem 
+                      onClick={handleLogout}
+                      data-testid="logout-main"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link href="/login">
+                  <Button 
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center"
+                    data-testid="login-main"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Login
+                  </Button>
+                </Link>
+              )}
 
             </div>
           </nav>
