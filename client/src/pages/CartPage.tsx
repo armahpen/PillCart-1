@@ -66,8 +66,8 @@ export function CartPage() {
   const total = subtotal + shipping;
 
   const handleCheckout = () => {
-    // TODO: Integrate with Stripe checkout
-    alert('Checkout functionality will be integrated with Stripe payment system');
+    // Navigate to payment page
+    setLocation('/payment');
   };
 
   const initiateWhatsAppOrder = () => {

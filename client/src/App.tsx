@@ -22,6 +22,7 @@ import PrescriptionView from "@/pages/prescription-view";
 import ChatWidget from "@/components/chat/chat-widget";
 import { ShopPage } from "@/pages/ShopPage";
 import AdminPage from "@/pages/AdminPage";
+import PaymentPage from "@/pages/PaymentPage";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -38,6 +39,7 @@ function Router() {
           <Route path="/prescription" component={Prescription} />
           <Route path="/prescription-view/:id" component={PrescriptionView} />
           <Route path="/cart" component={CartPage} />
+          <Route path="/payment" component={PaymentPage} />
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/privacy" component={Privacy} />
@@ -53,6 +55,7 @@ function Router() {
           <Route path="/prescription" component={Prescription} />
           <Route path="/prescription-view/:id" component={PrescriptionView} />
           <Route path="/cart" component={CartPage} />
+          <Route path="/payment" component={PaymentPage} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/checkout/return" component={CheckoutReturn} />
           <Route path="/about" component={About} />
