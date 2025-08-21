@@ -22,11 +22,8 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  ShoppingBag,
-  CreditCard,
   Activity,
   AlertCircle,
-  DollarSign,
   User,
   Search,
   Filter
@@ -62,14 +59,6 @@ interface Product {
   imageUrl?: string;
 }
 
-interface PaymentRecord {
-  id: string;
-  email: string;
-  amount: number;
-  reference: string;
-  status: string;
-  timestamp: string;
-}
 
 interface LogEntry {
   id: string;
@@ -87,12 +76,8 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [paymentSearchEmail, setPaymentSearchEmail] = useState("");
-  const [paymentSearchRef, setPaymentSearchRef] = useState("");
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
 
   // Use ProductContext for shared product management  
   const { products, updateProduct, deleteProduct, addProduct, customCategories, addCategory, updateCategory, deleteCategory, categories: allCategories } = useProducts();
@@ -127,20 +112,6 @@ export default function AdminPage() {
 
   const { toast } = useToast();
 
-  // Filter payments based on search criteria
-  const filteredPayments = paymentHistory.filter((payment) => {
-    const matchesEmail = payment.email.toLowerCase().includes(paymentSearchEmail.toLowerCase());
-    const matchesRef = payment.reference.toLowerCase().includes(paymentSearchRef.toLowerCase());
-    const matchesStatus = paymentStatusFilter === "all" || payment.status === paymentStatusFilter;
-    
-    return matchesEmail && matchesRef && matchesStatus;
-  });
-
-  const clearPaymentFilters = () => {
-    setPaymentSearchEmail("");
-    setPaymentSearchRef("");
-    setPaymentStatusFilter("all");
-  };
 
 
   // Add log entry
@@ -155,70 +126,6 @@ export default function AdminPage() {
     setLogs(prev => [newLog, ...prev.slice(0, 99)]); // Keep last 100 logs
   };
 
-  // Load payment history from localStorage and mock data
-  const loadPaymentHistory = () => {
-    try {
-      const savedPayments = localStorage.getItem('adminPaymentHistory');
-      let payments: PaymentRecord[] = [];
-      
-      if (savedPayments) {
-        payments = JSON.parse(savedPayments);
-      }
-      
-      // Add some sample payments if none exist
-      if (payments.length === 0) {
-        payments = [
-          {
-            id: '1',
-            email: 'customer1@example.com',
-            amount: 125.50,
-            reference: 'PAY_001',
-            status: 'success',
-            timestamp: new Date(Date.now() - 3600000).toISOString()
-          },
-          {
-            id: '2',
-            email: 'customer2@example.com',
-            amount: 89.75,
-            reference: 'PAY_002',
-            status: 'success',
-            timestamp: new Date(Date.now() - 7200000).toISOString()
-          },
-          {
-            id: '3',
-            email: 'john.doe@gmail.com',
-            amount: 234.20,
-            reference: 'PAY_003',
-            status: 'success',
-            timestamp: new Date(Date.now() - 86400000).toISOString()
-          },
-          {
-            id: '4',
-            email: 'sarah.wilson@yahoo.com',
-            amount: 67.30,
-            reference: 'PAY_004',
-            status: 'failed',
-            timestamp: new Date(Date.now() - 172800000).toISOString()
-          },
-          {
-            id: '5',
-            email: 'michael.brown@hotmail.com',
-            amount: 156.80,
-            reference: 'PAY_005',
-            status: 'pending',
-            timestamp: new Date(Date.now() - 259200000).toISOString()
-          }
-        ];
-        localStorage.setItem('adminPaymentHistory', JSON.stringify(payments));
-      }
-      
-      setPaymentHistory(payments);
-      addLog('Payment History Loaded', `${payments.length} payment records loaded`);
-    } catch (error) {
-      console.error('Error loading payment history:', error);
-      setPaymentHistory([]);
-    }
-  };
 
   // Check admin authentication
   useEffect(() => {
@@ -239,7 +146,6 @@ export default function AdminPage() {
             firstName: 'Admin',
             lastName: '1'
           });
-          loadPaymentHistory();
           setLoading(false);
           return;
         }
@@ -253,7 +159,6 @@ export default function AdminPage() {
           const data = await response.json();
           if (data.user && data.user.isAdmin) {
             setCurrentUser(data.user);
-            loadPaymentHistory();
           } else {
             setLocation('/admin/login');
           }
@@ -395,14 +300,10 @@ export default function AdminPage() {
         </div>
 
         <Tabs defaultValue="products" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="products" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Product Management
-            </TabsTrigger>
-            <TabsTrigger value="payments" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Payment History
             </TabsTrigger>
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -814,161 +715,6 @@ export default function AdminPage() {
             </Dialog>
           </TabsContent>
 
-          <TabsContent value="payments" className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-semibold">Payment History</h2>
-              <p className="text-gray-600">Track customer payments and transaction details</p>
-            </div>
-
-            {/* Payment Search and Filters */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Search & Filter Payments</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Input
-                    placeholder="Search by email..."
-                    value={paymentSearchEmail}
-                    onChange={(e) => setPaymentSearchEmail(e.target.value)}
-                    data-testid="search-payment-email"
-                  />
-                  <Input
-                    placeholder="Search by reference..."
-                    value={paymentSearchRef}
-                    onChange={(e) => setPaymentSearchRef(e.target.value)}
-                    data-testid="search-payment-reference"
-                  />
-                  <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
-                    <SelectTrigger data-testid="filter-payment-status">
-                      <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="success">Success</SelectItem>
-                      <SelectItem value="failed">Failed</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    variant="outline"
-                    onClick={clearPaymentFilters}
-                    data-testid="clear-payment-filters"
-                  >
-                    Clear Filters
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <DollarSign className="h-4 w-4" />
-                    Total Revenue
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">₵{filteredPayments.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</p>
-                  <p className="text-sm text-muted-foreground">From {filteredPayments.length} transactions</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <ShoppingBag className="h-4 w-4" />
-                    Total Orders
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">{filteredPayments.length}</p>
-                  <p className="text-sm text-muted-foreground">Matching filter criteria</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4" />
-                    Success Rate
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">
-                    {filteredPayments.length > 0 ? 
-                      Math.round((filteredPayments.filter(p => p.status === 'success').length / filteredPayments.length) * 100) : 0}%
-                  </p>
-                  <p className="text-sm text-muted-foreground">Of filtered transactions</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Transaction Records</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Showing {filteredPayments.length} of {paymentHistory.length} total payments
-                </p>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Customer Email</TableHead>
-                      <TableHead>Amount (GHS)</TableHead>
-                      <TableHead>Reference</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Transaction Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredPayments.length > 0 ? (
-                      filteredPayments.map((payment) => (
-                        <TableRow key={payment.id}>
-                          <TableCell>
-                            <div className="font-medium">{payment.email}</div>
-                            <div className="text-sm text-muted-foreground">Customer ID: {payment.id}</div>
-                          </TableCell>
-                          <TableCell>
-                            <span className="font-semibold text-lg">₵{payment.amount.toFixed(2)}</span>
-                          </TableCell>
-                          <TableCell>
-                            <code className="text-sm bg-gray-100 px-2 py-1 rounded font-mono">
-                              {payment.reference}
-                            </code>
-                          </TableCell>
-                          <TableCell>
-                            <Badge 
-                              variant={
-                                payment.status === 'success' ? 'default' : 
-                                payment.status === 'failed' ? 'destructive' : 'secondary'
-                              }
-                            >
-                              {payment.status.toUpperCase()}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="font-medium">{payment.timestamp}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {new Date(payment.timestamp).toLocaleDateString()}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                          No payments match your search criteria
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="logs" className="space-y-6">
             <div>
