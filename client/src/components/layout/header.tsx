@@ -79,6 +79,10 @@ export default function Header() {
       localStorage.removeItem('adminUsername');
       localStorage.removeItem('userDisplayName');
       
+      // Update userRole state immediately
+      setUserRole(null);
+      setCurrentUser(null);
+      
       // Try backend logout
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
       
@@ -90,6 +94,8 @@ export default function Header() {
       localStorage.removeItem('isAdmin');
       localStorage.removeItem('adminUsername');
       localStorage.removeItem('userDisplayName');
+      setUserRole(null);
+      setCurrentUser(null);
       window.location.href = '/';
     }
   };
@@ -120,7 +126,14 @@ export default function Header() {
     return 'User';
   };
 
-  const userRole = localStorage.getItem('role');
+  const [userRole, setUserRole] = useState(localStorage.getItem('role'));
+  
+  // Update userRole when authentication changes
+  useEffect(() => {
+    const currentRole = localStorage.getItem('role');
+    setUserRole(currentRole);
+  }, [isAuthenticated, currentUser]);
+
   const categories = [
     { name: "Prescription", slug: "prescriptions", href: "/prescription" },
     { name: "Shop", slug: "shop", href: "/shop" },
@@ -294,8 +307,8 @@ export default function Header() {
                 </Button>
               </Link>
 
-              {/* Login button for non-authenticated users */}
-              {!isAuthenticated && (
+              {/* Login/Logout button */}
+              {!isAuthenticated ? (
                 <Link href="/login">
                   <Button 
                     variant="ghost"
@@ -307,6 +320,17 @@ export default function Header() {
                     Login
                   </Button>
                 </Link>
+              ) : (
+                <Button 
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="flex items-center"
+                  data-testid="logout-main"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
               )}
 
             </div>
