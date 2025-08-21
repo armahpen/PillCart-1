@@ -60,9 +60,11 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
             const categoryName = row.Category || row.category;
             const price = parseFloat(row['Price(Ghc)']) || row.Price || row.price || 0;
             
+            const productId = `SP-${String(index + 1).padStart(4, '0')}`; // Format: SP-0001, SP-0002, etc.
+            
             return {
-              id: row.id || (index + 1),
-              // Keep original names for backward compatibility
+              id: productId,
+              // Keep original names for backward compatibility  
               'Product Name': productName,
               Category: categoryName,
               Brand: brandName,
@@ -78,7 +80,8 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
               rating: (Math.random() * 2 + 3).toFixed(1), // Random rating 3-5
               reviewCount: Math.floor(Math.random() * 50) + 5, // Random reviews 5-55
               brand: { name: brandName },
-              category: { name: categoryName }
+              category: { name: categoryName },
+              trackingId: productId // Dedicated tracking ID
             };
           }).filter((product: any) => {
             // Filter out invalid products - more lenient
