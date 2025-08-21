@@ -22,34 +22,42 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
 
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ username, password }),
-      });
+    // Hardcoded admin credentials
+    if (username === "Admin1" && password === "pinpingofree...") {
+      try {
+        // Set admin status in localStorage for client-side access control
+        localStorage.setItem("isAdmin", "true");
+        localStorage.setItem("adminUsername", "Admin1");
+        
+        // Try to authenticate with backend for session management
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ username: "Admin 1", password: "pinpingofree..." })
+        });
 
-      const data = await response.json();
-
-      if (response.ok && data.user?.isAdmin) {
+        // Always redirect to admin dashboard with hardcoded credentials
         toast({
-          title: "Login Successful",
-          description: `Welcome to the admin dashboard, ${data.user.username}!`,
+          title: "Admin Login Successful",
+          description: `Welcome back, ${username}!`,
         });
         setLocation('/admin');
-      } else if (response.ok && !data.user?.isAdmin) {
-        setError('Access denied. Admin privileges required.');
-      } else {
-        setError(data.message || 'Login failed. Please check your credentials.');
+        
+      } catch (error) {
+        // Even if backend fails, still login with hardcoded credentials
+        localStorage.setItem("isAdmin", "true");
+        localStorage.setItem("adminUsername", "Admin1");
+        toast({
+          title: "Admin Login Successful",
+          description: `Welcome back, ${username}!`,
+        });
+        setLocation('/admin');
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('Network error. Please try again.');
+    } else {
+      setError('Invalid admin credentials. Please check username and password.');
     }
-
+    
     setLoading(false);
   };
 

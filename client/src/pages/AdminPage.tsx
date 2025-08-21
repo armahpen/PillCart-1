@@ -254,6 +254,25 @@ export default function AdminPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // First check localStorage for hardcoded admin login
+        const isAdmin = localStorage.getItem('isAdmin');
+        const adminUsername = localStorage.getItem('adminUsername');
+        
+        if (isAdmin === 'true' && adminUsername) {
+          // Use hardcoded admin credentials
+          setCurrentUser({
+            username: adminUsername,
+            email: 'admin@smilepills.com',
+            isAdmin: true,
+            adminRole: 'super_admin'
+          });
+          await loadProducts();
+          loadPaymentHistory();
+          setLoading(false);
+          return;
+        }
+
+        // Fallback to backend authentication
         const response = await fetch('/api/auth/user', {
           credentials: 'include'
         });
@@ -265,14 +284,14 @@ export default function AdminPage() {
             await loadProducts();
             loadPaymentHistory();
           } else {
-            setLocation('/login');
+            setLocation('/admin/login');
           }
         } else {
-          setLocation('/login');
+          setLocation('/admin/login');
         }
       } catch (error) {
         console.error('Auth check failed:', error);
-        setLocation('/login');
+        setLocation('/admin/login');
       }
       setLoading(false);
     };

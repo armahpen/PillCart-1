@@ -36,19 +36,41 @@ export default function Header() {
 
   const cartItemCount = Array.isArray(cartItems) ? cartItems.length : 0;
 
-  // Check if user is admin
+  // Check if user is admin (including localStorage fallback)
   useEffect(() => {
     if (isAuthenticated && user) {
       setCurrentUser(user);
+    } else {
+      // Check localStorage for hardcoded admin
+      const isAdmin = localStorage.getItem('isAdmin');
+      const adminUsername = localStorage.getItem('adminUsername');
+      
+      if (isAdmin === 'true' && adminUsername) {
+        setCurrentUser({
+          username: adminUsername,
+          email: 'admin@smilepills.com',
+          isAdmin: true,
+          adminRole: 'super_admin'
+        });
+      }
     }
   }, [isAuthenticated, user]);
 
   const handleLogout = async () => {
     try {
+      // Clear localStorage admin login
+      localStorage.removeItem('isAdmin');
+      localStorage.removeItem('adminUsername');
+      
+      // Try backend logout
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      
       window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
+      // Still clear localStorage and redirect
+      localStorage.removeItem('isAdmin');
+      localStorage.removeItem('adminUsername');
       window.location.href = '/';
     }
   };
