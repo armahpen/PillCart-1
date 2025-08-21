@@ -41,7 +41,7 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
 
           // Map products with IDs and clean up image URLs
           const mappedProducts = jsonData.map((row: any, index: number) => {
-            let imageUrl = row['ImageURL'] || '';
+            let imageUrl = row['Direct_Link'] || row['ImageURL'] || '';
             
             // If it's a Google Drive URL, map to local files
             if (imageUrl && imageUrl.includes('drive.google.com')) {
@@ -57,10 +57,10 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
             
             return {
               id: row.id || (index + 1),
-              'Product Name': row['Product Name'] || row.name || row.Name,
+              'Product Name': row['ProductName'] || row['Product Name'] || row.name || row.Name,
               Category: row.Category || row.category,
               Brand: row.Brand || row.brand,
-              Price: row.Price || row.price,
+              Price: parseFloat(row['Price(Ghc)']) || row.Price || row.price || 0,
               ImageURL: imageUrl,
             };
           }).filter((product: any) => {
