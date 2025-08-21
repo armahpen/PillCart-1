@@ -29,7 +29,54 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
   const [customCategories, setCustomCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
 
+  // Load user-added products and categories from localStorage
+  const loadUserData = () => {
+    try {
+      const savedProducts = localStorage.getItem('smile-pills-user-products');
+      const savedCategories = localStorage.getItem('smile-pills-user-categories');
+      
+      if (savedProducts) {
+        const userProducts = JSON.parse(savedProducts);
+        console.log('Loaded user products from storage:', userProducts.length);
+        return { userProducts, userCategories: savedCategories ? JSON.parse(savedCategories) : [] };
+      }
+    } catch (error) {
+      console.error('Error loading user data from localStorage:', error);
+    }
+    return { userProducts: [], userCategories: [] };
+  };
+
+  // Save user-added products to localStorage
+  const saveUserProducts = (allProducts: Product[]) => {
+    try {
+      // Only save products with ID > SP-0252 (user-added products)
+      const userProducts = allProducts.filter(p => {
+        const id = p.id?.toString() || '';
+        if (id.startsWith('SP-')) {
+          const num = parseInt(id.replace('SP-', ''));
+          return num > 252; // Excel products are SP-0001 to SP-0252
+        }
+        return false;
+      });
+      localStorage.setItem('smile-pills-user-products', JSON.stringify(userProducts));
+    } catch (error) {
+      console.error('Error saving user products:', error);
+    }
+  };
+
+  // Save user categories to localStorage
+  const saveUserCategories = (categories: string[]) => {
+    try {
+      localStorage.setItem('smile-pills-user-categories', JSON.stringify(categories));
+    } catch (error) {
+      console.error('Error saving user categories:', error);
+    }
+  };
+
   useEffect(() => {
+    // Load user data first
+    const { userProducts, userCategories } = loadUserData();
+    
     // Only load products from Excel if we don't have any products yet
     if (products.length > 0) {
       console.log('Skipping Excel load - products already exist:', products.length);
@@ -113,8 +160,17 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
           });
           
           console.log(`Loaded ${mappedProducts.length} valid products from Excel`);
-          setProducts(mappedProducts);
-          console.log("Loaded products into context:", mappedProducts);
+          
+          // Combine Excel products with user-added products (user products first for newest-first order)
+          const { userProducts, userCategories } = loadUserData();
+          const combinedProducts = [...userProducts, ...mappedProducts];
+          
+          setProducts(combinedProducts);
+          setCustomCategories(userCategories);
+          
+          console.log("Loaded products into context:", combinedProducts.length, 'total products');
+          console.log("User products:", userProducts.length);
+          console.log("Excel products:", mappedProducts.length);
         }
       } catch (error) {
         console.error('Error loading products:', error);
@@ -126,23 +182,33 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   const updateProduct = (id: string | number, updatedFields: Partial<Product>) => {
-    setProducts(prev =>
-      prev.map(product =>
+    setProducts(prev => {
+      const updated = prev.map(product =>
         product.id === id ? { ...product, ...updatedFields } : product
-      )
-    );
+      );
+      saveUserProducts(updated); // Persist changes
+      return updated;
+    });
     
     // If the updated product has a new category, add it to categories
     const categoryName = updatedFields.Category || updatedFields.category?.name;
     if (categoryName && !customCategories.includes(categoryName)) {
-      setCustomCategories(prev => [...prev, categoryName]);
+      setCustomCategories(prev => {
+        const updated = [...prev, categoryName];
+        saveUserCategories(updated); // Persist categories
+        return updated;
+      });
     }
     
     console.log("Updated product:", id, updatedFields);
   };
 
   const deleteProduct = (id: string | number) => {
-    setProducts(prev => prev.filter(product => product.id !== id));
+    setProducts(prev => {
+      const filtered = prev.filter(product => product.id !== id);
+      saveUserProducts(filtered); // Persist changes
+      return filtered;
+    });
     console.log("Deleted product:", id);
   };
 
@@ -181,11 +247,19 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     };
     
     // Add new products to the beginning of the array (newest first)
-    setProducts(prev => [processedProduct, ...prev]);
+    setProducts(prev => {
+      const updated = [processedProduct, ...prev];
+      saveUserProducts(updated); // Persist new product
+      return updated;
+    });
     
     // Add category to custom categories if it doesn't exist
     if (categoryName && !customCategories.includes(categoryName)) {
-      setCustomCategories(prev => [...prev, categoryName]);
+      setCustomCategories(prev => {
+        const updated = [...prev, categoryName];
+        saveUserCategories(updated); // Persist categories
+        return updated;
+      });
     }
     
     console.log("Added processed product:", processedProduct);
@@ -193,7 +267,11 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
 
   const addCategory = (categoryName: string) => {
     if (!customCategories.includes(categoryName)) {
-      setCustomCategories(prev => [...prev, categoryName]);
+      setCustomCategories(prev => {
+        const updated = [...prev, categoryName];
+        saveUserCategories(updated); // Persist categories
+        return updated;
+      });
       console.log('Added new category:', categoryName);
     }
   };
@@ -215,9 +293,17 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     );
     
     // Update the categories list
-    setCustomCategories(prev =>
-      prev.map(category => category === oldCategory ? newCategory : category)
-    );
+    setCustomCategories(prev => {
+      const updated = prev.map(category => category === oldCategory ? newCategory : category);
+      saveUserCategories(updated); // Persist categories
+      return updated;
+    });
+    
+    // Also save updated products
+    setProducts(prev => {
+      saveUserProducts(prev);
+      return prev;
+    });
     
     console.log('Updated category:', oldCategory, 'to', newCategory);
   };
@@ -232,9 +318,17 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     );
     
     // Remove from categories list
-    setCustomCategories(prev =>
-      prev.filter(category => category !== categoryToRemove)
-    );
+    setCustomCategories(prev => {
+      const updated = prev.filter(category => category !== categoryToRemove);
+      saveUserCategories(updated); // Persist categories
+      return updated;
+    });
+    
+    // Also save updated products  
+    setProducts(prev => {
+      saveUserProducts(prev);
+      return prev;
+    });
     
     console.log('Deleted category and all products:', categoryToRemove);
   };
