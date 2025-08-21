@@ -47,10 +47,10 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
             if (imageUrl && imageUrl.includes('drive.google.com')) {
               const availableImages = [
                 '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.15 PM_1755031702982.jpeg',
-                '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.16 PM_1755031702982.jpeg',
-                '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.17 PM_1755031702983.jpeg',
-                '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.18 PM_1755031702984.jpeg',
-                '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM_1755031702984.jpeg'
+                '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.16 PM_1755031702981.jpeg',
+                '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.17 PM_1755031702979.jpeg',
+                '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.18 PM_1755031702978.jpeg',
+                '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM_1755031702977.jpeg'
               ];
               imageUrl = availableImages[index % availableImages.length];
             }
