@@ -20,10 +20,10 @@ export default function AboutPage() {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-cyan-400 to-blue-500 py-12 lg:py-16">
+      <section className="relative bg-gradient-to-r from-cyan-400 to-blue-500 py-12 lg:py-16 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <div className="max-w-2xl">
+            <div className="max-w-2xl z-10 relative">
               <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4 leading-tight">
                 About us
               </h1>
@@ -51,12 +51,65 @@ export default function AboutPage() {
                 Smile Forever – delivering health with trust, quality, and convenience
               </p>
             </div>
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" 
-                alt="Happy customers with Smile Pills Ltd" 
-                className="rounded-lg w-full h-auto max-w-md ml-auto"
-              />
+            
+            {/* Visual Elements Section */}
+            <div className="relative h-96 lg:h-[400px]">
+              {/* Central Phone/App Interface */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                <div className="bg-white rounded-2xl p-4 shadow-2xl w-48 h-80">
+                  <div className="bg-gray-100 rounded-xl h-full p-3">
+                    <div className="space-y-3">
+                      <div className="bg-secondary text-white rounded-lg p-2 text-xs font-medium">
+                        Welcome to our Mobile Pharmacy App
+                      </div>
+                      <div className="space-y-2">
+                        <div className="bg-pink-100 rounded-lg p-2 flex items-center gap-2">
+                          <div className="w-6 h-6 bg-pink-400 rounded-full"></div>
+                          <span className="text-xs">Prescription Orders</span>
+                        </div>
+                        <div className="bg-yellow-100 rounded-lg p-2 flex items-center gap-2">
+                          <div className="w-6 h-6 bg-yellow-400 rounded-full"></div>
+                          <span className="text-xs">Medicine Delivery</span>
+                        </div>
+                        <div className="bg-green-100 rounded-lg p-2 flex items-center gap-2">
+                          <div className="w-6 h-6 bg-green-400 rounded-full"></div>
+                          <span className="text-xs">Health Consultations</span>
+                        </div>
+                        <div className="bg-blue-100 rounded-lg p-2 flex items-center gap-2">
+                          <div className="w-6 h-6 bg-blue-400 rounded-full"></div>
+                          <span className="text-xs">Order Tracking</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Person 1 - Top Left with Pink Frame */}
+              <div className="absolute top-8 left-4 z-10">
+                <div className="w-20 h-20 bg-pink-400 rounded-full p-1">
+                  <img 
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150" 
+                    alt="Happy customer" 
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                </div>
+              </div>
+              
+              {/* Person 2 - Bottom Right */}
+              <div className="absolute bottom-8 right-4 z-10">
+                <div className="w-24 h-24 bg-white rounded-full p-1 shadow-lg">
+                  <img 
+                    src="https://images.unsplash.com/photo-1494790108755-2616b612b353?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150" 
+                    alt="Satisfied customer" 
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                </div>
+              </div>
+              
+              {/* Decorative Elements */}
+              <div className="absolute top-16 right-8 w-12 h-12 bg-yellow-400 rounded-full opacity-80"></div>
+              <div className="absolute bottom-16 left-8 w-8 h-8 bg-orange-400 rounded-full opacity-70"></div>
             </div>
           </div>
         </div>
