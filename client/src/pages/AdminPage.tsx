@@ -97,13 +97,6 @@ export default function AdminPage() {
   // Use ProductContext for shared product management  
   const { products, updateProduct, deleteProduct, addProduct, customCategories, addCategory, updateCategory, deleteCategory, categories: allCategories } = useProducts();
   
-  // Debug: Log context functions
-  console.log('AdminPage: Context functions:', { 
-    addCategory: typeof addCategory, 
-    customCategories: customCategories?.length || 0,
-    categories: allCategories?.length || 0
-  });
-  
   // Add missing state variables that were removed
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -569,23 +562,16 @@ export default function AdminPage() {
                         <Button
                           type="button"
                           onClick={() => {
-                            console.log('🚀 BUTTON CLICKED! Input:', newCategoryName);
-                            alert(`Button clicked with input: "${newCategoryName}"`);
-                            
-                            if (!newCategoryName.trim()) {
-                              alert('Please enter a category name first!');
-                              return;
+                            if (newCategoryName.trim()) {
+                              // Use the context function to add the category (same as working Add Product form)
+                              addCategory(newCategoryName.trim());
+                              setNewCategoryName('');
+                              addLog('Category Added', `New category: ${newCategoryName.trim()}`);
+                              toast({
+                                title: "Category Added",
+                                description: `Category '${newCategoryName.trim()}' has been added successfully!`,
+                              });
                             }
-                            
-                            const categoryName = newCategoryName.trim();
-                            addCategory(categoryName);
-                            setNewCategoryName('');
-                            
-                            addLog('Category Added', `New category: ${categoryName}`);
-                            toast({
-                              title: "Category Added",
-                              description: `Category '${categoryName}' has been added successfully!`,
-                            });
                           }}
                           disabled={!newCategoryName.trim()}
                           data-testid="button-add-category"
