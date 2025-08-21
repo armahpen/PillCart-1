@@ -177,32 +177,7 @@ export default function Header() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                ) : (
-                  <>
-                    <Link href="/login">
-                      <Button 
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-600 hover:text-primary transition-colors flex items-center"
-                        data-testid="login-button"
-                      >
-                        <User className="h-4 w-4 mr-1" />
-                        Login
-                      </Button>
-                    </Link>
-                    <span className="text-gray-300">|</span>
-                    <Link href="/login">
-                      <Button 
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-600 hover:text-primary transition-colors"
-                        data-testid="register-button"
-                      >
-                        Register
-                      </Button>
-                    </Link>
-                  </>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
@@ -250,80 +225,8 @@ export default function Header() {
                 </Button>
               </Link>
 
-              {/* User Profile/Admin dropdown in main nav */}
-              {isAuthenticated && currentUser ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="relative h-8 w-8 rounded-full p-0"
-                      data-testid="profile-menu-main"
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={currentUser?.profilePicture} alt={getUserDisplayName(currentUser)} />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                          {getUserInitials(currentUser)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {getUserDisplayName(currentUser)}
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {currentUser?.email || 'No email'}
-                        </p>
-                        {currentUser?.isAdmin && (
-                          <Badge variant="secondary" className="mt-1 w-fit">
-                            {currentUser?.adminRole || 'Admin'}
-                          </Badge>
-                        )}
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    
-                    {currentUser?.isAdmin && (
-                      <DropdownMenuItem 
-                        onClick={() => setLocation('/admin')}
-                        data-testid="admin-dashboard-main"
-                      >
-                        <Shield className="mr-2 h-4 w-4" />
-                        <span>Admin Dashboard</span>
-                      </DropdownMenuItem>
-                    )}
-                    
-                    <DropdownMenuItem 
-                      onClick={() => setLocation('/prescription')}
-                      data-testid="prescription-main"
-                    >
-                      <UserCircle className="mr-2 h-4 w-4" />
-                      <span>My Prescriptions</span>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem 
-                      onClick={() => setLocation('/cart')}
-                      data-testid="my-orders-main"
-                    >
-                      <ShoppingCart className="mr-2 h-4 w-4" />
-                      <span>My Orders</span>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuSeparator />
-                    
-                    <DropdownMenuItem 
-                      onClick={handleLogout}
-                      data-testid="logout-main"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
+              {/* Login button for non-authenticated users */}
+              {!isAuthenticated && (
                 <Link href="/login">
                   <Button 
                     variant="ghost"
