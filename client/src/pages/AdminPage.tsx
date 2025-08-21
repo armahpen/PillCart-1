@@ -97,6 +97,13 @@ export default function AdminPage() {
   // Use ProductContext for shared product management  
   const { products, updateProduct, deleteProduct, addProduct, customCategories, addCategory, updateCategory, deleteCategory, categories: allCategories } = useProducts();
   
+  // Debug: Log context functions
+  console.log('AdminPage: Context functions:', { 
+    addCategory: typeof addCategory, 
+    customCategories: customCategories?.length || 0,
+    categories: allCategories?.length || 0
+  });
+  
   // Add missing state variables that were removed
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -560,30 +567,43 @@ export default function AdminPage() {
                           data-testid="input-add-category"
                         />
                         <Button
-                          onClick={() => {
-                            console.log('Add Category button clicked with value:', newCategoryName);
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            console.log('=== ADD CATEGORY BUTTON CLICKED ===');
+                            console.log('Input value:', newCategoryName);
+                            console.log('Input trimmed:', newCategoryName.trim());
+                            console.log('Button disabled?', !newCategoryName.trim());
+                            console.log('addCategory function:', addCategory);
+                            
                             if (newCategoryName.trim()) {
-                              console.log('Calling addCategory with:', newCategoryName.trim());
-                              try {
-                                addCategory(newCategoryName.trim());
-                                console.log('addCategory called successfully');
+                              const categoryName = newCategoryName.trim();
+                              console.log('Attempting to add category:', categoryName);
+                              
+                              if (addCategory) {
+                                addCategory(categoryName);
+                                console.log('addCategory function called');
                                 setNewCategoryName('');
-                                addLog('Category Added', `New category: ${newCategoryName.trim()}`);
+                                console.log('Input cleared');
+                                
+                                addLog('Category Added', `New category: ${categoryName}`);
                                 toast({
                                   title: "Category Added",
-                                  description: `Category '${newCategoryName.trim()}' has been added.`,
+                                  description: `Category '${categoryName}' has been added.`,
                                 });
-                              } catch (error) {
-                                console.error('Error adding category:', error);
+                                console.log('Success notifications shown');
+                              } else {
+                                console.error('addCategory function is not available');
                                 toast({
                                   title: "Error",
-                                  description: "Failed to add category. Check console for details.",
+                                  description: "addCategory function is not available",
                                   variant: "destructive",
                                 });
                               }
                             } else {
-                              console.log('Category name is empty, not adding');
+                              console.log('Category name is empty');
                             }
+                            console.log('=== ADD CATEGORY BUTTON END ===');
                           }}
                           disabled={!newCategoryName.trim()}
                           data-testid="button-add-category"
