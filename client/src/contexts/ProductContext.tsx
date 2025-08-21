@@ -55,13 +55,30 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
               imageUrl = availableImages[index % availableImages.length];
             }
             
+            const productName = row['ProductName'] || row['Product Name'] || row.name || row.Name;
+            const brandName = row.Brand || row.brand;
+            const categoryName = row.Category || row.category;
+            const price = parseFloat(row['Price(Ghc)']) || row.Price || row.price || 0;
+            
             return {
               id: row.id || (index + 1),
-              'Product Name': row['ProductName'] || row['Product Name'] || row.name || row.Name,
-              Category: row.Category || row.category,
-              Brand: row.Brand || row.brand,
-              Price: parseFloat(row['Price(Ghc)']) || row.Price || row.price || 0,
+              // Keep original names for backward compatibility
+              'Product Name': productName,
+              Category: categoryName,
+              Brand: brandName,
+              Price: price,
               ImageURL: imageUrl,
+              // Add ProductCard-compatible names
+              name: productName,
+              imageUrl: imageUrl,
+              price: price.toString(),
+              slug: productName?.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').substring(0, 50) || `product-${index + 1}`,
+              stockQuantity: Math.floor(Math.random() * 100) + 10, // Random stock between 10-110
+              requiresPrescription: false, // Default to OTC
+              rating: (Math.random() * 2 + 3).toFixed(1), // Random rating 3-5
+              reviewCount: Math.floor(Math.random() * 50) + 5, // Random reviews 5-55
+              brand: { name: brandName },
+              category: { name: categoryName }
             };
           }).filter((product: any) => {
             // Filter out invalid products - more lenient
