@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Header from "@/components/layout/header";
 import {
   Select,
   SelectContent,
@@ -142,6 +143,7 @@ export default function BrowsePage() {
   if (productsLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
+        <Header />
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/3 mb-8"></div>
@@ -162,7 +164,7 @@ export default function BrowsePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      <Header />
       <div className="bg-white border-b sticky top-16 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
