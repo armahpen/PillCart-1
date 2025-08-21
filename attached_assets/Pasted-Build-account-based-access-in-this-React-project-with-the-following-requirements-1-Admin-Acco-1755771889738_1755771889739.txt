@@ -1,0 +1,73 @@
+Build account-based access in this React project with the following requirements:
+
+1. **Admin Account:**
+   - Hardcode the admin login credentials:
+     - Username: "Admin1"
+     - Password: "pinpingofree..."
+   - Add an admin login page at "/admin/login".
+   - After login, redirect to "/admin" (dashboard homepage).
+   - Admin Dashboard Features:
+     - **Product Management**
+       - Display product list (from product_catalog_with_image_links.xlsx).
+       - Edit product name, price, category, and product image by uploading a new image.
+       - Add product button that opens a form with:
+         - Product Name (text input)
+         - Category (dropdown with existing categories)
+         - Price (number input)
+         - Product Image (file upload)
+       - Delete product option.
+     - **Logs (Admin Only)**
+       - Show live logs of product edits, additions, and deletions.
+     - **Payment History (Admin Only)**
+       - Show all users’ payments in a table with columns: 
+         Customer Name/Email, Amount, Reference, Status, Date/Time.
+       - Allow searching and filtering by email, amount, or status.
+   - Restrict all admin routes (/admin, /admin/add-product, /admin/logs, /admin/payments) to the admin login above.
+
+   **Use this sample Admin Login component (modify if needed):**
+   ```jsx
+   import React, { useState } from "react";
+   import { useNavigate } from "react-router-dom";
+
+   const AdminLogin = () => {
+     const [username, setUsername] = useState("");
+     const [password, setPassword] = useState("");
+     const navigate = useNavigate();
+
+     const handleLogin = (e) => {
+       e.preventDefault();
+       if (username === "Admin1" && password === "pinpingofree...") {
+         localStorage.setItem("isAdmin", "true");
+         navigate("/admin");
+       } else {
+         alert("Invalid admin credentials");
+       }
+     };
+
+     return (
+       <div className="flex items-center justify-center min-h-screen bg-gray-100">
+         <form onSubmit={handleLogin} className="bg-white p-6 rounded shadow-md w-80">
+           <h2 className="text-xl font-bold mb-4">Admin Login</h2>
+           <input 
+             type="text" 
+             placeholder="Username" 
+             value={username} 
+             onChange={(e) => setUsername(e.target.value)}
+             className="w-full border p-2 rounded mb-3"
+           />
+           <input 
+             type="password" 
+             placeholder="Password" 
+             value={password} 
+             onChange={(e) => setPassword(e.target.value)}
+             className="w-full border p-2 rounded mb-3"
+           />
+           <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded">
+             Login
+           </button>
+         </form>
+       </div>
+     );
+   };
+
+   export default AdminLogin;

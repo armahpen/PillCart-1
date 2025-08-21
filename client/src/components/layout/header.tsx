@@ -45,12 +45,16 @@ export default function Header() {
       const isAdmin = localStorage.getItem('isAdmin');
       const adminUsername = localStorage.getItem('adminUsername');
       
-      if (isAdmin === 'true' && adminUsername) {
+      if (isAdmin === 'true' && adminUsername === 'Admin1') {
+        // Hardcoded admin - separate from regular users
         setCurrentUser({
+          id: 'admin-hardcoded-001',
           username: adminUsername,
           email: 'admin@smilepills.com',
           isAdmin: true,
-          adminRole: 'super_admin'
+          adminRole: 'super_admin',
+          firstName: 'Admin',
+          lastName: '1'
         });
       }
     }
@@ -162,13 +166,21 @@ export default function Header() {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       
-                      {currentUser?.isAdmin && (
+                      {currentUser?.isAdmin ? (
                         <DropdownMenuItem 
                           onClick={() => setLocation('/admin')}
                           data-testid="admin-dashboard-link"
                         >
                           <Shield className="mr-2 h-4 w-4" />
                           <span>Admin Dashboard</span>
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem 
+                          onClick={() => setLocation('/dashboard')}
+                          data-testid="user-dashboard-link"
+                        >
+                          <UserCircle className="mr-2 h-4 w-4" />
+                          <span>My Dashboard</span>
                         </DropdownMenuItem>
                       )}
                       
@@ -208,8 +220,8 @@ export default function Header() {
         {/* Main navigation */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center justify-between py-2">
-            {/* Logo */}
-            <Link href={isAuthenticated ? "/" : "/"}>
+            {/* Logo - Always leads to Landing page */}
+            <Link href="/">
               <div className="flex items-center space-x-3 cursor-pointer" data-testid="logo-home-link">
                 <img 
                   src="/assets/IMG_1598%20(1)_1754986183203.PNG" 

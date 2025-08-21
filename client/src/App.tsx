@@ -23,53 +23,55 @@ import ChatWidget from "@/components/chat/chat-widget";
 import { ShopPage } from "@/pages/ShopPage";
 import AdminPage from "@/pages/AdminPage";
 import AdminLoginPage from "@/pages/AdminLoginPage";
+import UserDashboard from "@/pages/UserDashboard";
 import PaymentPage from "@/pages/PaymentPage";
 import LoginPage from "@/pages/LoginPage";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
+  
+  // Check if admin is logged in via localStorage
+  const isAdminLoggedIn = localStorage.getItem('isAdmin') === 'true';
 
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
+      {/* Landing page always available */}
+      <Route path="/" component={Landing} />
+      
+      {/* Common pages for both authenticated and non-authenticated */}
+      <Route path="/shop" component={ShopPage} />
+      <Route path="/shop-catalog" component={ShopPage} />
+      <Route path="/browse" component={Browse} />
+      <Route path="/product/:slug" component={ProductDetail} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/login" component={LoginPage} />
+      
+      {/* Admin routes - accessible when admin is logged in */}
+      <Route path="/admin/login" component={AdminLoginPage} />
+      <Route path="/admin" component={AdminPage} />
+      
+      {/* User-specific routes */}
+      {isAuthenticated ? (
         <>
-          <Route path="/" component={Landing} />
-          <Route path="/shop" component={ShopPage} />
-          <Route path="/shop-catalog" component={ShopPage} />
-          <Route path="/browse" component={Browse} />
-          <Route path="/product/:slug" component={ProductDetail} />
-          <Route path="/prescription" component={Prescription} />
-          <Route path="/prescription-view/:id" component={PrescriptionView} />
-          <Route path="/cart" component={CartPage} />
-          <Route path="/payment" component={PaymentPage} />
-          <Route path="/about" component={About} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/privacy" component={Privacy} />
-          <Route path="/login" component={LoginPage} />
-          <Route path="/admin/login" component={AdminLoginPage} />
-          <Route path="/admin" component={AdminPage} />
-        </>
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/shop" component={ShopPage} />
-          <Route path="/shop-catalog" component={ShopPage} />
-          <Route path="/browse" component={Browse} />
-          <Route path="/product/:slug" component={ProductDetail} />
+          <Route path="/home" component={Home} />
+          <Route path="/dashboard" component={UserDashboard} />
           <Route path="/prescription" component={Prescription} />
           <Route path="/prescription-view/:id" component={PrescriptionView} />
           <Route path="/cart" component={CartPage} />
           <Route path="/payment" component={PaymentPage} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/checkout/return" component={CheckoutReturn} />
-          <Route path="/about" component={About} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/privacy" component={Privacy} />
-          <Route path="/login" component={LoginPage} />
-          <Route path="/admin/login" component={AdminLoginPage} />
-          <Route path="/admin" component={AdminPage} />
+        </>
+      ) : (
+        <>
+          <Route path="/prescription" component={Prescription} />
+          <Route path="/cart" component={CartPage} />
+          <Route path="/payment" component={PaymentPage} />
         </>
       )}
+      
       <Route component={NotFound} />
     </Switch>
   );

@@ -258,13 +258,16 @@ export default function AdminPage() {
         const isAdmin = localStorage.getItem('isAdmin');
         const adminUsername = localStorage.getItem('adminUsername');
         
-        if (isAdmin === 'true' && adminUsername) {
-          // Use hardcoded admin credentials
+        if (isAdmin === 'true' && adminUsername === 'Admin1') {
+          // Use hardcoded admin credentials - separate from regular users
           setCurrentUser({
+            id: 'admin-hardcoded-001',
             username: adminUsername,
             email: 'admin@smilepills.com',
             isAdmin: true,
-            adminRole: 'super_admin'
+            adminRole: 'super_admin',
+            firstName: 'Admin',
+            lastName: '1'
           });
           await loadProducts();
           loadPaymentHistory();
