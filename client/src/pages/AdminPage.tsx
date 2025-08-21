@@ -435,6 +435,13 @@ export default function AdminPage() {
                     categories={categories}
                     onAdd={handleAddProduct}
                     onCancel={() => setIsAddingProduct(false)}
+                    onAddCategory={(newCategory) => {
+                      // Add the new category to the categories list if it doesn't exist
+                      if (!categories.includes(newCategory)) {
+                        categories.push(newCategory);
+                        console.log('Added new category:', newCategory);
+                      }
+                    }}
                   />
                 </DialogContent>
               </Dialog>
@@ -938,6 +945,14 @@ export default function AdminPage() {
                 handleSaveProduct(updatedProduct);
                 setIsEditDialogOpen(false);
               }}
+              onAddCategory={(newCategory) => {
+                // Add the new category to the categories list if it doesn't exist
+                if (!categories.includes(newCategory)) {
+                  // Note: This is a simple in-memory addition. In a real app, you'd persist this to a database
+                  categories.push(newCategory);
+                  console.log('Added new category:', newCategory);
+                }
+              }}
               onCancel={() => {
                 setIsEditDialogOpen(false);
                 setEditingProduct(null);
@@ -956,9 +971,10 @@ interface EditProductFormProps {
   categories: string[];
   onSave: (product: Product) => void;
   onCancel: () => void;
+  onAddCategory?: (newCategory: string) => void;
 }
 
-function EditProductForm({ product, categories, onSave, onCancel }: EditProductFormProps) {
+function EditProductForm({ product, categories, onSave, onCancel, onAddCategory }: EditProductFormProps) {
   const [formData, setFormData] = useState({
     name: product.name || product['Product Name'] || '',
     category: product.category?.name || product.Category || '',
@@ -966,6 +982,9 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
     price: (product.price || product.Price || 0).toString(),
     imageUrl: product.imageUrl || product.ImageURL || ''
   });
+  
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1005,21 +1024,72 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
 
       <div>
         <Label htmlFor="category">Category</Label>
-        <Select
-          value={formData.category}
-          onValueChange={(value) => setFormData({ ...formData, category: value })}
-        >
-          <SelectTrigger data-testid="select-category">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category: string) => (
-              <SelectItem key={category} value={category}>
-                {category}
+        {showNewCategoryInput ? (
+          <div className="space-y-2">
+            <Input
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="Enter new category name"
+              data-testid="input-new-category"
+            />
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => {
+                  if (newCategoryName.trim()) {
+                    if (onAddCategory) {
+                      onAddCategory(newCategoryName.trim());
+                    }
+                    setFormData({ ...formData, category: newCategoryName.trim() });
+                    setShowNewCategoryInput(false);
+                    setNewCategoryName('');
+                  }
+                }}
+                data-testid="button-add-new-category"
+              >
+                Add Category
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setShowNewCategoryInput(false);
+                  setNewCategoryName('');
+                }}
+                data-testid="button-cancel-new-category"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Select
+            value={formData.category}
+            onValueChange={(value) => {
+              if (value === "__add_new_category__") {
+                setShowNewCategoryInput(true);
+              } else {
+                setFormData({ ...formData, category: value });
+              }
+            }}
+          >
+            <SelectTrigger data-testid="select-category">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category: string) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+              <SelectItem value="__add_new_category__" className="text-blue-600 font-medium">
+                + Add New Category
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       <div>
@@ -1090,9 +1160,10 @@ interface AddProductFormProps {
   categories: string[];
   onAdd: (product: Omit<Product, 'id'>) => void;
   onCancel: () => void;
+  onAddCategory?: (newCategory: string) => void;
 }
 
-function AddProductForm({ categories, onAdd, onCancel }: AddProductFormProps) {
+function AddProductForm({ categories, onAdd, onCancel, onAddCategory }: AddProductFormProps) {
   const [newProduct, setNewProduct] = useState<Product>({
     'Product Name': '',
     Category: categories[0] || '',
@@ -1100,6 +1171,9 @@ function AddProductForm({ categories, onAdd, onCancel }: AddProductFormProps) {
     Price: 0,
     ImageURL: ''
   });
+  
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -1132,21 +1206,72 @@ function AddProductForm({ categories, onAdd, onCancel }: AddProductFormProps) {
 
       <div>
         <Label htmlFor="newCategory">Category</Label>
-        <Select
-          value={newProduct.Category || ''}
-          onValueChange={(value) => setNewProduct({ ...newProduct, Category: value })}
-        >
-          <SelectTrigger data-testid="select-new-category">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category: string) => (
-              <SelectItem key={category} value={category}>
-                {category}
+        {showNewCategoryInput ? (
+          <div className="space-y-2">
+            <Input
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="Enter new category name"
+              data-testid="input-new-category-add"
+            />
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => {
+                  if (newCategoryName.trim()) {
+                    if (onAddCategory) {
+                      onAddCategory(newCategoryName.trim());
+                    }
+                    setNewProduct({ ...newProduct, Category: newCategoryName.trim() });
+                    setShowNewCategoryInput(false);
+                    setNewCategoryName('');
+                  }
+                }}
+                data-testid="button-add-new-category-add"
+              >
+                Add Category
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setShowNewCategoryInput(false);
+                  setNewCategoryName('');
+                }}
+                data-testid="button-cancel-new-category-add"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Select
+            value={newProduct.Category || ''}
+            onValueChange={(value) => {
+              if (value === "__add_new_category__") {
+                setShowNewCategoryInput(true);
+              } else {
+                setNewProduct({ ...newProduct, Category: value });
+              }
+            }}
+          >
+            <SelectTrigger data-testid="select-new-category">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category: string) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+              <SelectItem value="__add_new_category__" className="text-blue-600 font-medium">
+                + Add New Category
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       <div>
