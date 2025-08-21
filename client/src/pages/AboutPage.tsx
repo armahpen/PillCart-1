@@ -30,9 +30,9 @@ export default function AboutPage() {
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
                 Our purpose is to enhance health outcomes across Ghana, providing quality, affordable, and accessible medicines with trust, innovation, and exceptional service when it matters most.
               </p>
-              <Badge className="bg-secondary text-white px-6 py-3 text-lg rounded-full">
+              <p className="text-lg font-medium text-gray-700 px-6 py-3">
                 Smile Forever – delivering health with trust, quality, and convenience
-              </Badge>
+              </p>
             </div>
             <div className="relative">
               <img 
