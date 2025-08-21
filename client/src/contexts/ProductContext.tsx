@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as XLSX from 'xlsx';
 
 export interface Product {
   id?: string;
@@ -62,19 +63,107 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   const [selectedCategory, setSelectedCategory] = useState('All');
   const queryClient = useQueryClient();
 
-  // Fetch products from API
-  const { data: apiResponse, isLoading, error, refetch } = useQuery({
-    queryKey: ['/api/products'],
-    queryFn: async () => {
-      const response = await fetch('/api/products?limit=1000');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch products: ${response.status}`);
-      }
-      return response.json();
-    },
-  });
+  // Hybrid approach: Try Excel first, fallback to API
+  const { data: products = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['hybrid-products'],
+    queryFn: async (): Promise<Product[]> => {
+      try {
+        console.log('Loading products...');
+        
+        // First try Excel file from root directory
+        try {
+          console.log('Trying Excel file from root...');
+          const excelResponse = await fetch('/product_catalog.xlsx');
+          
+          if (excelResponse.ok) {
+            const arrayBuffer = await excelResponse.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
+            
+            // Get the first worksheet
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            
+            // Convert to JSON
+            const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
+            
+            console.log('Excel loaded:', jsonData.length, 'rows');
 
-  const products: Product[] = apiResponse?.products || [];
+            // Helper function to convert image paths
+            const convertImagePath = (imagePath: string): string => {
+              if (!imagePath) return '';
+              
+              const cleanPath = imagePath.trim();
+              
+              // If it's a Google Drive URL, use it directly
+              if (cleanPath.includes('drive.google.com')) {
+                return cleanPath;
+              }
+              
+              // If it's already a proper attached_assets path, return as-is
+              if (cleanPath.startsWith('/attached_assets/')) {
+                return cleanPath;
+              }
+              
+              // If it looks like a local filename, prepend /attached_assets/
+              if (cleanPath && !cleanPath.startsWith('http')) {
+                return `/attached_assets/${cleanPath}`;
+              }
+              
+              return cleanPath;
+            };
+
+            // Map and validate the data
+            const validProducts = jsonData
+              .map((row: any) => {
+                const rawImageUrl = row.ImageURL || row.imageurl || row['Image URL'] || row.DirectLink || row['Direct_Link'] || '';
+                
+                return {
+                  'Product Name': row['Product Name'] || row.ProductName || row['product name'] || '',
+                  Category: row.Category || row.category || '',
+                  Brand: row.Brand || row.brand || '',
+                  Price: parseFloat(row.Price || row.price || row['Price(Ghc)'] || '0') || 0,
+                  ImageURL: convertImagePath(rawImageUrl)
+                };
+              })
+              .filter((product: Product) => {
+                const isValid = (product['Product Name'] || '').trim() !== '' && 
+                                (product.Price || 0) > 0 && 
+                                (product.Category || '').trim() !== '';
+                return isValid;
+              });
+
+            console.log(`Loaded ${validProducts.length} valid products from Excel`);
+            if (validProducts.length > 0) {
+              console.log('Sample product with image:', validProducts.find(p => p.ImageURL));
+              return validProducts;
+            }
+          }
+        } catch (excelError) {
+          console.log('Excel loading failed, trying API fallback:', excelError);
+        }
+        
+        // Fallback to API
+        console.log('Loading from API...');
+        const response = await fetch('/api/products?limit=1000');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch products: ${response.status}`);
+        }
+        
+        const apiData = await response.json();
+        const products = apiData.products || [];
+        
+        console.log(`Loaded ${products.length} products from API`);
+        return products;
+
+      } catch (err) {
+        console.error('Error loading products:', err);
+        // Return empty array instead of throwing to prevent UI crash
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 2,
+  });
 
   // Extract unique categories
   const categories = React.useMemo(() => {
@@ -119,68 +208,35 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     return filtered;
   }, [products, selectedCategory, searchQuery]);
 
-  // Add product mutation
+  // For Excel-based products, we'll simulate CRUD operations
   const addProductMutation = useMutation({
     mutationFn: async (newProduct: Omit<Product, 'id'>) => {
-      const response = await fetch('/api/admin/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(newProduct),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to add product');
-      }
-      
-      return response.json();
+      // For now, just invalidate the cache to refresh from Excel
+      // In a real app, you'd need to write back to Excel or database
+      throw new Error('Adding products to Excel file not implemented');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: ['excel-products'] });
     },
   });
 
-  // Update product mutation
   const updateProductMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Product> }) => {
-      const response = await fetch(`/api/admin/products/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(updates),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update product');
-      }
-      
-      return response.json();
+      // For now, just invalidate the cache to refresh from Excel
+      throw new Error('Updating products in Excel file not implemented');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: ['excel-products'] });
     },
   });
 
-  // Delete product mutation
   const deleteProductMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/admin/products/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete product');
-      }
-      
-      return response.json();
+      // For now, just invalidate the cache to refresh from Excel
+      throw new Error('Deleting products from Excel file not implemented');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: ['excel-products'] });
     },
   });
 
