@@ -157,46 +157,17 @@ export function ShopPage() {
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'brand'>('name');
   
   // Use ProductContext for shared state management
-  const { products } = useProducts();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-
-  // Extract categories from products
-  const categories = Array.from(
-    new Set(
-      products
-        .map(p => p.category?.name || p.Category)
-        .filter((c): c is string => Boolean(c && c.trim() !== ''))
-    )
-  );
-
-  // Filter products based on search and category
-  const contextFilteredProducts = products.filter(product => {
-    // Filter by category
-    if (selectedCategory !== 'All') {
-      const productCategory = product.category?.name || product.Category;
-      if (productCategory !== selectedCategory) return false;
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      const name = product.name || product['Product Name'] || '';
-      const category = product.category?.name || product.Category || '';
-      const brand = product.brand?.name || product.Brand || '';
-      
-      return (
-        name.toLowerCase().includes(query) ||
-        category.toLowerCase().includes(query) ||
-        brand.toLowerCase().includes(query)
-      );
-    }
-
-    return true;
-  });
-
-  const isLoading = products.length === 0;
-  const productsError = null;
+  const {
+    products,
+    categories,
+    isLoading,
+    error: productsError,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    filteredProducts: contextFilteredProducts
+  } = useProducts();
 
   // Sort the filtered products from context
   const sortedProducts = [...contextFilteredProducts].sort((a, b) => {

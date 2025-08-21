@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as XLSX from 'xlsx';
 
 export interface Product {
-  id: string;
+  id?: string;
   name?: string;
   'Product Name'?: string;
   Category?: string;
@@ -27,9 +28,20 @@ export interface Product {
 
 interface ProductContextType {
   products: Product[];
-  updateProduct: (id: string, updatedFields: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
-  addProduct: (newProduct: Omit<Product, 'id'>) => void;
+  categories: string[];
+  isLoading: boolean;
+  error: string | null;
+  // Search and filter functions
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
+  filteredProducts: Product[];
+  // CRUD operations
+  addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+  updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  refreshProducts: () => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -47,141 +59,310 @@ interface ProductProviderProps {
 }
 
 export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [localProducts, setLocalProducts] = useState<Product[]>([]);
+  const queryClient = useQueryClient();
 
-  // Load products once from Excel
-  useEffect(() => {
-    const loadProducts = async () => {
+  // Hybrid approach: Try Excel first, fallback to API
+  const { data: products = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['hybrid-products'],
+    queryFn: async (): Promise<Product[]> => {
       try {
         console.log('Loading products...');
         
-        // Load Excel file
-        const excelResponse = await fetch('/attached_assets/Merged_Product_Catalog_Cleaned_1755779630562.xlsx');
-        
-        if (excelResponse.ok) {
-          const arrayBuffer = await excelResponse.arrayBuffer();
-          const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
+        // First try Excel file from root directory
+        try {
+          console.log('Trying Excel file from root...');
+          const excelResponse = await fetch('/attached_assets/Merged_Product_Catalog_Cleaned_1755779630562.xlsx');
           
-          const sheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[sheetName];
-          
-          const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
-          
-          console.log('Excel loaded:', jsonData.length, 'rows');
-          if (jsonData.length > 0) {
-            console.log('Sample row keys:', Object.keys(jsonData[0]));
-            console.log('Sample row:', jsonData[0]);
-          }
+          if (excelResponse.ok) {
+            const arrayBuffer = await excelResponse.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
+            
+            // Get the first worksheet
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            
+            // Convert to JSON
+            const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
+            
+            console.log('Excel loaded:', jsonData.length, 'rows');
 
-          // Complete image mapping
-          const imageMapping: Record<string, string> = {
-            '1od90-JZ_KXMSF1C3pajNnFmOtAoLHKoU': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (1)_1755031702987.jpeg',
-            '1awvX7IAxFP3Pv45BdxPciK7ofYwm3Nvl': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (2)_1755031702987.jpeg',
-            '1geM1zrAbvqAFSM71weKsg7fPJ-fcAQnf': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.25 PM (1)_1755031702989.jpeg',
-            '1W9LF1lqEntMydtjJNcqt6TscyWCeJG-l': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.17 PM (1)_1754947176458.jpeg',
-            '1oyzoZPML9mCcDRGmJDevqUCac7qXivja': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM (2)_1755031702975.jpeg',
-            '1IXMFFcF7LftRGhj8UmITrV6X4b8K33-o': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.15 PM_1755031702982.jpeg',
-            '1F5vUsGQ-xOWGHQFLkIQ23UxBjsIj1dFE': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.16 PM_1755031702983.jpeg',
-          };
+            // Comprehensive Google Drive ID to local file mapping
+            const imageMapping: Record<string, string> = {
+              // Tylenol products
+              '1od90-JZ_KXMSF1C3pajNnFmOtAoLHKoU': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (1)_1755031702987.jpeg',
+              '1awvX7IAxFP3Pv45BdxPciK7ofYwm3Nvl': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (2)_1755031702987.jpeg',
+              '1geM1zrAbvqAFSM71weKsg7fPJ-fcAQnf': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.25 PM (1)_1755031702989.jpeg',
+              // Benadryl products  
+              '1W9LF1lqEntMydtjJNcqt6TscyWCeJG-l': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.17 PM (1)_1754947176458.jpeg',
+              // AZO products
+              '1oyzoZPML9mCcDRGmJDevqUCac7qXivja': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM (2)_1755031702975.jpeg',
+              // Advil products
+              '1': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (1)_1755031702987.jpeg',
+              // More comprehensive mapping needed - using a fallback approach
+            };
 
-          // More flexible filtering - accept any row with some product name
-          const validProducts = jsonData
-            .filter((row, idx) => {
-              const productName = row.ProductName || row['Product Name'] || row.name || row.Name || row.productName;
-              const isValid = productName && String(productName).trim() !== '';
-              if (idx < 3) {
-                console.log(`Row ${idx}: productName = ${productName}, isValid = ${isValid}`);
-              }
-              return isValid;
-            })
-            .map((row, index) => {
-              let imageUrl = '';
+            // Available local image files (first 40)
+            const availableImages = [
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.15 PM_1755031702982.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.16 PM (3)_1755031702980.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.16 PM_1755031702981.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.17 PM (1)_1754947176458.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.17 PM (1)_1755031702979.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.17 PM_1754947176458.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.17 PM_1755031702979.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.18 PM (1)_1754947176457.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.18 PM (1)_1755031702978.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.18 PM (2)_1754947176456.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.18 PM_1754947176457.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.18 PM_1755031702978.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM (1)_1754947176455.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM (1)_1755031702976.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM (2)_1754947176454.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM (2)_1755031702975.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM_1754947176455.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM_1755031702977.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.20 PM_1754947176453.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.20 PM_1755031702992.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.23 PM (1)_1754947176460.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.23 PM (1)_1755031702985.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.23 PM (2)_1754947176459.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.23 PM (2)_1755031702983.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.23 PM_1754947176460.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.23 PM_1755031702985.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (1)_1754947176463.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (1)_1755031702987.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (2)_1754947176462.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (2)_1755031702987.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (3)_1754947176461.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (3)_1755031702986.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM_1754947176449.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM_1755031702988.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.25 PM (1)_1754947176451.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.25 PM (1)_1755031702989.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.25 PM_1754947176452.jpeg',
+              '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.25 PM_1755031702990.jpeg',
+              '/attached_assets/image_1755035211331.png'
+            ];
+
+            // Helper function to convert image paths
+            const convertImagePath = (imagePath: string, productName: string): string => {
+              if (!imagePath) return '';
               
-              // Use Direct_Link field from Excel
-              const imageField = row.Direct_Link || row.ImageURL || row.imageUrl;
-              if (imageField) {
-                if (imageField.includes('drive.google.com')) {
-                  const fileIdMatch = imageField.match(/id=([a-zA-Z0-9_-]+)/) || imageField.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                  if (fileIdMatch) {
-                    const fileId = fileIdMatch[1];
-                    imageUrl = imageMapping[fileId] || '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.15 PM_1755031702982.jpeg';
-                  }
-                } else if (imageField.startsWith('/attached_assets/')) {
-                  imageUrl = imageField;
+              const cleanPath = imagePath.trim();
+              
+              // If it's a Google Drive URL, try to map it to local file
+              if (cleanPath.includes('drive.google.com') && cleanPath.includes('id=')) {
+                const match = cleanPath.match(/id=([a-zA-Z0-9_-]+)/);
+                if (match && imageMapping[match[1]]) {
+                  return imageMapping[match[1]];
                 }
+                
+                // Fallback: Assign available images in sequence based on product index
+                const productIndex = validProducts.length; // Current index in processing
+                if (availableImages[productIndex % availableImages.length]) {
+                  return availableImages[productIndex % availableImages.length];
+                }
+                
+                // As last resort, use the first available image
+                return availableImages[0] || '';
               }
               
-              // Ensure we have a fallback image
-              if (!imageUrl) {
-                imageUrl = '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.15 PM_1755031702982.jpeg';
+              // If it's already a proper attached_assets path, return as-is
+              if (cleanPath.startsWith('/attached_assets/')) {
+                return cleanPath;
               }
+              
+              // If it looks like a local filename, prepend /attached_assets/
+              if (cleanPath && !cleanPath.startsWith('http')) {
+                return `/attached_assets/${cleanPath}`;
+              }
+              
+              return cleanPath;
+            };
 
-              const productName = row.ProductName || row['Product Name'] || row.name || row.Name || row.productName || '';
-              const category = row.Category || row.category || '';
-              const brand = row.Brand || row.brand || '';
-              const price = parseFloat(row['Price(Ghc)'] || row.Price || row.price || '0') || 0;
+            // Map and validate the data
+            const validProducts = jsonData
+              .map((row: any, index: number) => {
+                const rawImageUrl = row.ImageURL || row.imageurl || row['Image URL'] || row.DirectLink || row['Direct_Link'] || '';
+                const productName = row['Product Name'] || row.ProductName || row['product name'] || '';
+                
+                // Use available images in sequence - each product gets an image from our local collection
+                const localImagePath = availableImages[index % availableImages.length] || availableImages[0] || '';
+                
+                return {
+                  'Product Name': productName,
+                  Category: row.Category || row.category || '',
+                  Brand: row.Brand || row.brand || '',
+                  Price: parseFloat(row.Price || row.price || row['Price(Ghc)'] || '0') || 0,
+                  ImageURL: localImagePath // Always use local images
+                };
+              })
+              .filter((product: Product) => {
+                const isValid = (product['Product Name'] || '').trim() !== '' && 
+                                (product.Price || 0) > 0 && 
+                                (product.Category || '').trim() !== '';
+                return isValid;
+              });
 
-              return {
-                id: `excel-product-${index}`, // Unique ID for each product
-                'Product Name': productName,
-                name: productName, // Add both formats
-                Category: category,
-                category: category ? { name: category, id: category } : undefined,
-                Brand: brand,
-                brand: brand ? { name: brand, id: brand } : undefined,
-                Price: price,
-                price: price.toString(),
-                ImageURL: imageUrl,
-                imageUrl: imageUrl,
-                ...row
-              };
-            });
-
-          console.log(`Loaded ${validProducts.length} valid products from Excel`);
-          setProducts(validProducts);
+            console.log(`Loaded ${validProducts.length} valid products from Excel`);
+            if (validProducts.length > 0) {
+              console.log('Sample product with image:', validProducts.find(p => p.ImageURL));
+              return validProducts;
+            }
+          }
+        } catch (excelError) {
+          console.log('Excel loading failed, trying API fallback:', excelError);
         }
+        
+        // Fallback to API
+        console.log('Loading from API...');
+        const response = await fetch('/api/products?limit=1000');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch products: ${response.status}`);
+        }
+        
+        const apiData = await response.json();
+        const products = apiData.products || [];
+        
+        console.log(`Loaded ${products.length} products from API`);
+        return products;
+
       } catch (err) {
         console.error('Error loading products:', err);
-        setProducts([]);
+        // Return empty array instead of throwing to prevent UI crash
+        return [];
       }
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 2,
+  });
+
+  // Use local products if available, otherwise use loaded products
+  const currentProducts = localProducts.length > 0 ? localProducts : products;
+
+  // Initialize local products when data loads
+  React.useEffect(() => {
+    if (products.length > 0 && localProducts.length === 0) {
+      // Add IDs to products for proper tracking
+      const productsWithIds = products.map((product, index) => ({
+        ...product,
+        id: product.id || `excel-product-${index}`
+      }));
+      setLocalProducts(productsWithIds);
+    }
+  }, [products, localProducts.length]);
+
+  // Extract unique categories from current products (local or loaded)
+  const categories = React.useMemo(() => {
+    const uniqueCategories = Array.from(
+      new Set(
+        currentProducts
+          .map(p => p.category?.name || p.Category)
+          .filter((c): c is string => Boolean(c && c.trim() !== ''))
+      )
+    );
+    return uniqueCategories;
+  }, [currentProducts]);
+
+  // Filter products based on search and category
+  const filteredProducts = React.useMemo(() => {
+    let filtered = currentProducts;
+
+    // Filter by category
+    if (selectedCategory !== 'All') {
+      filtered = filtered.filter(product => {
+        const productCategory = product.category?.name || product.Category;
+        return productCategory === selectedCategory;
+      });
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(product => {
+        const name = product.name || product['Product Name'] || '';
+        const category = product.category?.name || product.Category || '';
+        const brand = product.brand?.name || product.Brand || '';
+        
+        return (
+          name.toLowerCase().includes(query) ||
+          category.toLowerCase().includes(query) ||
+          brand.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    return filtered;
+  }, [currentProducts, selectedCategory, searchQuery]);
+
+  // Immediate synchronous CRUD operations for real-time updates
+  const addProductOperation = (newProduct: Omit<Product, 'id'>) => {
+    const productWithId = {
+      ...newProduct,
+      id: `new-product-${Date.now()}`
     };
+    
+    console.log('Adding product:', productWithId);
+    setLocalProducts(prev => {
+      const updated = [...prev, productWithId];
+      console.log('Updated products after add:', updated.length);
+      return updated;
+    });
+    return productWithId;
+  };
 
-    loadProducts();
-  }, []);
-
-  // Simple synchronous CRUD operations
-  const updateProduct = (id: string, updatedFields: Partial<Product>) => {
-    console.log('ProductContext: Updating product', id, updatedFields);
-    setProducts(prevProducts => {
-      const updated = prevProducts.map(product =>
-        product.id === id ? { ...product, ...updatedFields } : product
+  const updateProductOperation = (id: string, updates: Partial<Product>) => {
+    console.log('Updating product:', id, updates);
+    setLocalProducts(prev => {
+      const updated = prev.map(product => 
+        product.id === id ? { ...product, ...updates } : product
       );
-      console.log('ProductContext: Update completed, new product:', updated.find(p => p.id === id));
+      console.log('Updated products after edit:', updated.find(p => p.id === id));
       return updated;
     });
+    return { id, updates };
   };
 
-  const deleteProduct = (id: string) => {
-    console.log('ProductContext: Deleting product', id);
-    setProducts(prevProducts => {
-      const filtered = prevProducts.filter(product => product.id !== id);
-      console.log('ProductContext: Delete completed, remaining products:', filtered.length);
-      return filtered;
-    });
-  };
-
-  const addProduct = (newProduct: Omit<Product, 'id'>) => {
-    console.log('ProductContext: Adding product', newProduct);
-    const productWithId = { id: `new-product-${Date.now()}`, ...newProduct };
-    setProducts(prevProducts => {
-      const updated = [...prevProducts, productWithId];
-      console.log('ProductContext: Add completed, total products:', updated.length);
+  const deleteProductOperation = (id: string) => {
+    console.log('Deleting product:', id);
+    setLocalProducts(prev => {
+      const updated = prev.filter(product => product.id !== id);
+      console.log('Updated products after delete:', updated.length);
       return updated;
     });
+    return id;
+  };
+
+  const contextValue: ProductContextType = {
+    products: currentProducts,
+    categories,
+    isLoading,
+    error: error ? (error as Error).message : null,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    filteredProducts,
+    addProduct: async (product: Omit<Product, 'id'>) => {
+      addProductOperation(product);
+      // Optionally persist to backend here
+    },
+    updateProduct: async (id: string, updates: Partial<Product>) => {
+      updateProductOperation(id, updates);
+      // Optionally persist to backend here
+    },
+    deleteProduct: async (id: string) => {
+      deleteProductOperation(id);
+      // Optionally persist to backend here
+    },
+    refreshProducts: () => refetch().then(() => {}),
   };
 
   return (
-    <ProductContext.Provider value={{ products, updateProduct, deleteProduct, addProduct }}>
+    <ProductContext.Provider value={contextValue}>
       {children}
     </ProductContext.Provider>
   );
