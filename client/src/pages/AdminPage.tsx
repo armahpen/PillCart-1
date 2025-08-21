@@ -95,20 +95,7 @@ export default function AdminPage() {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
 
   // Use ProductContext for shared product management
-  const {
-    products,
-    categories,
-    isLoading: productsLoading,
-    error: productsError,
-    searchQuery,
-    setSearchQuery,
-    selectedCategory,
-    setSelectedCategory,
-    filteredProducts,
-    addProduct,
-    updateProduct,
-    deleteProduct
-  } = useProducts();
+  const { products, updateProduct, deleteProduct, addProduct } = useProducts();
 
   const { toast } = useToast();
 
@@ -278,7 +265,7 @@ export default function AdminPage() {
       };
       
       console.log('Admin: Calling updateProduct for ID:', editingProduct.id, 'with updates:', updates);
-      await updateProduct(editingProduct.id, updates);
+      updateProduct(editingProduct.id, updates);
       setEditingProduct(null);
       setIsEditDialogOpen(false);
       console.log('Admin: Product update completed');
@@ -302,7 +289,7 @@ export default function AdminPage() {
     
     try {
       console.log('Admin: Calling deleteProduct for ID:', productId);
-      await deleteProduct(productId);
+      deleteProduct(productId);
       console.log('Admin: Product delete completed');
       addLog('Product Deleted', `${productName} was removed from catalog`);
       toast({
@@ -412,7 +399,7 @@ export default function AdminPage() {
             <div className="flex justify-between items-center">
               <div>
                 <h2 className="text-2xl font-semibold">Product Catalog</h2>
-                <p className="text-gray-600">Manage your product inventory ({filteredProducts.length} products shown)</p>
+                <p className="text-gray-600">Manage your product inventory ({products.length} products shown)</p>
               </div>
               
               <Dialog open={isAddingProduct} onOpenChange={setIsAddingProduct}>
@@ -534,7 +521,7 @@ export default function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredProducts.length === 0 ? (
+                    {products.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center py-8">
                           <div className="flex flex-col items-center gap-2">
@@ -556,7 +543,7 @@ export default function AdminPage() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredProducts.map((product, index) => (
+                      products.map((product, index) => (
                         <TableRow key={product.id || index}>
                           <TableCell>
                             <div className="flex items-center gap-3">

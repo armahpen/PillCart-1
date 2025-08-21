@@ -1,0 +1,84 @@
+Completely replace the product data flow with a centralized ProductContext so that any admin edit, delete, or add operation instantly updates both the Admin dashboard and Shop page.
+
+1. **Remove any old product-loading code** from ShopPage.jsx and AdminDashboard.jsx. Do not import products directly from JSON or Excel files inside these components.
+
+2. **Add ProductContext.jsx with this exact code:**
+
+import React, { createContext, useContext, useState, useEffect } from "react";
+import productsData from "./products.json"; // use your JSON or Excel loader
+
+const ProductContext = createContext();
+export const useProducts = () => useContext(ProductContext);
+
+export const ProductProvider = ({ children }) => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const productsWithId = productsData.map((p, i) => ({
+      id: p.id || i + 1,
+      ...p,
+    }));
+    setProducts(productsWithId);
+    console.log("Loaded products into context:", productsWithId);
+  }, []);
+
+  const updateProduct = (id, updatedFields) => {
+    setProducts(prev =>
+      prev.map(product =>
+        product.id === id ? { ...product, ...updatedFields } : product
+      )
+    );
+    console.log("Updated product:", id, updatedFields);
+  };
+
+  const deleteProduct = (id) => {
+    setProducts(prev => prev.filter(product => product.id !== id));
+    console.log("Deleted product:", id);
+  };
+
+  const addProduct = (newProduct) => {
+    const productWithId = { id: Date.now(), ...newProduct };
+    setProducts(prev => [...prev, productWithId]);
+    console.log("Added product:", productWithId);
+  };
+
+  return (
+    <ProductContext.Provider value={{ products, updateProduct, deleteProduct, addProduct }}>
+      {children}
+    </ProductContext.Provider>
+  );
+};
+
+3. **Wrap your app with ProductProvider in main.jsx:**
+
+import { ProductProvider } from "./ProductContext";
+ReactDOM.render(
+  <ProductProvider>
+    <App />
+  </ProductProvider>,
+  document.getElementById("root")
+);
+
+4. **Update ShopPage.jsx:**
+- Import { useProducts } from "../ProductContext"
+- Use const { products } = useProducts();
+- Render products.map(...) directly
+- Remove any other product imports
+
+5. **Update AdminDashboard.jsx:**
+- Import { useProducts } from "../ProductContext"
+- Use const { products, updateProduct, deleteProduct, addProduct } = useProducts();
+- Call updateProduct(), deleteProduct(), addProduct() on button clicks
+- Remove any other product imports
+
+6. **Ensure both pages use the same ProductCard component.**
+- ProductCard should only display data from props (name, image, price, category).
+
+7. **Add a search bar in both pages:**
+products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+
+8. **Testing:**
+- Log into Admin, change a product price -> should see console.log "Updated product"
+- ShopPage should immediately reflect the change without reload
+- Delete a product -> should see console.log "Deleted product" and the card disappears on both pages
+- Add a product -> should see console.log "Added product" and card appears instantly

@@ -22,14 +22,21 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
   const { toast } = useToast();
 
   // Safely get product details with fallbacks for both formats
-  const productName = product.name || product['Product Name'] || '';
-  const productBrand = product.brand?.name || product.Brand || '';
-  const productCategory = product.category?.name || product.Category || '';
-  const productPrice = parseFloat(product.price || product.Price?.toString() || '0') || 0;
-  const productImageUrl = product.imageUrl || product.ImageURL || '';
+  const productName = product['Product Name'] || '';
+  const productBrand = product.Brand || '';
+  const productCategory = product.Category || '';
+  const productPrice = parseFloat(product.Price?.toString() || '0') || 0;
+  const productImageUrl = product.ImageURL || '';
 
   const handleAddToCart = () => {
-    addToCart(product);
+    addToCart({
+      id: String(product.id),
+      'Product Name': product['Product Name'],
+      Category: product.Category,
+      Brand: product.Brand,
+      Price: product.Price,
+      ImageURL: product.ImageURL,
+    });
     toast({
       title: "Added to cart",
       description: `${productName} has been added to your cart.`,
@@ -157,26 +164,37 @@ export function ShopPage() {
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'brand'>('name');
   
   // Use ProductContext for shared state management
-  const {
-    products,
-    categories,
-    isLoading,
-    error: productsError,
-    searchQuery,
-    setSearchQuery,
-    selectedCategory,
-    setSelectedCategory,
-    filteredProducts: contextFilteredProducts
-  } = useProducts();
+  const { products } = useProducts();
 
-  // Sort the filtered products from context
-  const sortedProducts = [...contextFilteredProducts].sort((a, b) => {
-    const priceA = parseFloat(a.price?.toString() || a.Price?.toString() || '0');
-    const priceB = parseFloat(b.price?.toString() || b.Price?.toString() || '0');
-    const nameA = a.name || a['Product Name'] || '';
-    const nameB = b.name || b['Product Name'] || '';
-    const brandA = a.brand?.name || a.Brand || '';
-    const brandB = b.brand?.name || b.Brand || '';
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  
+  // Filter products based on search and category
+  const filteredProducts = products.filter((product: any) => {
+    const name = product['Product Name'] || '';
+    const category = product.Category || '';
+    const brand = product.Brand || '';
+    
+    // Search filter
+    const matchesSearch = !searchQuery || 
+      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      brand.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Category filter  
+    const matchesCategory = selectedCategory === 'All' || category === selectedCategory;
+    
+    return matchesSearch && matchesCategory;
+  });
+
+  // Sort the filtered products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    const priceA = parseFloat(a.Price?.toString() || '0');
+    const priceB = parseFloat(b.Price?.toString() || '0');
+    const nameA = a['Product Name'] || '';
+    const nameB = b['Product Name'] || '';
+    const brandA = a.Brand || '';
+    const brandB = b.Brand || '';
 
     switch (sortBy) {
       case 'price':
@@ -189,14 +207,19 @@ export function ShopPage() {
     }
   });
 
+  // Extract unique categories
+  const categories = Array.from(
+    new Set(products.map((p: any) => p.Category).filter(Boolean))
+  );
+
 
   // Group products by category for "All" view
-  const groupedProducts = categories.reduce((acc, category) => {
-    acc[category] = sortedProducts.filter(p => (p.category?.name || p.Category) === category);
+  const groupedProducts = categories.reduce((acc: Record<string, any[]>, category) => {
+    acc[category] = sortedProducts.filter(p => p.Category === category);
     return acc;
-  }, {} as Record<string, Product[]>);
+  }, {} as Record<string, any[]>);
 
-  if (isLoading) {
+  if (!products || products.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -204,28 +227,6 @@ export function ShopPage() {
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary mx-auto mb-4"></div>
               <p className="text-gray-600 dark:text-gray-400">Loading products...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (productsError) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-center min-h-96">
-            <div className="text-center">
-              <div className="text-red-500 mb-4">
-                <Search className="h-12 w-12 mx-auto mb-4" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Failed to load products
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                {productsError}
-              </p>
             </div>
           </div>
         </div>
