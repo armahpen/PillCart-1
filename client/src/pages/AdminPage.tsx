@@ -902,8 +902,12 @@ function EditProductForm({ product, categories, onSave, onCancel, onAddCategory 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const fakeUrl = URL.createObjectURL(file);
-      setFormData({ ...formData, imageUrl: fakeUrl });
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Url = e.target?.result as string;
+        setFormData({ ...formData, imageUrl: base64Url });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -1075,8 +1079,12 @@ function AddProductForm({ categories, onAdd, onCancel, onAddCategory }: AddProdu
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const fakeUrl = URL.createObjectURL(file);
-      setNewProduct({ ...newProduct, ImageURL: fakeUrl });
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Url = e.target?.result as string;
+        setNewProduct({ ...newProduct, ImageURL: base64Url });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
