@@ -122,9 +122,40 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
   };
 
   const addProduct = (newProduct: Omit<Product, 'id'>) => {
-    const productWithId = { id: Date.now(), ...newProduct };
-    setProducts(prev => [...prev, productWithId]);
-    console.log("Added product:", productWithId);
+    const nextId = products.length + 1;
+    const productId = `SP-${String(nextId).padStart(4, '0')}`;
+    
+    // Process the new product the same way as Excel products
+    const productName = newProduct['Product Name'] || newProduct.name || '';
+    const brandName = newProduct.Brand || newProduct.brand?.name || '';
+    const categoryName = newProduct.Category || newProduct.category?.name || '';
+    const price = parseFloat(newProduct.Price?.toString() || newProduct.price?.toString() || '0');
+    const imageUrl = newProduct.ImageURL || newProduct.imageUrl || '';
+    
+    const processedProduct = {
+      id: productId,
+      // Keep original names for backward compatibility  
+      'Product Name': productName,
+      Category: categoryName,
+      Brand: brandName,
+      Price: price,
+      ImageURL: imageUrl,
+      // Add ProductCard-compatible names
+      name: productName,
+      imageUrl: imageUrl,
+      price: price.toString(),
+      slug: productName?.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').substring(0, 50) || `product-${nextId}`,
+      stockQuantity: Math.floor(Math.random() * 100) + 10, // Random stock between 10-110
+      requiresPrescription: false, // Default to OTC
+      rating: (Math.random() * 2 + 3).toFixed(1), // Random rating 3-5
+      reviewCount: Math.floor(Math.random() * 50) + 5, // Random reviews 5-55
+      brand: { name: brandName },
+      category: { name: categoryName },
+      trackingId: productId // Dedicated tracking ID
+    };
+    
+    setProducts(prev => [...prev, processedProduct]);
+    console.log("Added processed product:", processedProduct);
   };
 
   return (
