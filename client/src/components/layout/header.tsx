@@ -140,7 +140,7 @@ export default function Header() {
 
 
   const categories = [
-    { name: "Prescription", slug: "prescriptions", href: "/prescription" },
+    { name: "Home", slug: "home", href: "/" },
     { name: "Shop", slug: "shop", href: "/shop" },
     { name: "Advice", slug: "advice", href: "#advice" },
     { name: "Help", slug: "help", href: "#help" },
