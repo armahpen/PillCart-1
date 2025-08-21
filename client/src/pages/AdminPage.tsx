@@ -265,8 +265,8 @@ export default function AdminPage() {
     if (!editingProduct || !editingProduct.id) return;
     
     try {
-      // Convert the editing product to proper format, excluding complex objects
-      const updates: Partial<Product> = {
+      // Convert the editing product to proper format for the update
+      const updates: any = {
         name: editingProduct.name,
         'Product Name': editingProduct['Product Name'],
         Category: editingProduct.Category,
@@ -317,8 +317,8 @@ export default function AdminPage() {
 
   const handleAddProduct = async (newProduct: Omit<Product, 'id'>) => {
     try {
-      // Create a clean product object without complex nested objects
-      const cleanProduct: Omit<Product, 'id'> = {
+      // Create a clean product object for adding new product
+      const cleanProduct: any = {
         'Product Name': newProduct['Product Name'],
         Category: newProduct.Category,
         Brand: newProduct.Brand,
