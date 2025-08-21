@@ -410,20 +410,6 @@ export default function AdminPage() {
               Live Logs
             </TabsTrigger>
           </TabsList>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="products" className="flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Product Management
-            </TabsTrigger>
-            <TabsTrigger value="payments" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Payment History
-            </TabsTrigger>
-            <TabsTrigger value="logs" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Live Logs
-            </TabsTrigger>
-          </TabsList>
 
           <TabsContent value="products" className="space-y-6">
             <div className="flex justify-between items-center">
