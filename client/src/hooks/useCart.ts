@@ -9,11 +9,26 @@ interface CartItem {
   imageUrl?: string;
 }
 
+// Support both old Excel format and new database format
 interface Product {
-  'Product Name': string;
-  Brand: string;
-  Price: number;
+  // Old Excel format
+  'Product Name'?: string;
+  Brand?: string;
+  Price?: number;
   ImageURL?: string;
+  Category?: string;
+  
+  // New database format  
+  id?: string;
+  name?: string;
+  price?: string | number;
+  imageUrl?: string;
+  brand?: {
+    name?: string;
+  };
+  category?: {
+    name?: string;
+  };
 }
 
 const CART_STORAGE_KEY = 'smile-pills-cart';
@@ -80,7 +95,13 @@ export function useCart() {
   };
 
   const addToCart = (product: Product, quantity: number = 1) => {
-    const productId = `${product['Product Name']}-${product.Brand}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    // Safely get product details with fallbacks for both formats
+    const productName = product.name || product['Product Name'] || '';
+    const productBrand = product.brand?.name || product.Brand || '';
+    const productPrice = parseFloat(product.price?.toString() || product.Price?.toString() || '0') || 0;
+    const productImageUrl = product.imageUrl || product.ImageURL || '';
+    
+    const productId = `${productName}-${productBrand}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
     
     const existingItem = cartItems.find(item => item.id === productId);
     
@@ -96,11 +117,11 @@ export function useCart() {
       // Add new item
       const newItem: CartItem = {
         id: productId,
-        name: product['Product Name'],
-        brand: product.Brand,
-        price: product.Price,
+        name: productName,
+        brand: productBrand,
+        price: productPrice,
         quantity,
-        imageUrl: product.ImageURL
+        imageUrl: productImageUrl
       };
       saveCart([...cartItems, newItem]);
     }
@@ -138,7 +159,11 @@ export function useCart() {
   };
 
   const isInCart = (product: Product) => {
-    const productId = `${product['Product Name']}-${product.Brand}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    // Safely get product details with fallbacks for both formats
+    const productName = product.name || product['Product Name'] || '';
+    const productBrand = product.brand?.name || product.Brand || '';
+    
+    const productId = `${productName}-${productBrand}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
     return cartItems.some(item => item.id === productId);
   };
 

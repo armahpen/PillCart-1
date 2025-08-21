@@ -9,15 +9,7 @@ import * as XLSX from 'xlsx';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/layout/header';
-import { useProducts } from '@/contexts/ProductContext';
-
-interface Product {
-  Category: string;
-  'Product Name': string;
-  Brand: string;
-  Price: number;
-  ImageURL: string;
-}
+import { useProducts, type Product } from '@/contexts/ProductContext';
 
 interface ProductCardProps {
   product: Product;
@@ -29,11 +21,18 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
   const { addToCart, isInCart } = useCart();
   const { toast } = useToast();
 
+  // Safely get product details with fallbacks for both formats
+  const productName = product.name || product['Product Name'] || '';
+  const productBrand = product.brand?.name || product.Brand || '';
+  const productCategory = product.category?.name || product.Category || '';
+  const productPrice = parseFloat(product.price || product.Price?.toString() || '0') || 0;
+  const productImageUrl = product.imageUrl || product.ImageURL || '';
+
   const handleAddToCart = () => {
     addToCart(product);
     toast({
       title: "Added to cart",
-      description: `${product['Product Name']} has been added to your cart.`,
+      description: `${productName} has been added to your cart.`,
     });
   };
 
@@ -43,13 +42,13 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
         <CardContent className="p-2">
           <div className="flex gap-4">
             <div className="w-12 h-12 flex-shrink-0">
-              {!imageError && product.ImageURL ? (
+              {!imageError && productImageUrl ? (
                 <img
-                  src={product.ImageURL}
-                  alt={product['Product Name']}
+                  src={productImageUrl}
+                  alt={productName}
                   className="w-full h-full object-contain rounded-md p-1"
                   onError={(e) => {
-                    console.log('Image load error for:', product['Product Name'], 'URL:', product.ImageURL);
+                    console.log('Image load error for:', productName, 'URL:', productImageUrl);
                     // Try fallback URL format
                     const img = e.target as HTMLImageElement;
                     if (img.src.includes('thumbnail?id=')) {
@@ -65,7 +64,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                     }
                     setImageError(true);
                   }}
-                  onLoad={() => console.log('Image loaded successfully:', product['Product Name'])}
+                  onLoad={() => console.log('Image loaded successfully:', productName)}
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 rounded-md flex flex-col items-center justify-center p-2">
@@ -73,27 +72,27 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                     <ShoppingCart className="h-4 w-4 text-secondary" />
                   </div>
                   <span className="text-xs text-gray-600 text-center leading-tight">
-                    {product.Brand}
+                    {productBrand}
                   </span>
                 </div>
               )}
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 mb-1">
-                {product['Product Name']}
+                {productName}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                {product.Brand}
+                {productBrand}
               </p>
               <div className="flex items-center justify-between">
                 <span className="text-lg font-bold text-secondary">
-                  ₵{product.Price.toFixed(2)}
+                  ₵{productPrice.toFixed(2)}
                 </span>
                 <Button
                   size="sm"
                   onClick={handleAddToCart}
                   className="bg-secondary hover:bg-secondary/90"
-                  data-testid={`button-add-cart-list-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                  data-testid={`button-add-cart-list-${productName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                 >
                   <ShoppingCart className="h-4 w-4 mr-1" />
                   {isInCart(product) ? 'Added' : 'Add to Cart'}
@@ -110,13 +109,13 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
     <Card className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
       <CardContent className="p-0">
         <div className="aspect-square w-full">
-          {!imageError && product.ImageURL ? (
+          {!imageError && productImageUrl ? (
             <img
-              src={product.ImageURL}
-              alt={product['Product Name']}
+              src={productImageUrl}
+              alt={productName}
               className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200 p-8"
               onError={(e) => {
-                console.log('Image load error for:', product['Product Name'], 'URL:', product.ImageURL);
+                console.log('Image load error for:', productName, 'URL:', productImageUrl);
                 // Try fallback URL format
                 const img = e.target as HTMLImageElement;
                 if (img.src.includes('thumbnail?id=')) {
@@ -132,7 +131,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                 }
                 setImageError(true);
               }}
-              onLoad={() => console.log('Image loaded successfully:', product['Product Name'])}
+              onLoad={() => console.log('Image loaded successfully:', productName)}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 flex flex-col items-center justify-center p-5">
@@ -140,7 +139,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                 <ShoppingCart className="h-10 w-10 text-secondary" />
               </div>
               <span className="text-sm text-gray-600 text-center font-medium">
-                {product.Brand}
+                {productBrand}
               </span>
               <span className="text-xs text-gray-500 text-center mt-1">
                 Product Image
@@ -150,14 +149,14 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
         </div>
         <div className="p-3">
           <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 mb-2 min-h-[2rem] text-sm">
-            {product['Product Name']}
+            {productName}
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-500 mb-2 truncate">
-            {product.Brand}
+            {productBrand}
           </p>
           <div className="flex items-center justify-between">
             <span className="text-sm font-bold text-secondary">
-              ₵{product.Price.toFixed(2)}
+              ₵{productPrice.toFixed(2)}
             </span>
             <Button
               size="sm"
@@ -167,7 +166,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                   ? 'bg-green-600 hover:bg-green-700 text-white' 
                   : 'bg-secondary hover:bg-secondary/90'
               }`}
-              data-testid={`button-add-cart-grid-${product['Product Name'].toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+              data-testid={`button-add-cart-grid-${productName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
             >
               <ShoppingCart className="h-3 w-3 mr-1" />
               {isInCart(product) ? 'Added' : 'Add'}
@@ -198,8 +197,8 @@ export function ShopPage() {
 
   // Sort the filtered products from context
   const sortedProducts = [...contextFilteredProducts].sort((a, b) => {
-    const priceA = parseFloat(a.price || a.Price || '0');
-    const priceB = parseFloat(b.price || b.Price || '0');
+    const priceA = parseFloat(a.price?.toString() || a.Price?.toString() || '0');
+    const priceB = parseFloat(b.price?.toString() || b.Price?.toString() || '0');
     const nameA = a.name || a['Product Name'] || '';
     const nameB = b.name || b['Product Name'] || '';
     const brandA = a.brand?.name || a.Brand || '';
@@ -422,7 +421,7 @@ export function ShopPage() {
               
               <div className={`grid gap-6 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
                 {sortedProducts.map((product, index) => (
-                  <ProductCard key={`${product.name || product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
+                  <ProductCard key={`${product.id || product.name || product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                 ))}
               </div>
             </div>
@@ -443,7 +442,7 @@ export function ShopPage() {
                     
                     <div className={`grid gap-6 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
                       {categoryProducts.map((product, index) => (
-                        <ProductCard key={`${product.name || product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
+                        <ProductCard key={`${product.id || product.name || product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                       ))}
                     </div>
                   </div>
