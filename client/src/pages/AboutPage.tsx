@@ -53,63 +53,72 @@ export default function AboutPage() {
             </div>
             
             {/* Visual Elements Section */}
-            <div className="relative h-96 lg:h-[400px]">
-              {/* Central Phone/App Interface */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-                <div className="bg-white rounded-2xl p-4 shadow-2xl w-48 h-80">
-                  <div className="bg-gray-100 rounded-xl h-full p-3">
-                    <div className="space-y-3">
-                      <div className="bg-secondary text-white rounded-lg p-2 text-xs font-medium">
-                        Welcome to our Mobile Pharmacy App
-                      </div>
-                      <div className="space-y-2">
-                        <div className="bg-pink-100 rounded-lg p-2 flex items-center gap-2">
-                          <div className="w-6 h-6 bg-pink-400 rounded-full"></div>
-                          <span className="text-xs">Prescription Orders</span>
-                        </div>
-                        <div className="bg-yellow-100 rounded-lg p-2 flex items-center gap-2">
-                          <div className="w-6 h-6 bg-yellow-400 rounded-full"></div>
-                          <span className="text-xs">Medicine Delivery</span>
-                        </div>
-                        <div className="bg-green-100 rounded-lg p-2 flex items-center gap-2">
-                          <div className="w-6 h-6 bg-green-400 rounded-full"></div>
-                          <span className="text-xs">Health Consultations</span>
-                        </div>
-                        <div className="bg-blue-100 rounded-lg p-2 flex items-center gap-2">
-                          <div className="w-6 h-6 bg-blue-400 rounded-full"></div>
-                          <span className="text-xs">Order Tracking</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Person 1 - Top Left with Pink Frame */}
-              <div className="absolute top-8 left-4 z-10">
-                <div className="w-20 h-20 bg-pink-400 rounded-full p-1">
+            <div className="relative h-96 lg:h-[400px] flex items-center justify-center">
+              {/* Person 1 - Left side with Pink Frame */}
+              <div className="absolute left-0 top-1/4 z-10">
+                <div className="w-32 h-32 bg-pink-500 rounded-full p-2 shadow-lg">
                   <img 
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150" 
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200" 
                     alt="Happy customer" 
                     className="w-full h-full rounded-full object-cover"
                   />
                 </div>
               </div>
               
-              {/* Person 2 - Bottom Right */}
-              <div className="absolute bottom-8 right-4 z-10">
-                <div className="w-24 h-24 bg-white rounded-full p-1 shadow-lg">
+              {/* Central Phone/App Interface */}
+              <div className="z-20 mx-auto">
+                <div className="bg-white rounded-3xl p-2 shadow-2xl w-44 h-80 relative">
+                  <div className="bg-gray-50 rounded-2xl h-full p-4 flex flex-col">
+                    <div className="bg-gray-800 rounded-xl h-6 w-16 mx-auto mb-4"></div>
+                    <div className="space-y-3 flex-1">
+                      <div className="bg-white rounded-lg p-3 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-4 h-4 bg-pink-400 rounded-full"></div>
+                          <span className="text-xs font-medium">Prescription Service</span>
+                        </div>
+                        <div className="text-xs text-gray-600">Upload prescription</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-3 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-4 h-4 bg-yellow-400 rounded-full"></div>
+                          <span className="text-xs font-medium">Fast Delivery</span>
+                        </div>
+                        <div className="text-xs text-gray-600">Same day delivery</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-3 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-4 h-4 bg-green-400 rounded-full"></div>
+                          <span className="text-xs font-medium">Quality Medicines</span>
+                        </div>
+                        <div className="text-xs text-gray-600">Certified products</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-3 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-4 h-4 bg-blue-400 rounded-full"></div>
+                          <span className="text-xs font-medium">24/7 Support</span>
+                        </div>
+                        <div className="text-xs text-gray-600">Always available</div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Phone elements */}
+                  <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gray-300 rounded-full"></div>
+                </div>
+              </div>
+              
+              {/* Person 2 - Right side */}
+              <div className="absolute right-0 bottom-1/4 z-10">
+                <div className="w-28 h-28 bg-white rounded-full p-2 shadow-xl">
                   <img 
-                    src="https://images.unsplash.com/photo-1494790108755-2616b612b353?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150" 
+                    src="https://images.unsplash.com/photo-1494790108755-2616b612b353?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200" 
                     alt="Satisfied customer" 
                     className="w-full h-full rounded-full object-cover"
                   />
                 </div>
               </div>
               
-              {/* Decorative Elements */}
-              <div className="absolute top-16 right-8 w-12 h-12 bg-yellow-400 rounded-full opacity-80"></div>
-              <div className="absolute bottom-16 left-8 w-8 h-8 bg-orange-400 rounded-full opacity-70"></div>
+              {/* Decorative yellow element */}
+              <div className="absolute top-8 right-1/4 w-16 h-16 bg-yellow-400 rounded-full opacity-90 z-5"></div>
             </div>
           </div>
         </div>
