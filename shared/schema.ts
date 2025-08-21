@@ -307,5 +307,5 @@ export type UserWithPermissions = User & {
 
 export type PrescriptionWithUser = Prescription & {
   user: User;
-  reviewer?: User;
+  reviewer?: User | null;
 };

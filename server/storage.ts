@@ -557,7 +557,7 @@ export class DatabaseStorage implements IStorage {
 
   async getPrescriptions(userId?: string): Promise<PrescriptionWithUser[]> {
     if (userId) {
-      return await db.query.prescriptions.findMany({
+      const results = await db.query.prescriptions.findMany({
         where: eq(prescriptions.userId, userId),
         with: {
           user: true,
@@ -565,25 +565,29 @@ export class DatabaseStorage implements IStorage {
         },
         orderBy: [desc(prescriptions.createdAt)],
       });
+      return results.filter(r => r.user) as PrescriptionWithUser[];
     } else {
-      return await db.query.prescriptions.findMany({
+      const results = await db.query.prescriptions.findMany({
         with: {
           user: true,
           reviewer: true,
         },
         orderBy: [desc(prescriptions.createdAt)],
       });
+      return results.filter(r => r.user) as PrescriptionWithUser[];
     }
   }
 
   async getPrescription(id: string): Promise<PrescriptionWithUser | undefined> {
-    return await db.query.prescriptions.findFirst({
+    const result = await db.query.prescriptions.findFirst({
       where: eq(prescriptions.id, id),
       with: {
         user: true,
         reviewer: true,
       },
     });
+    if (!result || !result.user) return undefined;
+    return result as PrescriptionWithUser;
   }
 
   async updatePrescriptionStatus(
