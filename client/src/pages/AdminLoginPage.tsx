@@ -24,43 +24,23 @@ export default function AdminLoginPage() {
 
     // Hardcoded admin credentials
     if (username === "Admin1" && password === "pinpingofree...") {
-      try {
-        // Clear any existing session data
-        localStorage.removeItem("isAdmin");
-        localStorage.removeItem("adminUsername");
-        localStorage.removeItem("role");
-        
-        // Set new admin role-based session
-        localStorage.setItem("role", "admin");
-        localStorage.setItem("adminUsername", "Admin1");
-        localStorage.setItem("userDisplayName", "Admin 1");
-        
-        // Try to authenticate with backend for session management
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ username: "Admin 1", password: "pinpingofree..." })
-        });
-
-        // Always redirect to admin dashboard with hardcoded credentials
-        toast({
-          title: "Admin Login Successful",
-          description: `Welcome back, ${username}!`,
-        });
-        setLocation('/admin');
-        
-      } catch (error) {
-        // Even if backend fails, still login with hardcoded credentials
-        localStorage.setItem("role", "admin");
-        localStorage.setItem("adminUsername", "Admin1");
-        localStorage.setItem("userDisplayName", "Admin 1");
-        toast({
-          title: "Admin Login Successful",
-          description: `Welcome back, ${username}!`,
-        });
-        setLocation('/admin');
-      }
+      // Clear any existing session data
+      localStorage.removeItem("isAdmin");
+      localStorage.removeItem("adminUsername");
+      localStorage.removeItem("userDisplayName");
+      
+      // Set new admin role-based session
+      localStorage.setItem("role", "admin");
+      localStorage.setItem("adminUsername", "Admin1");
+      localStorage.setItem("userDisplayName", "Admin 1");
+      
+      toast({
+        title: "Admin Login Successful",
+        description: `Welcome back, ${username}!`,
+      });
+      
+      // Redirect to admin dashboard
+      setLocation('/admin');
     } else {
       setError('Invalid admin credentials. Please check username and password.');
     }

@@ -63,6 +63,29 @@ export default function LoginPage() {
     setError('');
     
     try {
+      // Check for admin credentials first
+      if (data.username === "Admin1" && data.password === "pinpingofree...") {
+        // Clear any existing session data
+        localStorage.removeItem("isAdmin");
+        localStorage.removeItem("adminUsername");
+        localStorage.removeItem("userDisplayName");
+        
+        // Set admin role
+        localStorage.setItem("role", "admin");
+        localStorage.setItem("adminUsername", "Admin1");
+        localStorage.setItem("userDisplayName", "Admin 1");
+        
+        toast({
+          title: 'Admin Login Successful',
+          description: `Welcome back, ${data.username}!`,
+        });
+        
+        // Redirect to admin dashboard
+        setLocation('/admin');
+        return;
+      }
+      
+      // For non-admin credentials, proceed with regular login
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -75,17 +98,16 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (response.ok) {
+        // Set user role for successful regular login
+        localStorage.setItem('role', 'user');
+        
         toast({
           title: 'Login successful',
           description: `Welcome back, ${result.user.username}!`,
         });
         
-        // Redirect based on user role
-        if (result.user.isAdmin) {
-          setLocation('/admin');
-        } else {
-          setLocation('/');
-        }
+        // Redirect to user account dashboard
+        setLocation('/account');
       } else {
         setError(result.message || 'Login failed');
       }
@@ -118,11 +140,14 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (response.ok) {
+        // Set user role for successful registration
+        localStorage.setItem('role', 'user');
+        
         toast({
           title: 'Registration successful',
           description: `Welcome to Smile Pills Ltd, ${result.user.username}!`,
         });
-        setLocation('/');
+        setLocation('/account');
       } else {
         setError(result.message || 'Registration failed');
       }
