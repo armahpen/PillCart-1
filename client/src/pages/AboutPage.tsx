@@ -65,44 +65,14 @@ export default function AboutPage() {
                 </div>
               </div>
               
-              {/* Central Phone/App Interface */}
+              {/* Central Person Image */}
               <div className="z-20 mx-auto">
-                <div className="bg-white rounded-3xl p-2 shadow-2xl w-44 h-80 relative">
-                  <div className="bg-gray-50 rounded-2xl h-full p-4 flex flex-col">
-                    <div className="bg-gray-800 rounded-xl h-6 w-16 mx-auto mb-4"></div>
-                    <div className="space-y-3 flex-1">
-                      <div className="bg-white rounded-lg p-3 shadow-sm">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-4 h-4 bg-pink-400 rounded-full"></div>
-                          <span className="text-xs font-medium">Prescription Service</span>
-                        </div>
-                        <div className="text-xs text-gray-600">Upload prescription</div>
-                      </div>
-                      <div className="bg-white rounded-lg p-3 shadow-sm">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-4 h-4 bg-yellow-400 rounded-full"></div>
-                          <span className="text-xs font-medium">Fast Delivery</span>
-                        </div>
-                        <div className="text-xs text-gray-600">Same day delivery</div>
-                      </div>
-                      <div className="bg-white rounded-lg p-3 shadow-sm">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-4 h-4 bg-green-400 rounded-full"></div>
-                          <span className="text-xs font-medium">Quality Medicines</span>
-                        </div>
-                        <div className="text-xs text-gray-600">Certified products</div>
-                      </div>
-                      <div className="bg-white rounded-lg p-3 shadow-sm">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-4 h-4 bg-blue-400 rounded-full"></div>
-                          <span className="text-xs font-medium">24/7 Support</span>
-                        </div>
-                        <div className="text-xs text-gray-600">Always available</div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Phone elements */}
-                  <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gray-300 rounded-full"></div>
+                <div className="w-36 h-36 bg-green-400 rounded-full p-2 shadow-xl">
+                  <img 
+                    src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200" 
+                    alt="Healthcare professional" 
+                    className="w-full h-full rounded-full object-cover"
+                  />
                 </div>
               </div>
               
