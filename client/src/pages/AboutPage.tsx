@@ -20,25 +20,42 @@ export default function AboutPage() {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-green-500 to-green-600 py-16 lg:py-20">
+      <section className="relative bg-gradient-to-r from-cyan-400 to-blue-500 py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            <div className="max-w-2xl">
+              <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4 leading-tight">
                 About us
               </h1>
-              <p className="text-lg lg:text-xl text-white/90 mb-8 leading-relaxed max-w-lg">
+              <p className="text-base lg:text-lg text-white/95 mb-6 leading-relaxed">
                 Our purpose is to enhance health outcomes across Ghana, providing quality, affordable, and accessible medicines with trust, innovation, and exceptional service when it matters most.
               </p>
-              <p className="text-base lg:text-lg font-medium text-white/95 italic">
+              
+              {/* Rating Section */}
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg font-semibold text-white">Excellent</span>
+                  <div className="flex text-yellow-300">
+                    {[1,2,3,4,5].map((star) => (
+                      <Star key={star} className="h-4 w-4 fill-current" />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-sm text-white/90">
+                  <span className="font-medium">500+</span> reviews on 
+                  <span className="font-medium"> Trustpilot</span>
+                </p>
+              </div>
+              
+              <p className="text-sm lg:text-base font-medium text-white/95 italic">
                 Smile Forever – delivering health with trust, quality, and convenience
               </p>
             </div>
             <div className="relative">
               <img 
-                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
-                alt="About Smile Pills Ltd" 
-                className="rounded-2xl shadow-2xl w-full h-auto"
+                src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" 
+                alt="Happy customers with Smile Pills Ltd" 
+                className="rounded-lg w-full h-auto max-w-md ml-auto"
               />
             </div>
           </div>
