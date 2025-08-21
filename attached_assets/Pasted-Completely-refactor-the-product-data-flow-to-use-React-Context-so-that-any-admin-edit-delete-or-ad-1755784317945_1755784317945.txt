@@ -1,0 +1,85 @@
+Completely refactor the product data flow to use React Context so that any admin edit, delete, or add operation instantly updates both the Admin dashboard and Shop page.
+
+1. **Add ProductContext.jsx with this exact code:**
+
+import React, { createContext, useContext, useState, useEffect } from "react";
+import productsData from "./products.json"; // replace with your JSON or Excel loader
+
+const ProductContext = createContext();
+export const useProducts = () => useContext(ProductContext);
+
+export const ProductProvider = ({ children }) => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    // load products once
+    setProducts(productsData.map((p, i) => ({ id: p.id || i + 1, ...p })));
+  }, []);
+
+  const updateProduct = (id, updatedFields) => {
+    setProducts(prev =>
+      prev.map(product =>
+        product.id === id ? { ...product, ...updatedFields } : product
+      )
+    );
+    // also persist changes to backend or JSON datastore here
+  };
+
+  const deleteProduct = (id) => {
+    setProducts(prev => prev.filter(product => product.id !== id));
+    // also persist deletion here
+  };
+
+  const addProduct = (newProduct) => {
+    const productWithId = { id: Date.now(), ...newProduct };
+    setProducts(prev => [...prev, productWithId]);
+    // also persist addition here
+  };
+
+  return (
+    <ProductContext.Provider value={{ products, updateProduct, deleteProduct, addProduct }}>
+      {children}
+    </ProductContext.Provider>
+  );
+};
+
+2. **Wrap your app with ProductProvider in main.jsx:**
+
+import { ProductProvider } from "./ProductContext";
+ReactDOM.render(
+  <ProductProvider>
+    <App />
+  </ProductProvider>,
+  document.getElementById("root")
+);
+
+3. **Update Shop page to use context:**
+
+import { useProducts } from "../ProductContext";
+const { products } = useProducts();
+return (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {products.map(product => <ProductCard key={product.id} product={product} />)}
+  </div>
+);
+
+4. **Update Admin Dashboard to use context:**
+
+import { useProducts } from "../ProductContext";
+const { products, updateProduct, deleteProduct, addProduct } = useProducts();
+
+- Replace any old product list with products from context.
+- When admin edits a product, call updateProduct(product.id, { name, price, category, imageURL })
+- When admin deletes, call deleteProduct(product.id)
+- When admin adds, call addProduct({ name, price, category, imageURL })
+
+5. **Ensure both pages use the same ProductCard component** for consistent UI.
+
+6. **Add a search bar** on both pages to filter products by name using:
+products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+
+Make these changes directly so:
+- Admin edits update instantly.
+- Admin deletes update instantly.
+- Admin adds products and they appear on the shop page instantly.
+- No page reload is needed.
