@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Lock, User, Shield } from 'lucide-react';
+import { Eye, EyeOff, Lock, User } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -159,9 +159,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleReplitLogin = () => {
-    window.location.href = '/api/login';
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -264,24 +261,6 @@ export default function LoginPage() {
                     </form>
                   </Form>
 
-                  <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">Or</span>
-                    </div>
-                  </div>
-
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={handleReplitLogin}
-                    data-testid="button-replit-login"
-                  >
-                    <Shield className="w-4 h-4 mr-2" />
-                    Continue with Replit
-                  </Button>
                 </TabsContent>
 
                 <TabsContent value="register" className="space-y-4">
