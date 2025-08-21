@@ -28,28 +28,36 @@ export default function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState(localStorage.getItem('role'));
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(() => {
+    const currentRole = localStorage.getItem('role');
+    return currentRole === 'admin';
+  });
   
   const { data: cartItems } = useQuery({
     queryKey: ["/api/cart"],
-    enabled: isAuthenticated,
+    enabled: isUserAuthenticated,
   });
 
   const cartItemCount = Array.isArray(cartItems) ? cartItems.length : 0;
 
   // Check user role and authentication
   useEffect(() => {
-    const userRole = localStorage.getItem('role');
+    const currentRole = localStorage.getItem('role');
+    setUserRole(currentRole);
     
     if (isAuthenticated && user) {
       // Set role for regular authenticated users
-      if (!userRole) {
+      if (!currentRole) {
         localStorage.setItem('role', 'user');
+        setUserRole('user');
       }
       setCurrentUser({
         ...user,
-        isAdmin: userRole === 'admin'
+        isAdmin: currentRole === 'admin'
       });
-    } else if (userRole === 'admin') {
+      setIsUserAuthenticated(true);
+    } else if (currentRole === 'admin') {
       // Hardcoded admin from localStorage
       const adminUsername = localStorage.getItem('adminUsername');
       const userDisplayName = localStorage.getItem('userDisplayName');
@@ -65,9 +73,11 @@ export default function Header() {
           lastName: '1',
           displayName: userDisplayName || 'Admin 1'
         });
+        setIsUserAuthenticated(true);
       }
     } else {
       setCurrentUser(null);
+      setIsUserAuthenticated(false);
     }
   }, [isAuthenticated, user]);
 
@@ -82,6 +92,7 @@ export default function Header() {
       // Update userRole state immediately
       setUserRole(null);
       setCurrentUser(null);
+      setIsUserAuthenticated(false);
       
       // Try backend logout
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
@@ -96,6 +107,7 @@ export default function Header() {
       localStorage.removeItem('userDisplayName');
       setUserRole(null);
       setCurrentUser(null);
+      setIsUserAuthenticated(false);
       window.location.href = '/';
     }
   };
@@ -126,13 +138,6 @@ export default function Header() {
     return 'User';
   };
 
-  const [userRole, setUserRole] = useState(localStorage.getItem('role'));
-  
-  // Update userRole when authentication changes
-  useEffect(() => {
-    const currentRole = localStorage.getItem('role');
-    setUserRole(currentRole);
-  }, [isAuthenticated, currentUser]);
 
   const categories = [
     { name: "Prescription", slug: "prescriptions", href: "/prescription" },
@@ -166,7 +171,7 @@ export default function Header() {
               </div>
               
               <div className="flex items-center space-x-4">
-                {isAuthenticated && currentUser ? (
+                {isUserAuthenticated && currentUser ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button 
@@ -308,7 +313,7 @@ export default function Header() {
               </Link>
 
               {/* Login/Logout button */}
-              {!isAuthenticated ? (
+              {!isUserAuthenticated ? (
                 <Link href="/login">
                   <Button 
                     variant="ghost"
