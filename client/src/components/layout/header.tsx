@@ -36,17 +36,25 @@ export default function Header() {
 
   const cartItemCount = Array.isArray(cartItems) ? cartItems.length : 0;
 
-  // Check if user is admin (including localStorage fallback)
+  // Check user role and authentication
   useEffect(() => {
+    const userRole = localStorage.getItem('role');
+    
     if (isAuthenticated && user) {
-      setCurrentUser(user);
-    } else {
-      // Check localStorage for hardcoded admin
-      const isAdmin = localStorage.getItem('isAdmin');
+      // Set role for regular authenticated users
+      if (!userRole) {
+        localStorage.setItem('role', 'user');
+      }
+      setCurrentUser({
+        ...user,
+        isAdmin: userRole === 'admin'
+      });
+    } else if (userRole === 'admin') {
+      // Hardcoded admin from localStorage
       const adminUsername = localStorage.getItem('adminUsername');
+      const userDisplayName = localStorage.getItem('userDisplayName');
       
-      if (isAdmin === 'true' && adminUsername === 'Admin1') {
-        // Hardcoded admin - separate from regular users
+      if (adminUsername === 'Admin1') {
         setCurrentUser({
           id: 'admin-hardcoded-001',
           username: adminUsername,
@@ -54,17 +62,22 @@ export default function Header() {
           isAdmin: true,
           adminRole: 'super_admin',
           firstName: 'Admin',
-          lastName: '1'
+          lastName: '1',
+          displayName: userDisplayName || 'Admin 1'
         });
       }
+    } else {
+      setCurrentUser(null);
     }
   }, [isAuthenticated, user]);
 
   const handleLogout = async () => {
     try {
-      // Clear localStorage admin login
+      // Clear all localStorage session data
+      localStorage.removeItem('role');
       localStorage.removeItem('isAdmin');
       localStorage.removeItem('adminUsername');
+      localStorage.removeItem('userDisplayName');
       
       // Try backend logout
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
@@ -73,8 +86,10 @@ export default function Header() {
     } catch (error) {
       console.error('Logout error:', error);
       // Still clear localStorage and redirect
+      localStorage.removeItem('role');
       localStorage.removeItem('isAdmin');
       localStorage.removeItem('adminUsername');
+      localStorage.removeItem('userDisplayName');
       window.location.href = '/';
     }
   };
@@ -105,12 +120,18 @@ export default function Header() {
     return 'User';
   };
 
+  const userRole = localStorage.getItem('role');
   const categories = [
     { name: "Prescription", slug: "prescriptions", href: "/prescription" },
     { name: "Shop", slug: "shop", href: "/shop" },
     { name: "Advice", slug: "advice", href: "#advice" },
     { name: "Help", slug: "help", href: "#help" },
-    ...(currentUser?.isAdmin ? [{ name: "Admin", slug: "admin", href: "/admin" }] : []),
+    ...(userRole === 'admin' ? [{ name: "Admin", slug: "admin", href: "/admin" }] : []),
+    ...(userRole ? [{ 
+      name: "Dashboard", 
+      slug: "dashboard", 
+      href: userRole === 'admin' ? "/admin" : "/account" 
+    }] : []),
   ];
 
   return (
@@ -166,39 +187,53 @@ export default function Header() {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       
-                      {currentUser?.isAdmin ? (
-                        <DropdownMenuItem 
-                          onClick={() => setLocation('/admin')}
-                          data-testid="admin-dashboard-link"
-                        >
-                          <Shield className="mr-2 h-4 w-4" />
-                          <span>Admin Dashboard</span>
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem 
-                          onClick={() => setLocation('/dashboard')}
-                          data-testid="user-dashboard-link"
-                        >
-                          <UserCircle className="mr-2 h-4 w-4" />
-                          <span>My Dashboard</span>
-                        </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => {
+                          const userRole = localStorage.getItem('role');
+                          if (userRole === 'admin') {
+                            setLocation('/admin');
+                          } else if (userRole === 'user') {
+                            setLocation('/account');
+                          } else {
+                            setLocation('/login');
+                          }
+                        }}
+                        data-testid="dashboard-link"
+                      >
+                        {currentUser?.isAdmin ? (
+                          <>
+                            <Shield className="mr-2 h-4 w-4" />
+                            <span>Admin Dashboard</span>
+                          </>
+                        ) : (
+                          <>
+                            <UserCircle className="mr-2 h-4 w-4" />
+                            <span>My Dashboard</span>
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                      
+
+                      
+                      {!currentUser?.isAdmin && (
+                        <>
+                          <DropdownMenuItem 
+                            onClick={() => setLocation('/prescription')}
+                            data-testid="prescription-link"
+                          >
+                            <UserCircle className="mr-2 h-4 w-4" />
+                            <span>My Prescriptions</span>
+                          </DropdownMenuItem>
+                          
+                          <DropdownMenuItem 
+                            onClick={() => setLocation('/cart')}
+                            data-testid="my-orders-link"
+                          >
+                            <ShoppingCart className="mr-2 h-4 w-4" />
+                            <span>My Orders</span>
+                          </DropdownMenuItem>
+                        </>
                       )}
-                      
-                      <DropdownMenuItem 
-                        onClick={() => setLocation('/prescription')}
-                        data-testid="prescription-link"
-                      >
-                        <UserCircle className="mr-2 h-4 w-4" />
-                        <span>My Prescriptions</span>
-                      </DropdownMenuItem>
-                      
-                      <DropdownMenuItem 
-                        onClick={() => setLocation('/cart')}
-                        data-testid="my-orders-link"
-                      >
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                        <span>My Orders</span>
-                      </DropdownMenuItem>
                       
                       <DropdownMenuSeparator />
                       

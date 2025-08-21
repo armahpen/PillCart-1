@@ -254,11 +254,11 @@ export default function AdminPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // First check localStorage for hardcoded admin login
-        const isAdmin = localStorage.getItem('isAdmin');
+        // First check localStorage for role-based admin login
+        const userRole = localStorage.getItem('role');
         const adminUsername = localStorage.getItem('adminUsername');
         
-        if (isAdmin === 'true' && adminUsername === 'Admin1') {
+        if (userRole === 'admin' && adminUsername === 'Admin1') {
           // Use hardcoded admin credentials - separate from regular users
           setCurrentUser({
             id: 'admin-hardcoded-001',

@@ -23,7 +23,9 @@ export default function UserDashboard() {
   const [recentPrescriptions, setRecentPrescriptions] = useState([]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    const userRole = localStorage.getItem('role');
+    
+    if (!isAuthenticated && userRole !== 'user') {
       setLocation('/login');
       return;
     }

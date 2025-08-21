@@ -25,9 +25,15 @@ export default function AdminLoginPage() {
     // Hardcoded admin credentials
     if (username === "Admin1" && password === "pinpingofree...") {
       try {
-        // Set admin status in localStorage for client-side access control
-        localStorage.setItem("isAdmin", "true");
+        // Clear any existing session data
+        localStorage.removeItem("isAdmin");
+        localStorage.removeItem("adminUsername");
+        localStorage.removeItem("role");
+        
+        // Set new admin role-based session
+        localStorage.setItem("role", "admin");
         localStorage.setItem("adminUsername", "Admin1");
+        localStorage.setItem("userDisplayName", "Admin 1");
         
         // Try to authenticate with backend for session management
         const response = await fetch('/api/auth/login', {
@@ -46,8 +52,9 @@ export default function AdminLoginPage() {
         
       } catch (error) {
         // Even if backend fails, still login with hardcoded credentials
-        localStorage.setItem("isAdmin", "true");
+        localStorage.setItem("role", "admin");
         localStorage.setItem("adminUsername", "Admin1");
+        localStorage.setItem("userDisplayName", "Admin 1");
         toast({
           title: "Admin Login Successful",
           description: `Welcome back, ${username}!`,
