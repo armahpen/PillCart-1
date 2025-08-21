@@ -258,28 +258,29 @@ export default function AdminPage() {
     addLog('Product Edit', `Started editing product: ${product.name || product['Product Name']}`);
   };
 
-  const handleSaveProduct = async () => {
-    if (!editingProduct || !editingProduct.id) return;
+  const handleSaveProduct = async (updatedProductData?: any) => {
+    const productToSave = updatedProductData || editingProduct;
+    if (!productToSave || !productToSave.id) return;
     
     try {
-      // Convert the editing product to proper format for the update
+      // Convert the product to proper format for the update
       const updates: any = {
-        name: editingProduct.name,
-        'Product Name': editingProduct['Product Name'],
-        Category: editingProduct.Category,
-        Brand: editingProduct.Brand,
-        Price: editingProduct.Price,
-        price: editingProduct.price,
-        ImageURL: editingProduct.ImageURL,
-        imageUrl: editingProduct.imageUrl,
+        name: productToSave.name,
+        'Product Name': productToSave['Product Name'],
+        Category: productToSave.Category,
+        Brand: productToSave.Brand,
+        Price: productToSave.Price,
+        price: productToSave.price,
+        ImageURL: productToSave.ImageURL,
+        imageUrl: productToSave.imageUrl,
       };
       
-      console.log('Admin: Calling updateProduct for ID:', editingProduct.id, 'with updates:', updates);
-      updateProduct(editingProduct.id, updates);
+      console.log('Admin: Calling updateProduct for ID:', productToSave.id, 'with updates:', updates);
+      updateProduct(productToSave.id, updates);
       setEditingProduct(null);
       setIsEditDialogOpen(false);
       console.log('Admin: Product update completed');
-      addLog('Product Updated', `${editingProduct.name || editingProduct['Product Name']} was modified`);
+      addLog('Product Updated', `${productToSave.name || productToSave['Product Name']} was modified`);
       toast({
         title: "Product Updated",
         description: "Product has been updated successfully",
@@ -934,7 +935,7 @@ export default function AdminPage() {
               product={editingProduct}
               categories={categories}
               onSave={(updatedProduct) => {
-                handleSaveProduct();
+                handleSaveProduct(updatedProduct);
                 setIsEditDialogOpen(false);
               }}
               onCancel={() => {
