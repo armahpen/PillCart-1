@@ -305,19 +305,34 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
       id: `new-product-${Date.now()}`
     };
     
-    setLocalProducts(prev => [...prev, productWithId]);
+    console.log('Adding product:', productWithId);
+    setLocalProducts(prev => {
+      const updated = [...prev, productWithId];
+      console.log('Updated products after add:', updated.length);
+      return updated;
+    });
     return productWithId;
   };
 
   const updateProductOperation = (id: string, updates: Partial<Product>) => {
-    setLocalProducts(prev => prev.map(product => 
-      product.id === id ? { ...product, ...updates } : product
-    ));
+    console.log('Updating product:', id, updates);
+    setLocalProducts(prev => {
+      const updated = prev.map(product => 
+        product.id === id ? { ...product, ...updates } : product
+      );
+      console.log('Updated products after edit:', updated.find(p => p.id === id));
+      return updated;
+    });
     return { id, updates };
   };
 
   const deleteProductOperation = (id: string) => {
-    setLocalProducts(prev => prev.filter(product => product.id !== id));
+    console.log('Deleting product:', id);
+    setLocalProducts(prev => {
+      const updated = prev.filter(product => product.id !== id);
+      console.log('Updated products after delete:', updated.length);
+      return updated;
+    });
     return id;
   };
 

@@ -277,9 +277,11 @@ export default function AdminPage() {
         imageUrl: editingProduct.imageUrl,
       };
       
+      console.log('Admin: Calling updateProduct for ID:', editingProduct.id, 'with updates:', updates);
       await updateProduct(editingProduct.id, updates);
       setEditingProduct(null);
       setIsEditDialogOpen(false);
+      console.log('Admin: Product update completed');
       addLog('Product Updated', `${editingProduct.name || editingProduct['Product Name']} was modified`);
       toast({
         title: "Product Updated",
@@ -299,7 +301,9 @@ export default function AdminPage() {
     if (!productId) return;
     
     try {
+      console.log('Admin: Calling deleteProduct for ID:', productId);
       await deleteProduct(productId);
+      console.log('Admin: Product delete completed');
       addLog('Product Deleted', `${productName} was removed from catalog`);
       toast({
         title: "Product Deleted",
