@@ -265,7 +265,7 @@ export default function AdminPage() {
     if (!editingProduct || !editingProduct.id) return;
     
     try {
-      // Convert the editing product to proper format
+      // Convert the editing product to proper format, excluding complex objects
       const updates: Partial<Product> = {
         name: editingProduct.name,
         'Product Name': editingProduct['Product Name'],
@@ -317,7 +317,15 @@ export default function AdminPage() {
 
   const handleAddProduct = async (newProduct: Omit<Product, 'id'>) => {
     try {
-      await addProduct(newProduct);
+      // Create a clean product object without complex nested objects
+      const cleanProduct: Omit<Product, 'id'> = {
+        'Product Name': newProduct['Product Name'],
+        Category: newProduct.Category,
+        Brand: newProduct.Brand,
+        Price: newProduct.Price,
+        ImageURL: newProduct.ImageURL,
+      };
+      await addProduct(cleanProduct);
       setIsAddingProduct(false);
       addLog('Product Added', `${newProduct.name || newProduct['Product Name']} was added to catalog`);
       toast({
