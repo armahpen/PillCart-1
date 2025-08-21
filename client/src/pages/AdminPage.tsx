@@ -27,11 +27,14 @@ import {
   Activity,
   AlertCircle,
   DollarSign,
-  User
+  User,
+  Search,
+  Filter
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useProducts } from "@/contexts/ProductContext";
 import * as XLSX from 'xlsx';
 
 interface AdminUser {
@@ -47,15 +50,15 @@ interface AdminUser {
 
 interface Product {
   id?: string;
-  Category: string;
-  'Product Name': string;
+  Category?: string;
+  'Product Name'?: string;
   name?: string;
-  Brand: string;
+  Brand?: string;
   brand?: { name: string };
   category?: { name: string };
-  Price: number;
+  Price?: number;
   price?: string;
-  ImageURL: string;
+  ImageURL?: string;
   imageUrl?: string;
 }
 
@@ -81,8 +84,6 @@ interface LogEntry {
 export default function AdminPage() {
   const [, setLocation] = useLocation();
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -92,6 +93,22 @@ export default function AdminPage() {
   const [paymentSearchEmail, setPaymentSearchEmail] = useState("");
   const [paymentSearchRef, setPaymentSearchRef] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+
+  // Use ProductContext for shared product management
+  const {
+    products,
+    categories,
+    isLoading: productsLoading,
+    error: productsError,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    filteredProducts,
+    addProduct,
+    updateProduct,
+    deleteProduct
+  } = useProducts();
 
   const { toast } = useToast();
 
@@ -110,68 +127,6 @@ export default function AdminPage() {
     setPaymentStatusFilter("all");
   };
 
-  // Load products from Excel file
-  const loadProducts = async () => {
-    try {
-      // Use the same API endpoint as the shop to get properly formatted products
-      const response = await fetch('/api/products?limit=1000');
-      if (!response.ok) throw new Error('Failed to fetch products');
-      
-      const data = await response.json();
-      const products = data.products || [];
-      
-      console.log('Admin: Loaded products sample:', products.slice(0, 3));
-      console.log('Admin: Products with images:', products.filter((p: any) => p.ImageURL).length);
-      
-      setProducts(products);
-      
-      // Extract unique categories
-      const uniqueCategories = Array.from(new Set(products.map((p: any) => p.Category).filter((c: string) => c && c.trim() !== ''))) as string[];
-      setCategories(uniqueCategories);
-      
-      addLog('Products loaded', `${products.length} products loaded from API`);
-    } catch (error) {
-      console.error('Error loading products:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load products from API",
-        variant: "destructive",
-      });
-      
-      // Fallback to Excel loading if API fails
-      try {
-        const response = await fetch('/product_catalog.xlsx');
-        if (!response.ok) throw new Error('Failed to fetch catalog');
-        
-        const arrayBuffer = await response.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(worksheet) as Product[];
-        
-        const validProducts = data
-          .map((row: any) => ({
-            Category: row.Category || row.category || '',
-            'Product Name': row['Product Name'] || row.ProductName || row['product name'] || '',
-            Brand: row.Brand || row.brand || '',
-            Price: parseFloat(row.Price || row.price || row['Price(Ghc)'] || '0') || 0,
-            ImageURL: row.ImageURL || row.imageurl || row['Image URL'] || row.DirectLink || row['Direct_Link'] || ''
-          }))
-          .filter((product: Product) => product['Product Name'].trim() !== '' && product.Price > 0);
-
-        setProducts(validProducts);
-        
-        // Extract unique categories
-        const uniqueCategories = Array.from(new Set(validProducts.map(p => p.Category).filter(c => c.trim() !== '')));
-        setCategories(uniqueCategories);
-        
-        addLog('Products loaded', `${validProducts.length} products loaded from Excel fallback`);
-      } catch (fallbackError) {
-        console.error('Fallback loading also failed:', fallbackError);
-        setProducts([]);
-        setCategories([]);
-      }
-    }
-  };
 
   // Add log entry
   const addLog = (action: string, details: string) => {
@@ -269,7 +224,6 @@ export default function AdminPage() {
             firstName: 'Admin',
             lastName: '1'
           });
-          await loadProducts();
           loadPaymentHistory();
           setLoading(false);
           return;
@@ -284,7 +238,6 @@ export default function AdminPage() {
           const data = await response.json();
           if (data.user && data.user.isAdmin) {
             setCurrentUser(data.user);
-            await loadProducts();
             loadPaymentHistory();
           } else {
             setLocation('/admin/login');
@@ -302,25 +255,6 @@ export default function AdminPage() {
     checkAuth();
   }, [setLocation]);
 
-  const saveProductsToFile = async (updatedProducts: Product[]) => {
-    try {
-      setProducts(updatedProducts);
-      toast({
-        title: "Products Updated",
-        description: "Product catalog has been updated successfully",
-      });
-      return true;
-    } catch (error) {
-      console.error('Error saving products:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save product changes",
-        variant: "destructive",
-      });
-      return false;
-    }
-  };
-
   const handleEditProduct = (product: Product) => {
     setEditingProduct({ ...product });
     setIsEditDialogOpen(true);
@@ -328,37 +262,65 @@ export default function AdminPage() {
   };
 
   const handleSaveProduct = async () => {
-    if (!editingProduct) return;
+    if (!editingProduct || !editingProduct.id) return;
     
-    const updatedProducts = products.map(p => 
-      p['Product Name'] === editingProduct['Product Name'] ? editingProduct : p
-    );
-    
-    const success = await saveProductsToFile(updatedProducts);
-    if (success) {
+    try {
+      await updateProduct(editingProduct.id, editingProduct);
       setEditingProduct(null);
-      addLog('Product Updated', `${editingProduct['Product Name']} was modified`);
+      setIsEditDialogOpen(false);
+      addLog('Product Updated', `${editingProduct.name || editingProduct['Product Name']} was modified`);
+      toast({
+        title: "Product Updated",
+        description: "Product has been updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update product",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleDeleteProduct = async (productName: string) => {
-    const updatedProducts = products.filter(p => p['Product Name'] !== productName);
-    const success = await saveProductsToFile(updatedProducts);
-    if (success) {
+  const handleDeleteProduct = async (productId: string, productName: string) => {
+    try {
+      await deleteProduct(productId);
       addLog('Product Deleted', `${productName} was removed from catalog`);
+      toast({
+        title: "Product Deleted",
+        description: "Product has been deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete product",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleAddProduct = async (newProduct: Product) => {
-    const updatedProducts = [...products, newProduct];
-    const success = await saveProductsToFile(updatedProducts);
-    if (success) {
+  const handleAddProduct = async (newProduct: Omit<Product, 'id'>) => {
+    try {
+      await addProduct(newProduct);
       setIsAddingProduct(false);
-      addLog('Product Added', `${newProduct['Product Name']} was added to catalog`);
+      addLog('Product Added', `${newProduct.name || newProduct['Product Name']} was added to catalog`);
+      toast({
+        title: "Product Added",
+        description: "Product has been added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add product",
+        variant: "destructive",
+      });
     }
   };
 
-  if (loading) {
+  if (loading || productsLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
@@ -424,7 +386,7 @@ export default function AdminPage() {
             <div className="flex justify-between items-center">
               <div>
                 <h2 className="text-2xl font-semibold">Product Catalog</h2>
-                <p className="text-gray-600">Manage your product inventory</p>
+                <p className="text-gray-600">Manage your product inventory ({filteredProducts.length} products shown)</p>
               </div>
               
               <Dialog open={isAddingProduct} onOpenChange={setIsAddingProduct}>
@@ -454,6 +416,85 @@ export default function AdminPage() {
               </Dialog>
             </div>
 
+            {/* Search and Filter Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Filter className="h-5 w-5" />
+                  Search & Filter Products
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      type="text"
+                      placeholder="Search products by name, brand, or category..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                      data-testid="input-product-search"
+                    />
+                  </div>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger data-testid="select-product-category">
+                      <SelectValue placeholder="Filter by category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Categories ({products.length})</SelectItem>
+                      {categories.map(category => {
+                        const count = products.filter(p => (p.category?.name || p.Category) === category).length;
+                        return (
+                          <SelectItem key={category} value={category}>
+                            {category} ({count})
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {(searchQuery || selectedCategory !== 'All') && (
+                  <div className="mt-4 flex items-center gap-2">
+                    <span className="text-sm text-gray-600">Active filters:</span>
+                    {searchQuery && (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        Search: "{searchQuery}"
+                        <button 
+                          onClick={() => setSearchQuery('')}
+                          className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {selectedCategory !== 'All' && (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        Category: {selectedCategory}
+                        <button 
+                          onClick={() => setSelectedCategory('All')}
+                          className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSelectedCategory('All');
+                      }}
+                      className="h-6 px-2 text-xs"
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             <Card>
               <CardContent className="p-0">
                 <Table>
@@ -467,73 +508,94 @@ export default function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {products.map((product, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border relative">
-                              {(product.imageUrl || product.ImageURL) ? (
-                                <img 
-                                  src={product.imageUrl || product.ImageURL} 
-                                  alt={product.name || product['Product Name']}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.style.display = 'none';
-                                    const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
-                                    console.log('Image failed to load:', product.imageUrl || product.ImageURL);
-                                  }}
-                                  onLoad={(e) => {
-                                    const fallback = (e.target as HTMLImageElement).parentElement?.querySelector('.fallback-icon') as HTMLElement;
-                                    if (fallback) fallback.style.display = 'none';
-                                    console.log('Image loaded successfully:', product.imageUrl || product.ImageURL);
-                                  }}
-                                />
-                              ) : null}
-                              <div className={`fallback-icon absolute inset-0 flex items-center justify-center bg-gray-50 ${(product.imageUrl || product.ImageURL) ? 'hidden' : ''}`}>
-                                <Package className="h-8 w-8 text-gray-400" />
-                              </div>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="font-medium text-sm">{product.name || product['Product Name']}</span>
-                              <span className="text-xs text-gray-500">
-                                {(product.imageUrl || product.ImageURL) ? `Image: ${(product.imageUrl || product.ImageURL).substring(0, 30)}...` : 'No image URL'}
-                              </span>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{product.category?.name || product.Category}</Badge>
-                        </TableCell>
-                        <TableCell>{product.brand?.name || product.Brand}</TableCell>
-                        <TableCell>
-                          <span className="font-semibold">₵{parseFloat(product.price || product.Price || 0).toFixed(2)}</span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEditProduct(product)}
-                              data-testid={`button-edit-${index}`}
-                              className="h-8 px-2"
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDeleteProduct(product.name || product['Product Name'])}
-                              data-testid={`button-delete-${index}`}
-                              className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                    {filteredProducts.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          <div className="flex flex-col items-center gap-2">
+                            <Search className="h-8 w-8 text-gray-400" />
+                            <p className="text-gray-500">No products found</p>
+                            {(searchQuery || selectedCategory !== 'All') && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setSearchQuery('');
+                                  setSelectedCategory('All');
+                                }}
+                              >
+                                Clear Filters
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      filteredProducts.map((product, index) => (
+                        <TableRow key={product.id || index}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border relative">
+                                {(product.imageUrl || product.ImageURL) ? (
+                                  <img 
+                                    src={product.imageUrl || product.ImageURL} 
+                                    alt={product.name || product['Product Name']}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                      const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                                      if (fallback) fallback.style.display = 'flex';
+                                    }}
+                                    onLoad={(e) => {
+                                      const fallback = (e.target as HTMLImageElement).parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                                      if (fallback) fallback.style.display = 'none';
+                                    }}
+                                  />
+                                ) : null}
+                                <div className={`fallback-icon absolute inset-0 flex items-center justify-center bg-gray-50 ${(product.imageUrl || product.ImageURL) ? 'hidden' : ''}`}>
+                                  <Package className="h-8 w-8 text-gray-400" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="font-medium text-sm">{product.name || product['Product Name']}</span>
+                                <span className="text-xs text-gray-500">
+                                  Stock: {product.stockQuantity || 0}
+                                </span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">{product.category?.name || product.Category}</Badge>
+                          </TableCell>
+                          <TableCell>{product.brand?.name || product.Brand}</TableCell>
+                          <TableCell>
+                            <span className="font-semibold">₵{parseFloat(product.price || product.Price || 0).toFixed(2)}</span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditProduct(product)}
+                                data-testid={`button-edit-${product.id || index}`}
+                                className="h-8 px-2"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteProduct(product.id || '', product.name || product['Product Name'] || '')}
+                                data-testid={`button-delete-${product.id || index}`}
+                                className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -897,14 +959,22 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
     onSave(updatedProduct);
   };
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const fakeUrl = URL.createObjectURL(file);
+      setFormData({ ...formData, imageUrl: fakeUrl });
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label htmlFor="productName">Product Name</Label>
         <Input
           id="productName"
-          value={product['Product Name']}
-          onChange={(e) => onChange({ ...product, 'Product Name': e.target.value })}
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           data-testid="input-product-name"
         />
       </div>
@@ -912,8 +982,8 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
       <div>
         <Label htmlFor="category">Category</Label>
         <Select
-          value={product.Category}
-          onValueChange={(value) => onChange({ ...product, Category: value })}
+          value={formData.category}
+          onValueChange={(value) => setFormData({ ...formData, category: value })}
         >
           <SelectTrigger data-testid="select-category">
             <SelectValue />
@@ -932,8 +1002,8 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
         <Label htmlFor="brand">Brand</Label>
         <Input
           id="brand"
-          value={product.Brand}
-          onChange={(e) => onChange({ ...product, Brand: e.target.value })}
+          value={formData.brand}
+          onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
           data-testid="input-brand"
         />
       </div>
@@ -944,8 +1014,8 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
           id="price"
           type="number"
           step="0.01"
-          value={product.Price}
-          onChange={(e) => onChange({ ...product, Price: parseFloat(e.target.value) || 0 })}
+          value={formData.price}
+          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
           data-testid="input-price"
         />
       </div>
@@ -955,8 +1025,8 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
         <div className="space-y-2">
           <Input
             id="imageUrl"
-            value={product.ImageURL}
-            onChange={(e) => onChange({ ...product, ImageURL: e.target.value })}
+            value={formData.imageUrl}
+            onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
             placeholder="Enter image URL or upload below"
             data-testid="input-image-url"
           />
@@ -967,10 +1037,10 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
             data-testid="input-image-file"
           />
         </div>
-        {product.ImageURL && (
+        {formData.imageUrl && (
           <div className="mt-2">
             <img
-              src={product.ImageURL}
+              src={formData.imageUrl}
               alt="Product preview"
               className="w-20 h-20 object-cover rounded-lg"
             />
@@ -979,15 +1049,15 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
       </div>
 
       <div className="flex gap-2 pt-4">
-        <Button onClick={onSave} data-testid="button-save-product">
+        <Button type="submit" data-testid="button-save-product">
           <Save className="h-4 w-4 mr-2" />
           Save Changes
         </Button>
-        <Button variant="outline" onClick={onCancel} data-testid="button-cancel-edit">
+        <Button type="button" variant="outline" onClick={onCancel} data-testid="button-cancel-edit">
           Cancel
         </Button>
       </div>
-    </div>
+    </form>
   );
 }
 

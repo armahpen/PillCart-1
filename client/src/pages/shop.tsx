@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { useProducts } from "@/contexts/ProductContext";
 
 interface Product {
   id: string;
@@ -41,16 +42,32 @@ const categories = [
 ];
 
 export default function Shop() {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [priceRange, setPriceRange] = useState("all");
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
+  
+  // Use ProductContext for shared state management
+  const {
+    products,
+    categories,
+    isLoading,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    filteredProducts
+  } = useProducts();
 
-  const { data: products = [], isLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products", selectedCategory, searchTerm, sortBy, priceRange],
-  });
+  // Convert categories from context to match the existing format
+  const categoryOptions = [
+    { id: "all", name: "All Products", count: products.length },
+    ...categories.map(category => ({
+      id: category.toLowerCase().replace(/\s+/g, '-'),
+      name: category,
+      count: products.filter(p => (p.category?.name || p.Category) === category).length
+    }))
+  ];
 
   const addToCart = async (productId: string) => {
     if (!isAuthenticated) {
@@ -91,29 +108,34 @@ export default function Shop() {
     }
   };
 
-  const filteredProducts = products.filter((product: Product) => {
-    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+  // Additional filtering for price range since ProductContext handles search and category
+  const priceFilteredProducts = filteredProducts.filter((product) => {
+    const price = parseFloat(product.price || product.Price || '0');
     const matchesPrice = priceRange === "all" ||
-                        (priceRange === "under-100" && product.price < 100) ||
-                        (priceRange === "100-300" && product.price >= 100 && product.price <= 300) ||
-                        (priceRange === "over-300" && product.price > 300);
+                        (priceRange === "under-100" && price < 100) ||
+                        (priceRange === "100-300" && price >= 100 && price <= 300) ||
+                        (priceRange === "over-300" && price > 300);
     
-    return matchesCategory && matchesSearch && matchesPrice;
+    return matchesPrice;
   });
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
+  const sortedProducts = [...priceFilteredProducts].sort((a, b) => {
+    const priceA = parseFloat(a.price || a.Price || '0');
+    const priceB = parseFloat(b.price || b.Price || '0');
+    const nameA = a.name || a['Product Name'] || '';
+    const nameB = b.name || b['Product Name'] || '';
+    const ratingA = parseFloat(a.rating || '0');
+    const ratingB = parseFloat(b.rating || '0');
     switch (sortBy) {
       case "price-low":
-        return a.price - b.price;
+        return priceA - priceB;
       case "price-high":
-        return b.price - a.price;
+        return priceB - priceA;
       case "rating":
-        return (b.rating || 0) - (a.rating || 0);
+        return ratingB - ratingA;
       case "name":
       default:
-        return a.name.localeCompare(b.name);
+        return nameA.localeCompare(nameB);
     }
   });
 
@@ -136,8 +158,8 @@ export default function Shop() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
               />
             </div>
@@ -185,12 +207,13 @@ export default function Shop() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {categories.map((category) => (
+                  {categoryOptions.map((category) => (
                     <button
                       key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
+                      onClick={() => setSelectedCategory(category.name === 'All Products' ? 'All' : category.name)}
                       className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        selectedCategory === category.id
+                        (selectedCategory === 'All' && category.name === 'All Products') || 
+                        (selectedCategory === category.name)
                           ? "bg-primary text-white"
                           : "hover:bg-gray-100"
                       }`}
@@ -232,12 +255,12 @@ export default function Shop() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedProducts.map((product: Product) => (
-                    <Card key={product.id} className="group hover:shadow-lg transition-shadow">
+                  {sortedProducts.map((product) => (
+                    <Card key={product.id || product.name || product['Product Name']} className="group hover:shadow-lg transition-shadow">
                       <div className="relative overflow-hidden rounded-t-lg">
                         <img
-                          src={product.imageUrl || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&h=300"}
-                          alt={product.name}
+                          src={product.imageUrl || product.ImageURL || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&h=300"}
+                          alt={product.name || product['Product Name']}
                           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute top-2 right-2 flex gap-2">

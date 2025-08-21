@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/layout/header';
+import { useProducts } from '@/contexts/ProductContext';
 
 interface Product {
   Category: string;
@@ -179,165 +180,57 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
 }
 
 export function ShopPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'brand'>('name');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+  // Use ProductContext for shared state management
+  const {
+    products,
+    categories,
+    isLoading,
+    error: productsError,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    filteredProducts: contextFilteredProducts
+  } = useProducts();
 
-  useEffect(() => {
-    loadProductsFromExcel();
-  }, []);
+  // Sort the filtered products from context
+  const sortedProducts = [...contextFilteredProducts].sort((a, b) => {
+    const priceA = parseFloat(a.price || a.Price || '0');
+    const priceB = parseFloat(b.price || b.Price || '0');
+    const nameA = a.name || a['Product Name'] || '';
+    const nameB = b.name || b['Product Name'] || '';
+    const brandA = a.brand?.name || a.Brand || '';
+    const brandB = b.brand?.name || b.Brand || '';
 
-  const loadProductsFromExcel = async () => {
-    try {
-      console.log('Loading Excel file...');
-      const response = await fetch('/product_catalog.xlsx');
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch Excel file: ${response.status}`);
-      }
-
-      const arrayBuffer = await response.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
-      
-      // Get the first worksheet
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      
-      // Convert to JSON
-      const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
-      
-      console.log('Raw Excel data:', jsonData.length, 'rows');
-      console.log('Sample row:', jsonData[0]);
-
-      // Helper function to convert Google Drive URLs to direct image URLs
-      const convertGoogleDriveUrl = (url: string): string => {
-        if (!url) return '';
-        
-        // Extract file ID from various Google Drive URL formats
-        let fileId = '';
-        
-        if (url.includes('/file/d/')) {
-          // Format: https://drive.google.com/file/d/FILE_ID/view
-          const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-          if (match) fileId = match[1];
-        } else if (url.includes('id=')) {
-          // Format: https://drive.google.com/open?id=FILE_ID or uc?export=view&id=FILE_ID
-          const match = url.match(/id=([a-zA-Z0-9_-]+)/);
-          if (match) fileId = match[1];
-        } else if (url.includes('/d/')) {
-          // Format: https://drive.google.com/d/FILE_ID
-          const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-          if (match) fileId = match[1];
-        }
-        
-        // Convert to thumbnail format which works better for public access
-        if (fileId) {
-          // Try Google Drive thumbnail API which is more reliable for public files
-          return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400-h400`;
-        }
-        
-        return url; // Return original if no conversion possible
-      };
-
-      // Map and validate the data
-      const validProducts = jsonData
-        .map((row: any) => {
-          const rawImageUrl = row.ImageURL || row.imageurl || row['Image URL'] || row.DirectLink || row['Direct_Link'] || '';
-          
-          return {
-            Category: row.Category || row.category || '',
-            'Product Name': row['Product Name'] || row.ProductName || row['product name'] || '',
-            Brand: row.Brand || row.brand || '',
-            Price: parseFloat(row.Price || row.price || row['Price(Ghc)'] || '0') || 0,
-            ImageURL: convertGoogleDriveUrl(rawImageUrl)
-          };
-        })
-        .filter((product: Product) => {
-          const isValid = product['Product Name'].trim() !== '' && 
-                          product.Price > 0 && 
-                          product.Category.trim() !== '';
-          
-          if (!isValid) {
-            console.log('Filtered out invalid product:', product);
-          }
-          return isValid;
-        });
-
-      console.log(`Loaded ${validProducts.length} valid products from Excel`);
-      
-      setProducts(validProducts);
-      setFilteredProducts(validProducts);
-      
-      const uniqueCategories = Array.from(
-        new Set(validProducts.map(p => p.Category).filter(Boolean))
-      ) as string[];
-      setCategories(uniqueCategories);
-      
-      console.log('Categories found:', uniqueCategories);
-      setLoading(false);
-
-    } catch (err) {
-      console.error('Error loading Excel file:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load products');
-      setLoading(false);
+    switch (sortBy) {
+      case 'price':
+        return priceA - priceB;
+      case 'brand':
+        return brandA.localeCompare(brandB);
+      case 'name':
+      default:
+        return nameA.localeCompare(nameB);
     }
-  };
+  });
 
-  // Filter and sort products
-  useEffect(() => {
-    let filtered = products;
-
-    // Filter by category
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(product => product.Category === selectedCategory);
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(product =>
-        product['Product Name'].toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.Brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.Category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Sort products
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a['Product Name'].localeCompare(b['Product Name']);
-        case 'price':
-          return a.Price - b.Price;
-        case 'brand':
-          return a.Brand.localeCompare(b.Brand);
-        default:
-          return 0;
-      }
-    });
-
-    setFilteredProducts(filtered);
-  }, [products, selectedCategory, searchQuery, sortBy]);
 
   // Group products by category for "All" view
   const groupedProducts = categories.reduce((acc, category) => {
-    acc[category] = filteredProducts.filter(p => p.Category === category);
+    acc[category] = sortedProducts.filter(p => (p.category?.name || p.Category) === category);
     return acc;
   }, {} as Record<string, Product[]>);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center min-h-96">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-400">Loading products from Excel...</p>
+              <p className="text-gray-600 dark:text-gray-400">Loading products...</p>
             </div>
           </div>
         </div>
@@ -345,7 +238,7 @@ export function ShopPage() {
     );
   }
 
-  if (error) {
+  if (productsError) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -358,11 +251,8 @@ export function ShopPage() {
                 Failed to load products
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                {error}
+                {productsError}
               </p>
-              <Button onClick={loadProductsFromExcel}>
-                Try Again
-              </Button>
             </div>
           </div>
         </div>
@@ -497,7 +387,7 @@ export function ShopPage() {
 
         {/* Products Grid */}
         <div>
-          {filteredProducts.length === 0 ? (
+          {sortedProducts.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-400 mb-4">
                 <Search className="h-12 w-12 mx-auto mb-4" />
@@ -526,13 +416,13 @@ export function ShopPage() {
                   {selectedCategory}
                 </h2>
                 <Badge variant="outline" data-testid="text-product-count">
-                  {filteredProducts.length} products
+                  {sortedProducts.length} products
                 </Badge>
               </div>
               
               <div className={`grid gap-6 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
-                {filteredProducts.map((product, index) => (
-                  <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
+                {sortedProducts.map((product, index) => (
+                  <ProductCard key={`${product.name || product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                 ))}
               </div>
             </div>
@@ -553,7 +443,7 @@ export function ShopPage() {
                     
                     <div className={`grid gap-6 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
                       {categoryProducts.map((product, index) => (
-                        <ProductCard key={`${product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
+                        <ProductCard key={`${product.name || product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                       ))}
                     </div>
                   </div>
