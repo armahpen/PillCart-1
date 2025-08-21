@@ -9,6 +9,16 @@ export interface Product {
   Brand?: string;
   Price?: number;
   ImageURL?: string;
+  category?: { name: string };
+  brand?: { name: string };
+  price?: string;
+  imageUrl?: string;
+  slug?: string;
+  stockQuantity?: number;
+  requiresPrescription?: boolean;
+  rating?: string;
+  reviewCount?: number;
+  trackingId?: string;
 }
 
 const ProductContext = createContext<any>(undefined);
@@ -17,6 +27,7 @@ export const useProducts = () => useContext(ProductContext);
 export const ProductProvider = ({ children }: { children: React.ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     // Only load products from Excel if we don't have any products yet
@@ -120,6 +131,13 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
         product.id === id ? { ...product, ...updatedFields } : product
       )
     );
+    
+    // If the updated product has a new category, add it to categories
+    const categoryName = updatedFields.Category || updatedFields.category?.name;
+    if (categoryName && !customCategories.includes(categoryName)) {
+      setCustomCategories(prev => [...prev, categoryName]);
+    }
+    
     console.log("Updated product:", id, updatedFields);
   };
 
@@ -162,7 +180,8 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
       trackingId: productId // Dedicated tracking ID
     };
     
-    setProducts(prev => [...prev, processedProduct]);
+    // Add new products to the beginning of the array (newest first)
+    setProducts(prev => [processedProduct, ...prev]);
     
     // Add category to custom categories if it doesn't exist
     if (categoryName && !customCategories.includes(categoryName)) {
@@ -179,8 +198,67 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     }
   };
 
+  const updateCategory = (oldCategory: string, newCategory: string) => {
+    // Update all products using the old category
+    setProducts(prev =>
+      prev.map(product => {
+        const currentCategory = product.Category || product.category?.name;
+        if (currentCategory === oldCategory) {
+          return {
+            ...product,
+            Category: newCategory,
+            category: { name: newCategory }
+          };
+        }
+        return product;
+      })
+    );
+    
+    // Update the categories list
+    setCustomCategories(prev =>
+      prev.map(category => category === oldCategory ? newCategory : category)
+    );
+    
+    console.log('Updated category:', oldCategory, 'to', newCategory);
+  };
+
+  const deleteCategory = (categoryToRemove: string) => {
+    // Remove all products in this category
+    setProducts(prev =>
+      prev.filter(product => {
+        const productCategory = product.Category || product.category?.name;
+        return productCategory !== categoryToRemove;
+      })
+    );
+    
+    // Remove from categories list
+    setCustomCategories(prev =>
+      prev.filter(category => category !== categoryToRemove)
+    );
+    
+    console.log('Deleted category and all products:', categoryToRemove);
+  };
+
+  // Extract categories from products AND custom categories
+  const allCategories = Array.from(
+    new Set([
+      ...products.map((p: any) => p.Category).filter(Boolean),
+      ...customCategories
+    ])
+  );
+
   return (
-    <ProductContext.Provider value={{ products, updateProduct, deleteProduct, addProduct, customCategories, addCategory }}>
+    <ProductContext.Provider value={{ 
+      products, 
+      updateProduct, 
+      deleteProduct, 
+      addProduct, 
+      customCategories, 
+      addCategory, 
+      updateCategory, 
+      deleteCategory,
+      categories: allCategories
+    }}>
       {children}
     </ProductContext.Provider>
   );

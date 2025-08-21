@@ -95,22 +95,21 @@ export default function AdminPage() {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
 
   // Use ProductContext for shared product management  
-  const { products, updateProduct, deleteProduct, addProduct, customCategories, addCategory } = useProducts();
+  const { products, updateProduct, deleteProduct, addProduct, customCategories, addCategory, updateCategory, deleteCategory, categories: allCategories } = useProducts();
   
   // Add missing state variables that were removed
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const productsLoading = false; // Since we're using context now
   
-  // Extract categories from products AND custom categories
-  const productCategories: string[] = Array.from(
-    new Set(products.map((p: any) => p.Category).filter(Boolean))
-  ) as string[];
+  // Category Management state
+  const [isManagingCategories, setIsManagingCategories] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [editingCategoryOld, setEditingCategoryOld] = useState('');
+  const [editingCategoryNew, setEditingCategoryNew] = useState('');
   
-  // Combine product categories with custom categories
-  const categories: string[] = Array.from(
-    new Set([...productCategories, ...(customCategories || [])])
-  );
+  // Use categories from context instead of local calculation
+  const categories: string[] = allCategories || [];
 
   // Filter products based on search and category
   const filteredProducts = products.filter((product: any) => {
@@ -526,6 +525,162 @@ export default function AdminPage() {
                   </div>
                 )}
               </CardContent>
+            </Card>
+
+            {/* Category Management Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Category Management
+                  </div>
+                  <Button
+                    variant={isManagingCategories ? "outline" : "default"}
+                    size="sm"
+                    onClick={() => setIsManagingCategories(!isManagingCategories)}
+                    data-testid="button-toggle-category-management"
+                  >
+                    {isManagingCategories ? 'Hide' : 'Show'}
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              {isManagingCategories && (
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* Add New Category */}
+                    <div>
+                      <Label htmlFor="newCategory">Add New Category</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="newCategory"
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                          placeholder="Enter category name"
+                          data-testid="input-add-category"
+                        />
+                        <Button
+                          onClick={() => {
+                            if (newCategoryName.trim()) {
+                              addCategory(newCategoryName.trim());
+                              setNewCategoryName('');
+                              addLog('Category Added', `New category: ${newCategoryName.trim()}`);
+                              toast({
+                                title: "Category Added",
+                                description: `Category '${newCategoryName.trim()}' has been added.`,
+                              });
+                            }
+                          }}
+                          disabled={!newCategoryName.trim()}
+                          data-testid="button-add-category"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Existing Categories List */}
+                    <div>
+                      <Label>Manage Existing Categories ({categories.length})</Label>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {categories.map((category) => {
+                          const productCount = products.filter((p: any) => 
+                            (p.Category || p.category?.name) === category
+                          ).length;
+                          const isEditing = editingCategoryOld === category;
+                          
+                          return (
+                            <div key={category} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50">
+                              <div className="flex items-center gap-3">
+                                <Badge variant="secondary">{category}</Badge>
+                                <span className="text-sm text-gray-600">({productCount} products)</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {isEditing ? (
+                                  <>
+                                    <Input
+                                      value={editingCategoryNew}
+                                      onChange={(e) => setEditingCategoryNew(e.target.value)}
+                                      className="w-32"
+                                      data-testid={`input-edit-category-${category}`}
+                                    />
+                                    <Button
+                                      size="sm"
+                                      onClick={() => {
+                                        if (editingCategoryNew.trim() && editingCategoryNew !== editingCategoryOld) {
+                                          updateCategory(editingCategoryOld, editingCategoryNew.trim());
+                                          addLog('Category Updated', `${editingCategoryOld} → ${editingCategoryNew.trim()}`);
+                                          toast({
+                                            title: "Category Updated",
+                                            description: `Category '${editingCategoryOld}' updated to '${editingCategoryNew.trim()}'.`,
+                                          });
+                                          setEditingCategoryOld('');
+                                          setEditingCategoryNew('');
+                                        }
+                                      }}
+                                      disabled={!editingCategoryNew.trim() || editingCategoryNew === editingCategoryOld}
+                                      data-testid={`button-save-category-${category}`}
+                                    >
+                                      <Save className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => {
+                                        setEditingCategoryOld('');
+                                        setEditingCategoryNew('');
+                                      }}
+                                      data-testid={`button-cancel-edit-category-${category}`}
+                                    >
+                                      ×
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => {
+                                        setEditingCategoryOld(category);
+                                        setEditingCategoryNew(category);
+                                      }}
+                                      data-testid={`button-edit-category-${category}`}
+                                    >
+                                      <Edit className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => {
+                                        if (confirm(`Delete category '${category}' and all ${productCount} products in it?`)) {
+                                          deleteCategory(category);
+                                          addLog('Category Deleted', `${category} and ${productCount} products removed`);
+                                          toast({
+                                            title: "Category Deleted",
+                                            description: `Category '${category}' and ${productCount} products have been deleted.`,
+                                            variant: "destructive",
+                                          });
+                                        }
+                                      }}
+                                      data-testid={`button-delete-category-${category}`}
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {categories.length === 0 && (
+                          <p className="text-center text-gray-500 py-4">No categories found. Add your first category above.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              )}
             </Card>
 
             <Card>

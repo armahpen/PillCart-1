@@ -164,7 +164,7 @@ export function ShopPage() {
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'brand'>('name');
   
   // Use ProductContext for shared state management
-  const { products } = useProducts();
+  const { products, categories: allCategories } = useProducts();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -187,35 +187,35 @@ export function ShopPage() {
     return matchesSearch && matchesCategory;
   });
 
-  // Sort the filtered products
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    const priceA = parseFloat(a.Price?.toString() || '0');
-    const priceB = parseFloat(b.Price?.toString() || '0');
-    const nameA = a['Product Name'] || '';
-    const nameB = b['Product Name'] || '';
-    const brandA = a.Brand || '';
-    const brandB = b.Brand || '';
+  // Use categories from context to ensure consistency
+  const categories: string[] = allCategories || [];
 
-    switch (sortBy) {
-      case 'price':
-        return priceA - priceB;
-      case 'brand':
-        return brandA.localeCompare(brandB);
-      case 'name':
-      default:
-        return nameA.localeCompare(nameB);
-    }
-  });
+  // Apply sorting only when specifically requested, otherwise maintain context order (newest first)
+  const displayProducts = sortBy === 'name' && searchQuery === '' && selectedCategory === 'All' 
+    ? filteredProducts // Maintain context order for default state
+    : [...filteredProducts].sort((a, b) => {
+        const priceA = parseFloat(a.Price?.toString() || '0');
+        const priceB = parseFloat(b.Price?.toString() || '0');
+        const nameA = a['Product Name'] || '';
+        const nameB = b['Product Name'] || '';
+        const brandA = a.Brand || '';
+        const brandB = b.Brand || '';
 
-  // Extract unique categories
-  const categories: string[] = Array.from(
-    new Set(products.map((p: any) => p.Category).filter(Boolean))
-  ) as string[];
+        switch (sortBy) {
+          case 'price':
+            return priceA - priceB;
+          case 'brand':
+            return brandA.localeCompare(brandB);
+          case 'name':
+          default:
+            return nameA.localeCompare(nameB);
+        }
+      });
 
 
   // Group products by category for "All" view
   const groupedProducts: Record<string, any[]> = categories.reduce((acc: Record<string, any[]>, category: string) => {
-    acc[category] = sortedProducts.filter((p: any) => p.Category === category);
+    acc[category] = displayProducts.filter((p: any) => p.Category === category);
     return acc;
   }, {} as Record<string, any[]>);
 
@@ -361,7 +361,7 @@ export function ShopPage() {
 
         {/* Products Grid */}
         <div>
-          {sortedProducts.length === 0 ? (
+          {displayProducts.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-400 mb-4">
                 <Search className="h-12 w-12 mx-auto mb-4" />
@@ -390,12 +390,12 @@ export function ShopPage() {
                   {selectedCategory}
                 </h2>
                 <Badge variant="outline" data-testid="text-product-count">
-                  {sortedProducts.length} products
+                  {displayProducts.length} products
                 </Badge>
               </div>
               
               <div className={`grid gap-6 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
-                {sortedProducts.map((product, index) => (
+                {displayProducts.map((product: any, index: number) => (
                   <ProductCard key={`${product.id || product.name || product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                 ))}
               </div>
