@@ -94,8 +94,18 @@ export default function AdminPage() {
   const [paymentSearchRef, setPaymentSearchRef] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
 
-  // Use ProductContext for shared product management
+  // Use ProductContext for shared product management  
   const { products, updateProduct, deleteProduct, addProduct } = useProducts();
+  
+  // Add missing state variables that were removed
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const productsLoading = false; // Since we're using context now
+  
+  // Extract categories from products
+  const categories: string[] = Array.from(
+    new Set(products.map((p: any) => p.Category).filter(Boolean))
+  ) as string[];
 
   const { toast } = useToast();
 
@@ -456,8 +466,8 @@ export default function AdminPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="All">All Categories ({products.length})</SelectItem>
-                      {categories.map(category => {
-                        const count = products.filter(p => (p.category?.name || p.Category) === category).length;
+                      {categories.map((category: string) => {
+                        const count = products.filter((p: any) => (p.category?.name || p.Category) === category).length;
                         return (
                           <SelectItem key={category} value={category}>
                             {category} ({count})
@@ -543,7 +553,7 @@ export default function AdminPage() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      products.map((product, index) => (
+                      products.map((product: any, index: number) => (
                         <TableRow key={product.id || index}>
                           <TableCell>
                             <div className="flex items-center gap-3">
@@ -1002,7 +1012,7 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {categories.map((category) => (
+            {categories.map((category: string) => (
               <SelectItem key={category} value={category}>
                 {category}
               </SelectItem>
@@ -1129,7 +1139,7 @@ function AddProductForm({ categories, onAdd, onCancel }: AddProductFormProps) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {categories.map((category) => (
+            {categories.map((category: string) => (
               <SelectItem key={category} value={category}>
                 {category}
               </SelectItem>

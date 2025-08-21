@@ -12,7 +12,7 @@ import Header from '@/components/layout/header';
 import { useProducts, type Product } from '@/contexts/ProductContext';
 
 interface ProductCardProps {
-  product: Product;
+  product: any;
   viewMode: 'grid' | 'list';
 }
 
@@ -208,14 +208,14 @@ export function ShopPage() {
   });
 
   // Extract unique categories
-  const categories = Array.from(
+  const categories: string[] = Array.from(
     new Set(products.map((p: any) => p.Category).filter(Boolean))
-  );
+  ) as string[];
 
 
   // Group products by category for "All" view
-  const groupedProducts = categories.reduce((acc: Record<string, any[]>, category) => {
-    acc[category] = sortedProducts.filter(p => p.Category === category);
+  const groupedProducts: Record<string, any[]> = categories.reduce((acc: Record<string, any[]>, category: string) => {
+    acc[category] = sortedProducts.filter((p: any) => p.Category === category);
     return acc;
   }, {} as Record<string, any[]>);
 
@@ -279,7 +279,7 @@ export function ShopPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All">All Categories</SelectItem>
-                    {categories.map(category => (
+                    {categories.map((category: string) => (
                       <SelectItem key={category} value={category}>
                         {category}
                       </SelectItem>
@@ -341,7 +341,7 @@ export function ShopPage() {
               All ({products.length})
             </Button>
             {categories.slice(0, 8).map(category => {
-              const count = products.filter(p => p.Category === category).length;
+              const count = products.filter((p: any) => p.Category === category).length;
               return (
                 <Button
                   key={category}
@@ -403,7 +403,7 @@ export function ShopPage() {
           ) : (
             /* All Categories View - Grouped */
             <div className="space-y-12">
-              {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
+              {Object.entries(groupedProducts).map(([category, categoryProducts]: [string, any[]]) => (
                 categoryProducts.length > 0 && (
                   <div key={category}>
                     <div className="flex items-center justify-between mb-6">
@@ -416,7 +416,7 @@ export function ShopPage() {
                     </div>
                     
                     <div className={`grid gap-6 mt-6 mb-8 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-1'}`}>
-                      {categoryProducts.map((product, index) => (
+                      {categoryProducts.map((product: any, index: number) => (
                         <ProductCard key={`${product.id || product.name || product['Product Name']}-${index}`} product={product} viewMode={viewMode} />
                       ))}
                     </div>
