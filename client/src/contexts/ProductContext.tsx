@@ -65,25 +65,13 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
             };
           }).filter((product: any) => {
             // Filter out invalid products - more lenient
-            const hasName = product['Product Name'] || product.name || product.Name;
-            const hasPrice = product.Price || product.price || parseFloat(product.Price) > 0;
-            const hasCategory = product.Category || product.category;
-            const hasId = product.id;
-            
-            // Debug log to see what's missing
+            const hasName = product['Product Name'];
+            const hasPrice = product.Price;
+            const hasCategory = product.Category;
             if (!hasName || !hasPrice || !hasCategory) {
-              console.log('Filtered out product:', { 
-                hasName, 
-                hasPrice, 
-                hasCategory, 
-                hasId,
-                allFields: Object.keys(product),
-                product: JSON.stringify(product).slice(0, 100) 
-              });
+              console.log('Filtered out product:', { hasName, hasPrice, hasCategory, product: JSON.stringify(product).slice(0, 200) });
             }
-            
-            // Only require ID - be very lenient for now to see what data we have
-            return hasId;
+            return hasName && hasPrice && hasCategory;
           });
           
           console.log(`Loaded ${mappedProducts.length} valid products from Excel`);
