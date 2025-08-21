@@ -58,7 +58,7 @@ export default function AboutPage() {
               <div className="absolute left-0 top-1/4 z-10">
                 <div className="w-32 h-32 bg-pink-500 rounded-full p-2 shadow-lg">
                   <img 
-                    src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" 
+                    src="https://drive.google.com/uc?export=view&id=1k1zMECZV3JmPziOqfpcwWiZSvF9lUbVX" 
                     alt="Happy customer" 
                     className="w-full h-full rounded-full object-cover"
                   />
@@ -69,7 +69,7 @@ export default function AboutPage() {
               <div className="z-20 mx-auto">
                 <div className="w-36 h-36 bg-green-400 rounded-full p-2 shadow-xl">
                   <img 
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" 
+                    src="https://drive.google.com/uc?export=view&id=1OTRy3UCBxqs0QDDMYcvoNKkmYlIty3U3" 
                     alt="Healthcare professional" 
                     className="w-full h-full rounded-full object-cover"
                   />
@@ -80,7 +80,7 @@ export default function AboutPage() {
               <div className="absolute right-0 bottom-1/4 z-10">
                 <div className="w-28 h-28 bg-white rounded-full p-2 shadow-xl">
                   <img 
-                    src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" 
+                    src="https://drive.google.com/uc?export=view&id=1thk6jTyT_BWTCccsUf_3qwtJvu6WunlX" 
                     alt="Satisfied customer" 
                     className="w-full h-full rounded-full object-cover"
                   />
