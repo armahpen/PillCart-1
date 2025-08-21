@@ -18,7 +18,8 @@ import {
   Phone,
   Mail,
   Package,
-  ArrowLeft
+  ArrowLeft,
+  Truck
 } from "lucide-react";
 
 // Paystack types
@@ -79,9 +80,10 @@ export default function PaymentPage() {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [paystackLoaded, setPaystackLoaded] = useState(false);
+  const [wantsDelivery, setWantsDelivery] = useState(false);
 
   const totalAmount = getCartTotal();
-  const deliveryFee = 15.00; // GHS 15 delivery fee
+  const deliveryFee = wantsDelivery ? 15.00 : 0.00; // GHS 15 delivery fee only if selected
   const finalAmount = totalAmount + deliveryFee;
 
   // Load Paystack script
@@ -133,7 +135,10 @@ export default function PaymentPage() {
   };
 
   const validateForm = () => {
-    const required = ['firstName', 'lastName', 'email', 'phone', 'address'];
+    const required = ['firstName', 'lastName', 'email', 'phone'];
+    if (wantsDelivery) {
+      required.push('address');
+    }
     const missing = required.filter(field => !customerInfo[field as keyof typeof customerInfo]);
     
     if (missing.length > 0) {
@@ -295,16 +300,15 @@ Delivery within 24-48 hours in Accra.`);
 Name: ${customerInfo.firstName} ${customerInfo.lastName}
 Email: ${customerInfo.email}
 Phone: ${customerInfo.phone}
-Address: ${customerInfo.address}, ${customerInfo.city}
+${wantsDelivery ? `Address: ${customerInfo.address}, ${customerInfo.city}` : 'Pickup: Customer will collect from store'}
 
 *Order Summary:*
 ${orderSummary}
 
 *Total:* GHS ${totalAmount.toFixed(2)}
-*Delivery:* GHS ${deliveryFee.toFixed(2)}
-*Final Total:* GHS ${finalAmount.toFixed(2)}
+${wantsDelivery ? `*Delivery:* GHS ${deliveryFee.toFixed(2)}\n` : '*Pickup:* Free (Customer pickup)\n'}*Final Total:* GHS ${finalAmount.toFixed(2)}
 
-*Payment Method:* Cash on Delivery
+*Payment Method:* Cash on ${wantsDelivery ? 'Delivery' : 'Pickup'}
 
 Please confirm this order and provide delivery time.`;
 
@@ -428,41 +432,72 @@ Please confirm this order and provide delivery time.`;
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    Delivery Address
+                    <Truck className="h-5 w-5" />
+                    Delivery Option
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="address">Street Address *</Label>
-                    <Input
-                      id="address"
-                      value={customerInfo.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
-                      placeholder="House number, street name"
+                <CardContent>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="wantsDelivery"
+                      checked={wantsDelivery}
+                      onChange={(e) => setWantsDelivery(e.target.checked)}
+                      className="h-4 w-4"
                     />
+                    <Label htmlFor="wantsDelivery" className="text-sm font-normal">
+                      I want delivery (+GHS 15.00)
+                    </Label>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="city">City</Label>
-                      <Input
-                        id="city"
-                        value={customerInfo.city}
-                        onChange={(e) => handleInputChange('city', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="region">Region</Label>
-                      <Input
-                        id="region"
-                        value={customerInfo.region}
-                        onChange={(e) => handleInputChange('region', e.target.value)}
-                      />
-                    </div>
-                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    {wantsDelivery 
+                      ? "📦 We'll deliver to your address within 24-48 hours" 
+                      : "🏪 You can collect your order from our store for free"
+                    }
+                  </p>
                 </CardContent>
               </Card>
+
+              {wantsDelivery && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5" />
+                      Delivery Address
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="address">Street Address *</Label>
+                      <Input
+                        id="address"
+                        value={customerInfo.address}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        placeholder="House number, street name"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="city">City</Label>
+                        <Input
+                          id="city"
+                          value={customerInfo.city}
+                          onChange={(e) => handleInputChange('city', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="region">Region</Label>
+                        <Input
+                          id="region"
+                          value={customerInfo.region}
+                          onChange={(e) => handleInputChange('region', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Order Summary */}
@@ -498,8 +533,8 @@ Please confirm this order and provide delivery time.`;
                         <span>GHS {totalAmount.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Delivery Fee</span>
-                        <span>GHS {deliveryFee.toFixed(2)}</span>
+                        <span>{wantsDelivery ? 'Delivery Fee' : 'Pickup (Free)'}</span>
+                        <span>{wantsDelivery ? `GHS ${deliveryFee.toFixed(2)}` : 'FREE'}</span>
                       </div>
                       <Separator />
                       <div className="flex justify-between text-lg font-bold">
