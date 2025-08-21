@@ -164,7 +164,7 @@ export function ShopPage() {
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'brand'>('name');
   
   // Use ProductContext for shared state management
-  const { products, categories: allCategories } = useProducts();
+  const { products, categories: allCategories, customCategories } = useProducts();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -187,8 +187,13 @@ export function ShopPage() {
     return matchesSearch && matchesCategory;
   });
 
-  // Use categories from context to ensure consistency
+  // Use categories from context to ensure consistency - force update when context changes
   const categories: string[] = allCategories || [];
+  
+  // Force re-render when categories change
+  useEffect(() => {
+    console.log('ShopPage: Categories updated:', categories);
+  }, [categories, customCategories]);
 
   // Apply sorting only when specifically requested, otherwise maintain context order (newest first)
   const displayProducts = sortBy === 'name' && searchQuery === '' && selectedCategory === 'All' 
@@ -354,6 +359,16 @@ export function ShopPage() {
                 </Button>
               );
             })}
+            {categories.length > 8 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs opacity-50"
+                disabled
+              >
+                +{categories.length - 8} more
+              </Button>
+            )}
           </div>
         </div>
 
