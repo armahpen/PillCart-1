@@ -142,7 +142,7 @@ export default function Header() {
   const categories = [
     { name: "Home", slug: "home", href: "/" },
     { name: "Shop", slug: "shop", href: "/shop" },
-    { name: "Advice", slug: "advice", href: "#advice" },
+    { name: "About", slug: "about", href: "/about" },
     { name: "Help", slug: "help", href: "#help" },
     ...(userRole === 'admin' ? [{ name: "Admin", slug: "admin", href: "/admin" }] : []),
     ...(userRole ? [{ 

@@ -15,7 +15,7 @@ import Cart from "@/pages/cart";
 import { CartPage } from "@/pages/CartPage";
 import Checkout from "@/pages/checkout";
 import CheckoutReturn from "@/pages/checkout-return";
-import About from "@/pages/about";
+import AboutPage from "@/pages/AboutPage";
 import Contact from "@/pages/contact";
 import Privacy from "@/pages/privacy";
 import Prescription from "@/pages/prescription";
@@ -43,7 +43,7 @@ function Router() {
       <Route path="/shop-catalog" component={ShopPage} />
       <Route path="/browse" component={Browse} />
       <Route path="/product/:slug" component={ProductDetail} />
-      <Route path="/about" component={About} />
+      <Route path="/about" component={AboutPage} />
       <Route path="/contact" component={Contact} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/login" component={LoginPage} />
