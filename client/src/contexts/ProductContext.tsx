@@ -73,7 +73,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
         // First try Excel file from root directory
         try {
           console.log('Trying Excel file from root...');
-          const excelResponse = await fetch('/product_catalog.xlsx');
+          const excelResponse = await fetch('/attached_assets/Merged_Product_Catalog_Cleaned_1755779630562.xlsx');
           
           if (excelResponse.ok) {
             const arrayBuffer = await excelResponse.arrayBuffer();
@@ -88,14 +88,28 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
             
             console.log('Excel loaded:', jsonData.length, 'rows');
 
+            // Google Drive ID to local file mapping
+            const imageMapping: Record<string, string> = {
+              '1od90-JZ_KXMSF1C3pajNnFmOtAoLHKoU': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (1)_1755031702987.jpeg',
+              '1awvX7IAxFP3Pv45BdxPciK7ofYwm3Nvl': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.24 PM (2)_1755031702987.jpeg',
+              '1geM1zrAbvqAFSM71weKsg7fPJ-fcAQnf': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.25 PM (1)_1755031702989.jpeg',
+              '1W9LF1lqEntMydtjJNcqt6TscyWCeJG-l': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.17 PM (1)_1754947176458.jpeg',
+              '1oyzoZPML9mCcDRGmJDevqUCac7qXivja': '/attached_assets/WhatsApp Image 2025-08-11 at 1.33.19 PM (2)_1755031702975.jpeg'
+            };
+
             // Helper function to convert image paths
             const convertImagePath = (imagePath: string): string => {
               if (!imagePath) return '';
               
               const cleanPath = imagePath.trim();
               
-              // If it's a Google Drive URL, use it directly
-              if (cleanPath.includes('drive.google.com')) {
+              // If it's a Google Drive URL, try to map it to local file
+              if (cleanPath.includes('drive.google.com') && cleanPath.includes('id=')) {
+                const match = cleanPath.match(/id=([a-zA-Z0-9_-]+)/);
+                if (match && imageMapping[match[1]]) {
+                  return imageMapping[match[1]];
+                }
+                // If no local mapping, return Google Drive URL as fallback
                 return cleanPath;
               }
               

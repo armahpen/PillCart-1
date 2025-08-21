@@ -49,19 +49,6 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                   className="w-full h-full object-contain rounded-md p-1"
                   onError={(e) => {
                     console.log('Image load error for:', productName, 'URL:', productImageUrl);
-                    // Try fallback URL format
-                    const img = e.target as HTMLImageElement;
-                    if (img.src.includes('thumbnail?id=')) {
-                      // Extract file ID and try direct uc format
-                      const fileIdMatch = img.src.match(/id=([a-zA-Z0-9_-]+)/);
-                      if (fileIdMatch) {
-                        const fallbackUrl = `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
-                        if (img.src !== fallbackUrl) {
-                          img.src = fallbackUrl;
-                          return;
-                        }
-                      }
-                    }
                     setImageError(true);
                   }}
                   onLoad={() => console.log('Image loaded successfully:', productName)}
@@ -116,19 +103,6 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
               className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200 p-8"
               onError={(e) => {
                 console.log('Image load error for:', productName, 'URL:', productImageUrl);
-                // Try fallback URL format
-                const img = e.target as HTMLImageElement;
-                if (img.src.includes('thumbnail?id=')) {
-                  // Extract file ID and try direct uc format
-                  const fileIdMatch = img.src.match(/id=([a-zA-Z0-9_-]+)/);
-                  if (fileIdMatch) {
-                    const fallbackUrl = `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
-                    if (img.src !== fallbackUrl) {
-                      img.src = fallbackUrl;
-                      return;
-                    }
-                  }
-                }
                 setImageError(true);
               }}
               onLoad={() => console.log('Image loaded successfully:', productName)}
