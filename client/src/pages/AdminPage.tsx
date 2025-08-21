@@ -561,14 +561,28 @@ export default function AdminPage() {
                         />
                         <Button
                           onClick={() => {
+                            console.log('Add Category button clicked with value:', newCategoryName);
                             if (newCategoryName.trim()) {
-                              addCategory(newCategoryName.trim());
-                              setNewCategoryName('');
-                              addLog('Category Added', `New category: ${newCategoryName.trim()}`);
-                              toast({
-                                title: "Category Added",
-                                description: `Category '${newCategoryName.trim()}' has been added.`,
-                              });
+                              console.log('Calling addCategory with:', newCategoryName.trim());
+                              try {
+                                addCategory(newCategoryName.trim());
+                                console.log('addCategory called successfully');
+                                setNewCategoryName('');
+                                addLog('Category Added', `New category: ${newCategoryName.trim()}`);
+                                toast({
+                                  title: "Category Added",
+                                  description: `Category '${newCategoryName.trim()}' has been added.`,
+                                });
+                              } catch (error) {
+                                console.error('Error adding category:', error);
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to add category. Check console for details.",
+                                  variant: "destructive",
+                                });
+                              }
+                            } else {
+                              console.log('Category name is empty, not adding');
                             }
                           }}
                           disabled={!newCategoryName.trim()}
