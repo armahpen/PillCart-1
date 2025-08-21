@@ -16,8 +16,15 @@ export const useProducts = () => useContext(ProductContext);
 
 export const ProductProvider = ({ children }: { children: React.ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
 
   useEffect(() => {
+    // Only load products from Excel if we don't have any products yet
+    if (products.length > 0) {
+      console.log('Skipping Excel load - products already exist:', products.length);
+      return;
+    }
+    
     // Load products from Excel file
     const loadProducts = async () => {
       try {
@@ -122,15 +129,16 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
   };
 
   const addProduct = (newProduct: Omit<Product, 'id'>) => {
-    const nextId = products.length + 1;
-    const productId = `SP-${String(nextId).padStart(4, '0')}`;
+    // Generate ID based on existing products count (including Excel products)
+    const nextId = products.length + 253; // Start after Excel products
+    const productId = `SP-${String(nextId).padStart(4, '0')}`;    
     
     // Process the new product the same way as Excel products
     const productName = newProduct['Product Name'] || newProduct.name || '';
-    const brandName = newProduct.Brand || newProduct.brand?.name || '';
-    const categoryName = newProduct.Category || newProduct.category?.name || '';
-    const price = parseFloat(newProduct.Price?.toString() || newProduct.price?.toString() || '0');
-    const imageUrl = newProduct.ImageURL || newProduct.imageUrl || '';
+    const brandName = newProduct.Brand || '';
+    const categoryName = newProduct.Category || '';
+    const price = parseFloat(newProduct.Price?.toString() || '0');
+    const imageUrl = newProduct.ImageURL || '';
     
     const processedProduct = {
       id: productId,
@@ -155,11 +163,24 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     };
     
     setProducts(prev => [...prev, processedProduct]);
+    
+    // Add category to custom categories if it doesn't exist
+    if (categoryName && !customCategories.includes(categoryName)) {
+      setCustomCategories(prev => [...prev, categoryName]);
+    }
+    
     console.log("Added processed product:", processedProduct);
   };
 
+  const addCategory = (categoryName: string) => {
+    if (!customCategories.includes(categoryName)) {
+      setCustomCategories(prev => [...prev, categoryName]);
+      console.log('Added new category:', categoryName);
+    }
+  };
+
   return (
-    <ProductContext.Provider value={{ products, updateProduct, deleteProduct, addProduct }}>
+    <ProductContext.Provider value={{ products, updateProduct, deleteProduct, addProduct, customCategories, addCategory }}>
       {children}
     </ProductContext.Provider>
   );

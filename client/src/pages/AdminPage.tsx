@@ -95,17 +95,22 @@ export default function AdminPage() {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
 
   // Use ProductContext for shared product management  
-  const { products, updateProduct, deleteProduct, addProduct } = useProducts();
+  const { products, updateProduct, deleteProduct, addProduct, customCategories, addCategory } = useProducts();
   
   // Add missing state variables that were removed
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const productsLoading = false; // Since we're using context now
   
-  // Extract categories from products
-  const categories: string[] = Array.from(
+  // Extract categories from products AND custom categories
+  const productCategories: string[] = Array.from(
     new Set(products.map((p: any) => p.Category).filter(Boolean))
   ) as string[];
+  
+  // Combine product categories with custom categories
+  const categories: string[] = Array.from(
+    new Set([...productCategories, ...(customCategories || [])])
+  );
 
   const { toast } = useToast();
 
@@ -436,11 +441,8 @@ export default function AdminPage() {
                     onAdd={handleAddProduct}
                     onCancel={() => setIsAddingProduct(false)}
                     onAddCategory={(newCategory) => {
-                      // Add the new category to the categories list if it doesn't exist
-                      if (!categories.includes(newCategory)) {
-                        categories.push(newCategory);
-                        console.log('Added new category:', newCategory);
-                      }
+                      // Use the context function to add the category
+                      addCategory(newCategory);
                     }}
                   />
                 </DialogContent>
@@ -946,12 +948,8 @@ export default function AdminPage() {
                 setIsEditDialogOpen(false);
               }}
               onAddCategory={(newCategory) => {
-                // Add the new category to the categories list if it doesn't exist
-                if (!categories.includes(newCategory)) {
-                  // Note: This is a simple in-memory addition. In a real app, you'd persist this to a database
-                  categories.push(newCategory);
-                  console.log('Added new category:', newCategory);
-                }
+                // Use the context function to add the category
+                addCategory(newCategory);
               }}
               onCancel={() => {
                 setIsEditDialogOpen(false);
