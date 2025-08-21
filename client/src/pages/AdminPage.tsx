@@ -112,6 +112,20 @@ export default function AdminPage() {
     new Set([...productCategories, ...(customCategories || [])])
   );
 
+  // Filter products based on search and category
+  const filteredProducts = products.filter((product: any) => {
+    const matchesSearch = !searchQuery || 
+      (product['Product Name'] || product.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.Brand || product.brand?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.Category || product.category?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === 'All' || 
+      (product.Category === selectedCategory) || 
+      (product.category?.name === selectedCategory);
+    
+    return matchesSearch && matchesCategory;
+  });
+
   const { toast } = useToast();
 
   // Filter payments based on search criteria
@@ -541,7 +555,7 @@ export default function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {products.length === 0 ? (
+                    {filteredProducts.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center py-8">
                           <div className="flex flex-col items-center gap-2">
@@ -563,7 +577,7 @@ export default function AdminPage() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      products.map((product: any, index: number) => (
+                      filteredProducts.map((product: any, index: number) => (
                         <TableRow key={product.id || index}>
                           <TableCell>
                             <div className="flex items-center gap-3">
