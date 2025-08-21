@@ -1,376 +1,315 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/layout/header";
-import { Building2, Phone, Mail, Clock, MapPin, Shield, Heart, Users, Star, FileText, RefreshCw, Stethoscope } from "lucide-react";
+import { 
+  Shield, 
+  Users, 
+  Clock, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Award,
+  Star,
+  ArrowRight 
+} from "lucide-react";
 
 export default function AboutPage() {
-  const [activeTab, setActiveTab] = useState("about");
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+    <div className="min-h-screen bg-white">
       <Header />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">About Smile Pills Ltd</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Licensed pharmaceutical wholesale and medical supplies company dedicated to enhancing health outcomes through quality, innovation, and exceptional service.
-          </p>
-          <Badge className="mt-4 bg-secondary text-white px-6 py-2 text-lg">
-            Smile Forever – delivering health with trust, quality, and convenience
-          </Badge>
+      
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-blue-50 to-white py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                About us
+              </h1>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                Our purpose is to enhance health outcomes across Ghana, providing quality, affordable, and accessible medicines with trust, innovation, and exceptional service when it matters most.
+              </p>
+              <Badge className="bg-secondary text-white px-6 py-3 text-lg rounded-full">
+                Smile Forever – delivering health with trust, quality, and convenience
+              </Badge>
+            </div>
+            <div className="relative">
+              <img 
+                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
+                alt="About Smile Pills Ltd" 
+                className="rounded-2xl shadow-2xl w-full h-auto"
+              />
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* Navigation Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
-            <TabsTrigger value="about" className="flex items-center gap-2">
-              <Building2 className="h-4 w-4" />
-              About Us
-            </TabsTrigger>
-            <TabsTrigger value="policies" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Policies
-            </TabsTrigger>
-            <TabsTrigger value="terms" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Terms
-            </TabsTrigger>
-            <TabsTrigger value="prescription" className="flex items-center gap-2">
-              <Stethoscope className="h-4 w-4" />
-              Prescription
-            </TabsTrigger>
-          </TabsList>
+      {/* Trust Indicators */}
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
+                <Award className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Licensed Pharmacy</h3>
+              <p className="text-gray-600">Certified pharmacy technician with 4+ years experience</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
+                <Shield className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Trusted Partner</h3>
+              <p className="text-gray-600">Full compliance with healthcare regulations</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
+                <Users className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Serving Ghana</h3>
+              <p className="text-gray-600">Quality healthcare solutions nationwide</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          {/* About Us Tab */}
-          <TabsContent value="about" className="mt-8">
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Company Profile */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-secondary" />
-                    Company Profile
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Smile Pills Ltd</h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      We are a licensed pharmaceutical wholesale and medical supplies company based in Ghana. 
-                      We provide quality, affordable, and accessible medicines and medical products to pharmacies, 
-                      hospitals, and individual customers.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-gray-600 leading-relaxed">
-                      Our mission is to enhance health outcomes through innovation, exceptional customer service, 
-                      and reliable delivery systems.
-                    </p>
-                  </div>
+      {/* Get to Know Section */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
+            Get to know Smile Pills Ltd
+          </h2>
+          <p className="text-xl text-gray-600 leading-relaxed">
+            We're Ghana's trusted pharmaceutical wholesale and medical supplies company, working to provide quality, affordable, and accessible medicines. 
+            Scroll down to see how we support our patients and customers nationwide.
+          </p>
+        </div>
+      </section>
 
-                  <div className="flex items-start gap-2 pt-4">
+      {/* Service Sections */}
+      {/* Pharmaceutical Products */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <img
+                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                alt="Quality Pharmaceutical Products"
+                className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+              />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Quality Medicines</h2>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                Browse our extensive catalog of quality medicines and medical supplies. From prescription medications to over-the-counter products, we ensure the highest standards in product sourcing, handling, and distribution.
+              </p>
+              <Button size="lg" className="bg-secondary hover:bg-secondary/90">
+                Shop now
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Prescription Services */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="lg:order-2">
+              <img
+                src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                alt="Prescription Verification Services"
+                className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+              />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Prescription Verification</h2>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                Professional prescription verification services with our certified pharmacy technicians. We ensure all prescription medicines are dispensed safely and according to healthcare regulations and best practices.
+              </p>
+              <Button size="lg" variant="outline">
+                Find out more
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Delivery Services */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <img
+                src="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                alt="Fast and Reliable Delivery"
+                className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+              />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Fast & Reliable Delivery</h2>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                Reliable delivery across Ghana with secure handling of pharmaceutical products. We provide same-day delivery in Accra and typically complete orders within 1–3 working days nationwide.
+              </p>
+              <Button size="lg" className="bg-secondary hover:bg-secondary/90">
+                Find out more
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Customer Support */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="lg:order-2">
+              <img
+                src="https://images.unsplash.com/photo-1551076805-e1869033e561?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                alt="24/7 Customer Support"
+                className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+              />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">24/7 Customer Support</h2>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                Get expert guidance and support from our experienced pharmacy team. Available Monday – Saturday, 24/7 to help with product questions, prescription verification, and order assistance.
+              </p>
+              <Button size="lg" variant="outline">
+                Get support
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Vision & Mission Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">Our vision and mission</h2>
+          <div className="bg-white rounded-2xl p-8 lg:p-12 shadow-lg">
+            <blockquote className="text-xl lg:text-2xl text-gray-700 italic leading-relaxed mb-6">
+              "Our aim is to be Ghana's leading pharmaceutical and medical supplies provider, integrating innovation and excellence in community pharmacy. Quality, trust, and exceptional service drive us forward to deliver the best healthcare solutions possible. We exist to help our customers manage their health with confidence, choice, and convenience."
+            </blockquote>
+            <cite className="text-lg font-semibold text-gray-900">
+              Founder & Licensed Pharmacy Technician, Smile Pills Ltd
+            </cite>
+          </div>
+        </div>
+      </section>
+
+      {/* Our History Section */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <img
+                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                alt="Our History"
+                className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+              />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Our history</h2>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                Smile Pills Ltd was founded by a certified pharmacy technician with over 4 years of experience in both retail and hospital pharmacy settings. We established our business to meet the growing demand for quality pharmaceutical products and medical supplies in Ghana.
+              </p>
+              <Button size="lg" variant="outline">
+                Our story
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Information Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="lg:order-2">
+              <img
+                src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                alt="Contact Us"
+                className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+              />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Get in touch</h2>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                Ready to enhance your health journey? Contact our experienced team for product questions, prescription verification, or personalized healthcare guidance.
+              </p>
+              <Button size="lg" className="bg-secondary hover:bg-secondary/90">
+                Contact us
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Key Company Information */}
+      <section className="py-12 bg-white border-t">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Key company information</h3>
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
                     <MapPin className="h-5 w-5 text-secondary mt-1 flex-shrink-0" />
                     <div>
-                      <p className="font-medium">Physical Address</p>
+                      <p className="font-semibold text-gray-900">Head office address:</p>
                       <p className="text-gray-600">East Legon Hills, Accra, Ghana</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Vision & Values */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-secondary" />
-                    Our Vision & Values
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-secondary mb-2">Vision</h4>
-                    <p className="text-gray-600">
-                      To be Ghana's leading pharmaceutical and medical supplies provider, 
-                      integrating future innovations in community and retail pharmacy.
-                    </p>
-                  </div>
-
-                  <div>
-                    <h4 className="font-semibold text-secondary mb-2">Values</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {['Integrity', 'Quality', 'Innovation', 'Accessibility', 'Customer Care'].map((value) => (
-                        <Badge key={value} variant="outline" className="bg-secondary/10">
-                          {value}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Contact Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Phone className="h-5 w-5 text-secondary" />
-                    Contact Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-4 w-4 text-secondary" />
+                  <div className="flex items-start gap-3">
+                    <Phone className="h-5 w-5 text-secondary mt-1 flex-shrink-0" />
                     <div>
-                      <p className="font-medium">Phone</p>
+                      <p className="font-semibold text-gray-900">Phone:</p>
                       <p className="text-gray-600">0544137947 | +233 209339912</p>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 text-secondary" />
+                  <div className="flex items-start gap-3">
+                    <Mail className="h-5 w-5 text-secondary mt-1 flex-shrink-0" />
                     <div>
-                      <p className="font-medium">Email</p>
+                      <p className="font-semibold text-gray-900">Email:</p>
                       <p className="text-gray-600">smilepills21@gmail.com</p>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <Clock className="h-4 w-4 text-secondary" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <Clock className="h-5 w-5 text-secondary mt-1 flex-shrink-0" />
                     <div>
-                      <p className="font-medium">Operating Hours</p>
+                      <p className="font-semibold text-gray-900">Operating hours:</p>
                       <p className="text-gray-600">Monday – Saturday, 24/7</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Our Story */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Heart className="h-5 w-5 text-secondary" />
-                    Our Story
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 leading-relaxed">
-                    Founded by a certified pharmacy technician with over 4 years of experience in both 
-                    retail and hospital pharmacy settings, Smile Pills Ltd was established to meet the 
-                    growing demand for quality pharmaceutical products and medical supplies in Ghana.
-                  </p>
-                  <p className="text-gray-600 leading-relaxed mt-3">
-                    We operate under full compliance with healthcare regulations, ensuring the highest 
-                    standards in product sourcing, handling, and distribution. Our commitment to innovation 
-                    and service excellence drives our mission to keep our clients smiling — forever.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Privacy Policy Tab */}
-          <TabsContent value="policies" className="mt-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Privacy Policy</CardTitle>
-                <p className="text-sm text-gray-600">At Smile Pills Ltd, your privacy is important to us.</p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="font-semibold mb-3">Information We Collect</h3>
-                  <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                    <li>Personal details (name, phone number, email, delivery address)</li>
-                    <li>Payment information (processed securely through trusted payment providers)</li>
-                    <li>Prescription documents (where applicable)</li>
-                    <li>Website usage data (cookies, browsing activity)</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-3">How We Use Your Information</h3>
-                  <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                    <li>To process and deliver your orders</li>
-                    <li>To verify prescriptions for restricted medicines</li>
-                    <li>To communicate updates, promotions, or important notices</li>
-                    <li>To improve our products, services, and website experience</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-3">Data Protection</h3>
-                  <p className="text-gray-600 mb-3">
-                    We store your information securely and do not share it with third parties except:
-                  </p>
-                  <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                    <li>When required by law</li>
-                    <li>When necessary for delivery or payment processing</li>
-                    <li>When verifying prescriptions with licensed pharmacists</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-3">Your Rights</h3>
-                  <p className="text-gray-600">
-                    You can request to access, correct, or delete your personal data at any time. 
-                    Contact us at: <a href="mailto:smilepills21@gmail.com" className="text-secondary underline">smilepills21@gmail.com</a>
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Terms & Conditions Tab */}
-          <TabsContent value="terms" className="mt-8">
-            <div className="grid gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Terms & Conditions</CardTitle>
-                  <p className="text-sm text-gray-600">By using the Smile Pills Ltd website, you agree to the following terms:</p>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <h3 className="font-semibold mb-3">1. General</h3>
-                    <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                      <li>We are a licensed pharmaceutical and medical supplies business operating in Ghana.</li>
-                      <li>All prices are listed in Ghana Cedis (GHS) and include applicable taxes unless stated otherwise.</li>
-                    </ul>
+                  <div className="flex items-start gap-3">
+                    <Shield className="h-5 w-5 text-secondary mt-1 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-gray-900">Licensed pharmacy:</p>
+                      <p className="text-gray-600">Certified pharmacy technician</p>
+                    </div>
                   </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">2. Orders & Payments</h3>
-                    <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                      <li>Orders are confirmed only after payment is received.</li>
-                      <li>Prescription medicines will be processed only after a valid prescription is verified.</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">3. Delivery</h3>
-                    <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                      <li>Delivery timelines vary by location but are typically completed within 1–3 working days in Accra.</li>
-                      <li>Delays due to unforeseen circumstances will be communicated promptly.</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">4. Returns & Refunds</h3>
-                    <p className="text-gray-600">See Return & Refund Policy for details. Pharmaceutical products cannot be returned once opened, except in cases of damage or wrong delivery.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">5. Liability</h3>
-                    <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                      <li>We are not responsible for misuse of products purchased from our platform.</li>
-                      <li>Always consult a licensed healthcare provider before using any medication.</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">6. Governing Law</h3>
-                    <p className="text-gray-600">These terms are governed by the laws of Ghana.</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <RefreshCw className="h-5 w-5" />
-                    Return & Refund Policy
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <h3 className="font-semibold mb-3">Eligibility for Returns</h3>
-                    <p className="text-gray-600 mb-2">We accept returns for:</p>
-                    <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                      <li>Products delivered in error</li>
-                      <li>Products damaged before delivery</li>
-                      <li>Products that have expired before delivery</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Non-Returnable Items</h3>
-                    <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                      <li>Opened pharmaceutical products</li>
-                      <li>Products without original packaging</li>
-                      <li>Items returned more than 48 hours after delivery</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Refund Process</h3>
-                    <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                      <li>Refunds are issued within 7 working days after returned items are inspected and approved.</li>
-                      <li>Refunds will be processed via the same payment method used for the purchase.</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">How to Initiate a Return</h3>
-                    <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                      <li>Contact us via +233 544137947 or smilepills21@gmail.com within 48 hours of receiving your order.</li>
-                      <li>Provide order details, reason for return, and pictures if applicable.</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Prescription Policy Tab */}
-          <TabsContent value="prescription" className="mt-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Stethoscope className="h-5 w-5" />
-                  Prescription Policy
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-blue-800 font-medium mb-2">Important Notice</p>
-                  <p className="text-blue-700">
-                    All prescription medicines require a valid prescription from a licensed medical practitioner.
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-2">Prescription Requirements</h3>
-                    <ul className="list-disc pl-6 space-y-1 text-gray-600">
-                      <li>Prescriptions can be uploaded during checkout or sent via WhatsApp/email</li>
-                      <li>All prescriptions must be from licensed medical practitioners</li>
-                      <li>Prescriptions must be valid and not expired</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">Order Processing</h3>
-                    <p className="text-gray-600">
-                      Orders without valid prescriptions will not be processed and payments will be refunded 
-                      (minus any processing fees).
-                    </p>
-                  </div>
-
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-medium mb-2">How to Submit Your Prescription</h4>
-                    <ul className="list-decimal pl-6 space-y-1 text-sm text-gray-600">
-                      <li>Upload during checkout process</li>
-                      <li>Send via WhatsApp: <a href="https://wa.me/message/GKIVR7F2FJPJE1" className="text-secondary underline" target="_blank" rel="noopener noreferrer">Click here</a></li>
-                      <li>Email to: <a href="mailto:smilepills21@gmail.com" className="text-secondary underline">smilepills21@gmail.com</a></li>
-                    </ul>
+                  <div className="flex items-start gap-3">
+                    <Award className="h-5 w-5 text-secondary mt-1 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-gray-900">Experience:</p>
+                      <p className="text-gray-600">4+ years in retail & hospital pharmacy</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
