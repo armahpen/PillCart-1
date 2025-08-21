@@ -86,10 +86,17 @@ export default function PaymentPage() {
   const deliveryFee = wantsDelivery ? 15.00 : 0.00; // GHS 15 delivery fee only if selected
   const finalAmount = totalAmount + deliveryFee;
 
-  // Load Paystack script
+  // Load Paystack script - optimized with preload
   useEffect(() => {
+    // Check if script already exists
+    if (window.PaystackPop || document.querySelector('script[src*="paystack"]')) {
+      setPaystackLoaded(true);
+      return;
+    }
+
     const script = document.createElement('script');
     script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true; // Non-blocking load
     script.onload = () => setPaystackLoaded(true);
     script.onerror = () => {
       toast({
@@ -98,30 +105,27 @@ export default function PaymentPage() {
         variant: "destructive"
       });
     };
-    document.body.appendChild(script);
+    document.head.appendChild(script); // Use head for faster loading
 
     return () => {
-      document.body.removeChild(script);
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
     };
   }, [toast]);
 
-  // Redirect if cart is empty - but wait for cart to load first
+  // Redirect if cart is empty - immediate check, no artificial delay
   useEffect(() => {
-    // Only check if cart is empty after it has had time to load
-    const timer = setTimeout(() => {
-      if (cartItems.length === 0) {
-        console.log('Cart is empty, redirecting to shop');
-        toast({
-          title: "Empty Cart", 
-          description: "Your cart is empty. Add items before checkout.",
-          variant: "destructive"
-        });
-        setLocation('/shop');
-      }
-    }, 100); // Small delay to let cart data load
-
-    return () => clearTimeout(timer);
-  }, [cartItems, setLocation, toast]);
+    if (!loading && cartItems.length === 0) {
+      console.log('Cart is empty, redirecting to shop');
+      toast({
+        title: "Empty Cart", 
+        description: "Your cart is empty. Add items before checkout.",
+        variant: "destructive"
+      });
+      setLocation('/shop');
+    }
+  }, [cartItems, loading, setLocation, toast]);
 
   const handleInputChange = (field: string, value: string) => {
     setCustomerInfo(prev => ({
@@ -134,25 +138,34 @@ export default function PaymentPage() {
     return `SMILE_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
+  // Optimized validation - cached regex and faster checks
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^(\+233|0)[2-9][0-9]{8}$/;
+  
   const validateForm = () => {
-    const required = ['firstName', 'lastName', 'email', 'phone'];
-    if (wantsDelivery) {
-      required.push('address');
-    }
-    const missing = required.filter(field => !customerInfo[field as keyof typeof customerInfo]);
+    const { firstName, lastName, email, phone, address } = customerInfo;
     
-    if (missing.length > 0) {
+    // Quick empty field check
+    if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !phone?.trim()) {
       toast({
         title: "Missing Information",
-        description: `Please fill in: ${missing.join(', ')}`,
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return false;
+    }
+    
+    if (wantsDelivery && !address?.trim()) {
+      toast({
+        title: "Missing Address",
+        description: "Please enter delivery address",
         variant: "destructive"
       });
       return false;
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(customerInfo.email)) {
+    // Fast email validation
+    if (!emailRegex.test(email)) {
       toast({
         title: "Invalid Email",
         description: "Please enter a valid email address",
@@ -161,9 +174,8 @@ export default function PaymentPage() {
       return false;
     }
 
-    // Phone validation (Ghana format)
-    const phoneRegex = /^(\+233|0)[2-9][0-9]{8}$/;
-    if (!phoneRegex.test(customerInfo.phone)) {
+    // Fast phone validation
+    if (!phoneRegex.test(phone)) {
       toast({
         title: "Invalid Phone Number",
         description: "Please enter a valid Ghana phone number",
@@ -176,17 +188,21 @@ export default function PaymentPage() {
   };
 
   const handlePayment = () => {
+    // Fast validation first
     if (!validateForm()) return;
+    
+    // Immediate processing state
+    setIsProcessing(true);
+    
     if (!paystackLoaded) {
       toast({
         title: "Payment System Loading",
         description: "Please wait for the payment system to load",
         variant: "destructive"
       });
+      setIsProcessing(false);
       return;
     }
-
-    setIsProcessing(true);
 
     const paymentConfig: PaystackConfig = {
       key: 'pk_live_95dcd63641da880d65aba9ef1f512b48d9c58ba9',
@@ -200,23 +216,14 @@ export default function PaymentPage() {
       metadata: {
         custom_fields: [
           {
-            display_name: "Cart Items",
-            variable_name: "cart_items",
-            value: JSON.stringify(cartItems.map(item => ({
-              name: item.name,
-              quantity: item.quantity,
-              price: item.price
-            })))
+            display_name: "Order Summary",
+            variable_name: "order_summary",
+            value: `${cartItems.length} items - ${wantsDelivery ? 'Delivery' : 'Pickup'}`
           },
           {
-            display_name: "Delivery Address",
-            variable_name: "delivery_address",
-            value: `${customerInfo.address}, ${customerInfo.city}, ${customerInfo.region}`
-          },
-          {
-            display_name: "Customer Phone",
-            variable_name: "customer_phone",
-            value: customerInfo.phone
+            display_name: "Customer",
+            variable_name: "customer",
+            value: `${customerInfo.firstName} ${customerInfo.lastName}`
           }
         ]
       },
@@ -224,27 +231,32 @@ export default function PaymentPage() {
         setIsProcessing(false);
         
         if (response.status === 'success') {
-          // Create order record
-          const orderData = {
-            reference: response.reference,
-            customerInfo,
-            items: cartItems,
-            totalAmount: finalAmount,
-            paymentStatus: 'completed',
-            deliveryStatus: 'pending'
-          };
-
-          // Store order in localStorage for now (in production, send to backend)
-          const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-          orders.push({
-            ...orderData,
-            id: response.reference,
-            createdAt: new Date().toISOString()
-          });
-          localStorage.setItem('orders', JSON.stringify(orders));
-
-          // Clear cart
+          // Optimistic UI update - clear cart immediately
           clearCart();
+          
+          // Create order record asynchronously
+          setTimeout(() => {
+            const orderData = {
+              reference: response.reference,
+              customerInfo,
+              items: cartItems,
+              totalAmount: finalAmount,
+              paymentStatus: 'completed',
+              deliveryStatus: 'pending'
+            };
+
+            try {
+              const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+              orders.push({
+                ...orderData,
+                id: response.reference,
+                createdAt: new Date().toISOString()
+              });
+              localStorage.setItem('orders', JSON.stringify(orders));
+            } catch (error) {
+              console.error('Error saving order:', error);
+            }
+          }, 0); // Non-blocking operation
 
           // Success alert and redirect
           alert(`Payment successful! 
