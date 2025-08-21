@@ -298,34 +298,28 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     return filtered;
   }, [currentProducts, selectedCategory, searchQuery]);
 
-  // In-memory CRUD operations for Excel-based products
-  const addProductMutation = useMutation({
-    mutationFn: async (newProduct: Omit<Product, 'id'>) => {
-      const productWithId = {
-        ...newProduct,
-        id: `new-product-${Date.now()}`
-      };
-      
-      setLocalProducts(prev => [...prev, productWithId]);
-      return productWithId;
-    },
-  });
+  // Immediate synchronous CRUD operations for real-time updates
+  const addProductOperation = (newProduct: Omit<Product, 'id'>) => {
+    const productWithId = {
+      ...newProduct,
+      id: `new-product-${Date.now()}`
+    };
+    
+    setLocalProducts(prev => [...prev, productWithId]);
+    return productWithId;
+  };
 
-  const updateProductMutation = useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Product> }) => {
-      setLocalProducts(prev => prev.map(product => 
-        product.id === id ? { ...product, ...updates } : product
-      ));
-      return { id, updates };
-    },
-  });
+  const updateProductOperation = (id: string, updates: Partial<Product>) => {
+    setLocalProducts(prev => prev.map(product => 
+      product.id === id ? { ...product, ...updates } : product
+    ));
+    return { id, updates };
+  };
 
-  const deleteProductMutation = useMutation({
-    mutationFn: async (id: string) => {
-      setLocalProducts(prev => prev.filter(product => product.id !== id));
-      return id;
-    },
-  });
+  const deleteProductOperation = (id: string) => {
+    setLocalProducts(prev => prev.filter(product => product.id !== id));
+    return id;
+  };
 
   const contextValue: ProductContextType = {
     products: currentProducts,
@@ -338,13 +332,16 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     setSelectedCategory,
     filteredProducts,
     addProduct: async (product: Omit<Product, 'id'>) => {
-      await addProductMutation.mutateAsync(product);
+      addProductOperation(product);
+      // Optionally persist to backend here
     },
     updateProduct: async (id: string, updates: Partial<Product>) => {
-      await updateProductMutation.mutateAsync({ id, updates });
+      updateProductOperation(id, updates);
+      // Optionally persist to backend here
     },
     deleteProduct: async (id: string) => {
-      await deleteProductMutation.mutateAsync(id);
+      deleteProductOperation(id);
+      // Optionally persist to backend here
     },
     refreshProducts: () => refetch().then(() => {}),
   };
