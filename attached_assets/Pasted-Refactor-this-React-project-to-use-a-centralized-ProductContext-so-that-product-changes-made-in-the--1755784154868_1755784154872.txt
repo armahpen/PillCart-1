@@ -1,0 +1,38 @@
+Refactor this React project to use a centralized ProductContext so that product changes made in the Admin dashboard immediately update both the Admin dashboard and the Shop page without requiring a page reload.
+
+1. **Create ProductContext.jsx:**
+   - Use React Context to store a single `products` state variable shared across the entire app.
+   - Initialize products by loading them from the existing Excel → JSON datastore.
+   - Add three functions inside the context:
+     - `updateProduct(id, updatedFields)` → updates a product by ID
+     - `deleteProduct(id)` → removes a product by ID
+     - `addProduct(newProduct)` → adds a new product
+   - Make sure these functions update React state immediately and also persist to the backend or JSON datastore.
+
+2. **Wrap the App in ProductProvider:**
+   - In `main.jsx` or `App.jsx`, wrap the entire app in `<ProductProvider>...</ProductProvider>` so that all components can access the product state.
+
+3. **Update Shop Page:**
+   - Replace any local product fetching logic with `const { products } = useProducts();`
+   - Render products using `products.map()` so the shop page always displays the current product list.
+
+4. **Update Admin Dashboard:**
+   - Use `const { products, updateProduct, deleteProduct, addProduct } = useProducts();`
+   - When editing a product, call `updateProduct(product.id, { name, price, category, imageURL })` and confirm the card updates instantly.
+   - When deleting a product, call `deleteProduct(product.id)` and confirm it disappears instantly.
+   - When adding a product, call `addProduct(newProduct)` and confirm it appears instantly.
+
+5. **Ensure all products have an `id`:**
+   - If products loaded from Excel do not have an ID, generate a unique ID when loading them.
+
+6. **Shared ProductCard UI:**
+   - Use a single `ProductCard` component for both the Shop page and Admin dashboard to display products consistently.
+   - Admin dashboard cards should include Edit and Delete buttons below each card, while the shop page cards should only show product details and "Add to Cart" (if available).
+
+7. **Search Bar:**
+   - Add a search input on both the Shop page and Admin dashboard that filters products by name using `products.filter()` on the data from context.
+
+Implement this exact structure so that:
+- Admin changes are reflected instantly on both Admin and Shop pages.
+- No page reload is needed after edits, deletes, or additions.
+- Both pages use the same centralized data source.
