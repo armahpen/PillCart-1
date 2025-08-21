@@ -596,7 +596,6 @@ export default function AdminPage() {
                             <div key={category} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50">
                               <div className="flex items-center gap-3">
                                 <Badge variant="secondary">{category}</Badge>
-                                <span className="text-sm text-gray-600">({productCount} products)</span>
                               </div>
                               <div className="flex items-center gap-2">
                                 {isEditing ? (
@@ -748,9 +747,6 @@ export default function AdminPage() {
                               </div>
                               <div className="flex flex-col">
                                 <span className="font-medium text-sm">{product.name || product['Product Name']}</span>
-                                <span className="text-xs text-gray-500">
-                                  Stock: {product.stockQuantity || 0}
-                                </span>
                               </div>
                             </div>
                           </TableCell>

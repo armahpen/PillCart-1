@@ -24,7 +24,6 @@ interface Product {
   category: string;
   imageUrl?: string;
   description?: string;
-  inStock: boolean;
   rating?: number;
   reviewCount?: number;
 }
@@ -269,9 +268,6 @@ export default function Shop() {
                               Save ₵{(product.originalPrice - product.price).toFixed(2)}
                             </Badge>
                           )}
-                          {!product.inStock && (
-                            <Badge variant="destructive">Out of Stock</Badge>
-                          )}
                         </div>
                         <Button
                           size="sm"
@@ -330,12 +326,10 @@ export default function Shop() {
                       <CardFooter className="p-4 pt-0">
                         <Button
                           onClick={() => addToCart(product.id)}
-                          disabled={!product.inStock}
                           className="w-full"
-                          variant={product.inStock ? "default" : "secondary"}
                         >
                           <ShoppingCart className="mr-2 h-4 w-4" />
-                          {product.inStock ? "Add to Cart" : "Out of Stock"}
+                          Add to Cart
                         </Button>
                       </CardFooter>
                     </Card>
