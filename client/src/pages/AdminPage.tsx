@@ -265,7 +265,19 @@ export default function AdminPage() {
     if (!editingProduct || !editingProduct.id) return;
     
     try {
-      await updateProduct(editingProduct.id, editingProduct);
+      // Convert the editing product to proper format
+      const updates: Partial<Product> = {
+        name: editingProduct.name,
+        'Product Name': editingProduct['Product Name'],
+        Category: editingProduct.Category,
+        Brand: editingProduct.Brand,
+        Price: editingProduct.Price,
+        price: editingProduct.price,
+        ImageURL: editingProduct.ImageURL,
+        imageUrl: editingProduct.imageUrl,
+      };
+      
+      await updateProduct(editingProduct.id, updates);
       setEditingProduct(null);
       setIsEditDialogOpen(false);
       addLog('Product Updated', `${editingProduct.name || editingProduct['Product Name']} was modified`);
@@ -283,7 +295,9 @@ export default function AdminPage() {
     }
   };
 
-  const handleDeleteProduct = async (productId: string, productName: string) => {
+  const handleDeleteProduct = async (productId: string | undefined, productName: string) => {
+    if (!productId) return;
+    
     try {
       await deleteProduct(productId);
       addLog('Product Deleted', `${productName} was removed from catalog`);
@@ -569,7 +583,7 @@ export default function AdminPage() {
                           </TableCell>
                           <TableCell>{product.brand?.name || product.Brand}</TableCell>
                           <TableCell>
-                            <span className="font-semibold">₵{parseFloat(product.price || product.Price || 0).toFixed(2)}</span>
+                            <span className="font-semibold">₵{parseFloat(String(product.price || product.Price || 0)).toFixed(2)}</span>
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-2 justify-end">
@@ -585,7 +599,7 @@ export default function AdminPage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleDeleteProduct(product.id || '', product.name || product['Product Name'] || '')}
+                                onClick={() => handleDeleteProduct(product.id, product.name || product['Product Name'] || '')}
                                 data-testid={`button-delete-${product.id || index}`}
                                 className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                               >
@@ -1064,7 +1078,7 @@ function EditProductForm({ product, categories, onSave, onCancel }: EditProductF
 // Add Product Form Component
 interface AddProductFormProps {
   categories: string[];
-  onAdd: (product: Product) => void;
+  onAdd: (product: Omit<Product, 'id'>) => void;
   onCancel: () => void;
 }
 
@@ -1086,7 +1100,7 @@ function AddProductForm({ categories, onAdd, onCancel }: AddProductFormProps) {
   };
 
   const handleAdd = () => {
-    if (!newProduct['Product Name'].trim() || newProduct.Price <= 0) {
+    if (!newProduct['Product Name']?.trim() || (newProduct.Price || 0) <= 0) {
       alert('Please fill in all required fields');
       return;
     }
@@ -1099,7 +1113,7 @@ function AddProductForm({ categories, onAdd, onCancel }: AddProductFormProps) {
         <Label htmlFor="newProductName">Product Name *</Label>
         <Input
           id="newProductName"
-          value={newProduct['Product Name']}
+          value={newProduct['Product Name'] || ''}
           onChange={(e) => setNewProduct({ ...newProduct, 'Product Name': e.target.value })}
           placeholder="Enter product name"
           data-testid="input-new-product-name"
@@ -1109,7 +1123,7 @@ function AddProductForm({ categories, onAdd, onCancel }: AddProductFormProps) {
       <div>
         <Label htmlFor="newCategory">Category</Label>
         <Select
-          value={newProduct.Category}
+          value={newProduct.Category || ''}
           onValueChange={(value) => setNewProduct({ ...newProduct, Category: value })}
         >
           <SelectTrigger data-testid="select-new-category">
@@ -1129,7 +1143,7 @@ function AddProductForm({ categories, onAdd, onCancel }: AddProductFormProps) {
         <Label htmlFor="newBrand">Brand</Label>
         <Input
           id="newBrand"
-          value={newProduct.Brand}
+          value={newProduct.Brand || ''}
           onChange={(e) => setNewProduct({ ...newProduct, Brand: e.target.value })}
           placeholder="Enter brand name"
           data-testid="input-new-brand"

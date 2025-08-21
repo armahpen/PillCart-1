@@ -1,0 +1,37 @@
+Update this React project so that both the Shop page and the Admin dashboard can search products by name 
+AND that product data stays perfectly synchronized between the two pages.
+
+1. **Centralized Product Data:**
+   - Store all product information in a single React state or Context API provider called `ProductContext`.
+   - Load the product list from the Excel → JSON datastore once and share it with both pages.
+   - Any change (edit, delete, add) in the Admin dashboard should update the same central state, so the Shop page reflects it automatically without a page reload.
+
+2. **Search Bar for Both Pages:**
+   - Add a search input at the top of both the Shop page and Admin dashboard.
+   - As the user types, filter the displayed products in real time by product name (case-insensitive).
+   - Optionally allow filtering by category using a dropdown.
+
+3. **Admin Dashboard:**
+   - Use the same ProductCard component (from the previous prompt) to display products.
+   - Below or beside each card, include Edit and Delete buttons for the Admin.
+   - When the Admin edits a product name, price, category, or image:
+     - Update the shared product state immediately.
+     - Persist changes to the datastore (JSON or API).
+   - When the Admin deletes a product:
+     - Remove it from the shared product state immediately.
+     - Persist the deletion to the datastore.
+   - When the Admin adds a product:
+     - Add it to the shared product state so it appears instantly on both pages.
+
+4. **Shop Page:**
+   - Use the same ProductCard component for product display.
+   - Add the same search bar to allow users to search by product name.
+   - The product list should always match the Admin dashboard because they use the same data source.
+
+5. **UI:**
+   - Style the search bar using Tailwind CSS to match the dashboard/shop UI.
+   - Ensure the product grid updates smoothly while searching.
+
+6. **Testing:**
+   - Verify that editing or deleting a product in Admin immediately updates the Shop page.
+   - Verify that searching on either page correctly filters products by name.

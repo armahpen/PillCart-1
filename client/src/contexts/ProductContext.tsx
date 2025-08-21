@@ -61,6 +61,7 @@ interface ProductProviderProps {
 export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [localProducts, setLocalProducts] = useState<Product[]>([]);
   const queryClient = useQueryClient();
 
   // Hybrid approach: Try Excel first, fallback to API
@@ -239,21 +240,36 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     retry: 2,
   });
 
-  // Extract unique categories
+  // Use local products if available, otherwise use loaded products
+  const currentProducts = localProducts.length > 0 ? localProducts : products;
+
+  // Initialize local products when data loads
+  React.useEffect(() => {
+    if (products.length > 0 && localProducts.length === 0) {
+      // Add IDs to products for proper tracking
+      const productsWithIds = products.map((product, index) => ({
+        ...product,
+        id: product.id || `excel-product-${index}`
+      }));
+      setLocalProducts(productsWithIds);
+    }
+  }, [products, localProducts.length]);
+
+  // Extract unique categories from current products (local or loaded)
   const categories = React.useMemo(() => {
     const uniqueCategories = Array.from(
       new Set(
-        products
+        currentProducts
           .map(p => p.category?.name || p.Category)
           .filter((c): c is string => Boolean(c && c.trim() !== ''))
       )
     );
     return uniqueCategories;
-  }, [products]);
+  }, [currentProducts]);
 
   // Filter products based on search and category
   const filteredProducts = React.useMemo(() => {
-    let filtered = products;
+    let filtered = currentProducts;
 
     // Filter by category
     if (selectedCategory !== 'All') {
@@ -280,42 +296,39 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     }
 
     return filtered;
-  }, [products, selectedCategory, searchQuery]);
+  }, [currentProducts, selectedCategory, searchQuery]);
 
-  // For Excel-based products, we'll simulate CRUD operations
+  // In-memory CRUD operations for Excel-based products
   const addProductMutation = useMutation({
     mutationFn: async (newProduct: Omit<Product, 'id'>) => {
-      // For now, just invalidate the cache to refresh from Excel
-      // In a real app, you'd need to write back to Excel or database
-      throw new Error('Adding products to Excel file not implemented');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['excel-products'] });
+      const productWithId = {
+        ...newProduct,
+        id: `new-product-${Date.now()}`
+      };
+      
+      setLocalProducts(prev => [...prev, productWithId]);
+      return productWithId;
     },
   });
 
   const updateProductMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Product> }) => {
-      // For now, just invalidate the cache to refresh from Excel
-      throw new Error('Updating products in Excel file not implemented');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['excel-products'] });
+      setLocalProducts(prev => prev.map(product => 
+        product.id === id ? { ...product, ...updates } : product
+      ));
+      return { id, updates };
     },
   });
 
   const deleteProductMutation = useMutation({
     mutationFn: async (id: string) => {
-      // For now, just invalidate the cache to refresh from Excel
-      throw new Error('Deleting products from Excel file not implemented');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['excel-products'] });
+      setLocalProducts(prev => prev.filter(product => product.id !== id));
+      return id;
     },
   });
 
   const contextValue: ProductContextType = {
-    products,
+    products: currentProducts,
     categories,
     isLoading,
     error: error ? (error as Error).message : null,
@@ -324,10 +337,15 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     selectedCategory,
     setSelectedCategory,
     filteredProducts,
-    addProduct: addProductMutation.mutateAsync,
-    updateProduct: async (id: string, updates: Partial<Product>) => 
-      updateProductMutation.mutateAsync({ id, updates }),
-    deleteProduct: deleteProductMutation.mutateAsync,
+    addProduct: async (product: Omit<Product, 'id'>) => {
+      await addProductMutation.mutateAsync(product);
+    },
+    updateProduct: async (id: string, updates: Partial<Product>) => {
+      await updateProductMutation.mutateAsync({ id, updates });
+    },
+    deleteProduct: async (id: string) => {
+      await deleteProductMutation.mutateAsync(id);
+    },
     refreshProducts: () => refetch().then(() => {}),
   };
 
