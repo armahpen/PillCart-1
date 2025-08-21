@@ -568,42 +568,24 @@ export default function AdminPage() {
                         />
                         <Button
                           type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            console.log('=== ADD CATEGORY BUTTON CLICKED ===');
-                            console.log('Input value:', newCategoryName);
-                            console.log('Input trimmed:', newCategoryName.trim());
-                            console.log('Button disabled?', !newCategoryName.trim());
-                            console.log('addCategory function:', addCategory);
+                          onClick={() => {
+                            console.log('🚀 BUTTON CLICKED! Input:', newCategoryName);
+                            alert(`Button clicked with input: "${newCategoryName}"`);
                             
-                            if (newCategoryName.trim()) {
-                              const categoryName = newCategoryName.trim();
-                              console.log('Attempting to add category:', categoryName);
-                              
-                              if (addCategory) {
-                                addCategory(categoryName);
-                                console.log('addCategory function called');
-                                setNewCategoryName('');
-                                console.log('Input cleared');
-                                
-                                addLog('Category Added', `New category: ${categoryName}`);
-                                toast({
-                                  title: "Category Added",
-                                  description: `Category '${categoryName}' has been added.`,
-                                });
-                                console.log('Success notifications shown');
-                              } else {
-                                console.error('addCategory function is not available');
-                                toast({
-                                  title: "Error",
-                                  description: "addCategory function is not available",
-                                  variant: "destructive",
-                                });
-                              }
-                            } else {
-                              console.log('Category name is empty');
+                            if (!newCategoryName.trim()) {
+                              alert('Please enter a category name first!');
+                              return;
                             }
-                            console.log('=== ADD CATEGORY BUTTON END ===');
+                            
+                            const categoryName = newCategoryName.trim();
+                            addCategory(categoryName);
+                            setNewCategoryName('');
+                            
+                            addLog('Category Added', `New category: ${categoryName}`);
+                            toast({
+                              title: "Category Added",
+                              description: `Category '${categoryName}' has been added successfully!`,
+                            });
                           }}
                           disabled={!newCategoryName.trim()}
                           data-testid="button-add-category"
