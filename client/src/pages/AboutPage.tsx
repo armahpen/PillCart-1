@@ -144,7 +144,7 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <img
-                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                src="https://drive.google.com/uc?export=view&id=1GHwe8W3TfwtEGiUiRblhOrUY8NsV8NbJ"
                 alt="Quality Pharmaceutical Products"
                 className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
               />
@@ -168,7 +168,7 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="lg:order-2">
               <img
-                src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                src="https://drive.google.com/uc?export=view&id=1me6tSU1YgGBH9wGVfIxvdzL8KdvDo-Y2"
                 alt="Prescription Verification Services"
                 className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
               />
@@ -192,7 +192,7 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <img
-                src="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                src="https://drive.google.com/uc?export=view&id=1xXppxjWBpdZzFacAG9o8HEemyNOjCujW"
                 alt="Fast and Reliable Delivery"
                 className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
               />
@@ -216,7 +216,7 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="lg:order-2">
               <img
-                src="https://images.unsplash.com/photo-1551076805-e1869033e561?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                src="https://drive.google.com/uc?export=view&id=1nI5O-KFeo5G7roahL_Sot03Ru4MzLeHT"
                 alt="24/7 Customer Support"
                 className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
               />
