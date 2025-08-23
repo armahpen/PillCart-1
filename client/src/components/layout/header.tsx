@@ -143,7 +143,6 @@ export default function Header() {
     { name: "Home", slug: "home", href: "/" },
     { name: "Shop", slug: "shop", href: "/shop" },
     { name: "About", slug: "about", href: "/about" },
-    { name: "Help", slug: "help", href: "#help" },
   ];
 
   return (
