@@ -31,7 +31,17 @@ export default function Chatbot() {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showQuickButtons, setShowQuickButtons] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const quickActions = [
+    { label: "Ordering & Prescriptions", query: "how do i order" },
+    { label: "Product Information", query: "tell me about medications" },
+    { label: "Returns & Refunds", query: "return policy" },
+    { label: "Shipping & Delivery", query: "delivery options" },
+    { label: "Contact Support", query: "contact support" },
+    { label: "Privacy & Security", query: "data safe" }
+  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -176,12 +186,38 @@ export default function Chatbot() {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
+    setShowQuickButtons(false); // Hide quick buttons after first user message
 
     // Simulate bot typing and response
     setTimeout(() => {
       const botResponse: Message = {
         id: messages.length + 2,
         text: getBotResponse(input),
+        isBot: true,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botResponse]);
+      setIsTyping(false);
+    }, 1500);
+  };
+
+  const handleQuickAction = (query: string, label: string) => {
+    const userMessage: Message = {
+      id: messages.length + 1,
+      text: label,
+      isBot: false,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsTyping(true);
+    setShowQuickButtons(false); // Hide quick buttons after selection
+
+    // Simulate bot typing and response
+    setTimeout(() => {
+      const botResponse: Message = {
+        id: messages.length + 2,
+        text: getBotResponse(query),
         isBot: true,
         timestamp: new Date()
       };
@@ -280,6 +316,34 @@ export default function Chatbot() {
                   </div>
                 </div>
               )}
+              
+              {/* Quick Action Buttons */}
+              {showQuickButtons && (
+                <div className="space-y-2">
+                  <div className="flex items-start space-x-2">
+                    <div className="w-6 h-6 bg-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                      <Bot className="h-3 w-3 text-white" />
+                    </div>
+                    <div className="bg-gray-100 p-3 rounded-lg max-w-[80%]">
+                      <p className="text-xs text-gray-600 mb-2">Quick topics:</p>
+                      <div className="grid grid-cols-1 gap-1">
+                        {quickActions.map((action, index) => (
+                          <Button
+                            key={index}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleQuickAction(action.query, action.label)}
+                            className="justify-start text-xs h-7 px-2 border-secondary/30 hover:bg-secondary/10 hover:border-secondary"
+                          >
+                            {action.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <div ref={messagesEndRef} />
             </div>
 
