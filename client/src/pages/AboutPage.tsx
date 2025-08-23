@@ -143,7 +143,7 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <img
-                src="https://drive.google.com/uc?export=view&id=1GHwe8W3TfwtEGiUiRblhOrUY8NsV8NbJ"
+                src="https://drive.google.com/uc?export=download&id=1GHwe8W3TfwtEGiUiRblhOrUY8NsV8NbJ"
                 alt="Quality Pharmaceutical Products"
                 className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
               />
