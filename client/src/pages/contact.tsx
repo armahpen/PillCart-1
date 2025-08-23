@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
+import Chatbot from "@/components/chatbot/Chatbot";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +13,10 @@ import {
   MapPin, 
   Phone, 
   Mail, 
-  Clock, 
   MessageCircle,
   Send,
-  CheckCircle
+  CheckCircle,
+  ExternalLink
 } from "lucide-react";
 
 export default function Contact() {
@@ -34,12 +35,29 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
+    // Create WhatsApp message
+    const message = `Hi Smile Pills! 
+
+Name: ${formData.name}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Category: ${formData.category}
+Subject: ${formData.subject}
+
+Message: ${formData.message}`;
+    
+    const whatsappUrl = `https://wa.me/233209339912?text=${encodeURIComponent(message)}`;
+    
     setTimeout(() => {
       toast({
-        title: "Message Sent!",
-        description: "Thank you for contacting us. We'll get back to you within 24 hours.",
+        title: "Redirecting to WhatsApp!",
+        description: "You'll be redirected to WhatsApp to send your message directly to our team.",
       });
+      
+      // Open WhatsApp
+      window.open(whatsappUrl, '_blank');
+      
+      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -61,31 +79,29 @@ export default function Contact() {
       icon: <MapPin className="h-6 w-6 text-primary" />,
       title: "Visit Our Location",
       details: ["East Legon Hills", "Accra, Ghana"],
-      action: "Get Directions"
+      action: "Get Directions",
+      link: "https://maps.google.com/?q=East+Legon+Hills+Accra+Ghana"
     },
     {
       icon: <Phone className="h-6 w-6 text-secondary" />,
       title: "Call Us",
       details: ["0544137947", "+233 209339912"],
-      action: "Call Now"
+      action: "Call Now",
+      link: "tel:+233209339912"
     },
     {
       icon: <Mail className="h-6 w-6 text-purple-600" />,
       title: "Email Support",
       details: ["smilepills21@gmail.com"],
-      action: "Send Email"
-    },
-    {
-      icon: <Clock className="h-6 w-6 text-orange-500" />,
-      title: "Business Hours",
-      details: ["Monday - Saturday", "24/7 Support"],
-      action: "WhatsApp Available"
+      action: "Send Email",
+      link: "mailto:smilepills21@gmail.com"
     },
     {
       icon: <MessageCircle className="h-6 w-6 text-green-500" />,
       title: "WhatsApp",
-      details: ["Chat with us instantly"],
-      action: "https://wa.me/message/GKIVR7F2FJPJE1"
+      details: ["Chat with us instantly", "Available 24/7"],
+      action: "Start WhatsApp Chat",
+      link: "https://wa.me/233209339912"
     }
   ];
 
@@ -137,7 +153,13 @@ export default function Contact() {
                       <p key={idx} className="text-gray-600 text-sm">{detail}</p>
                     ))}
                   </div>
-                  <Button variant="outline" size="sm" className="w-full">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => window.open(info.link, '_blank')}
+                  >
+                    <ExternalLink className="h-3 w-3 mr-1" />
                     {info.action}
                   </Button>
                 </CardContent>
@@ -253,28 +275,8 @@ export default function Contact() {
               </Card>
             </div>
 
-            {/* Emergency & Quick Info */}
+            {/* Quick Info */}
             <div className="space-y-6">
-              {/* Emergency Contact */}
-              <Card className="border-red-200 bg-red-50">
-                <CardHeader>
-                  <CardTitle className="text-red-700">Emergency Contact</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-red-600 mb-4 text-sm">
-                    For medical emergencies, please call 911 immediately. 
-                    For urgent prescription questions after hours:
-                  </p>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Phone className="h-4 w-4 text-red-600" />
-                      <span className="font-semibold text-red-700">Emergency Line:</span>
-                    </div>
-                    <p className="text-red-600 font-bold">1-800-URGENT-RX</p>
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* Response Time */}
               <Card>
                 <CardHeader>
@@ -285,12 +287,16 @@ export default function Contact() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Email Support:</span>
-                    <span className="text-sm font-semibold text-secondary">Within 24 hours</span>
+                    <span className="text-sm">WhatsApp Support:</span>
+                    <span className="text-sm font-semibold text-secondary">Immediate</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Phone Support:</span>
                     <span className="text-sm font-semibold text-secondary">Immediate</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Email Support:</span>
+                    <span className="text-sm font-semibold text-secondary">Within 24 hours</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Prescription Questions:</span>
@@ -303,16 +309,21 @@ export default function Contact() {
                 </CardContent>
               </Card>
 
-              {/* Live Chat */}
-              <Card className="bg-primary text-white">
+              {/* WhatsApp Direct */}
+              <Card className="bg-green-600 text-white">
                 <CardContent className="p-6 text-center">
-                  <MessageCircle className="h-12 w-12 mx-auto mb-4 text-blue-200" />
-                  <h3 className="font-semibold text-lg mb-2">Live Chat Available</h3>
-                  <p className="text-blue-100 text-sm mb-4">
-                    Chat with our pharmacists in real-time for immediate assistance.
+                  <MessageCircle className="h-12 w-12 mx-auto mb-4 text-green-200" />
+                  <h3 className="font-semibold text-lg mb-2">WhatsApp Support</h3>
+                  <p className="text-green-100 text-sm mb-4">
+                    Get instant help from our pharmacy team on WhatsApp.
                   </p>
-                  <Button variant="secondary" className="w-full">
-                    Start Live Chat
+                  <Button 
+                    variant="secondary" 
+                    className="w-full"
+                    onClick={() => window.open('https://wa.me/233209339912', '_blank')}
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Chat on WhatsApp
                   </Button>
                 </CardContent>
               </Card>
@@ -322,6 +333,7 @@ export default function Contact() {
       </section>
 
       <Footer />
+      <Chatbot />
     </div>
   );
 }
