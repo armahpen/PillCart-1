@@ -18,6 +18,8 @@ import CheckoutReturn from "@/pages/checkout-return";
 import AboutPage from "@/pages/AboutPage";
 import Contact from "@/pages/contact";
 import Privacy from "@/pages/privacy";
+import PrivacyPage from "@/pages/PrivacyPage";
+import TermsPage from "@/pages/TermsPage";
 import Prescription from "@/pages/prescription";
 import PrescriptionView from "@/pages/prescription-view";
 import ChatWidget from "@/components/chat/chat-widget";
@@ -45,7 +47,8 @@ function Router() {
       <Route path="/product/:slug" component={ProductDetail} />
       <Route path="/about" component={AboutPage} />
       <Route path="/contact" component={Contact} />
-      <Route path="/privacy" component={Privacy} />
+      <Route path="/privacy" component={PrivacyPage} />
+      <Route path="/terms" component={TermsPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/prescription" component={Prescription} />
       <Route path="/cart" component={CartPage} />
