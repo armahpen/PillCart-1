@@ -144,12 +144,6 @@ export default function Header() {
     { name: "Shop", slug: "shop", href: "/shop" },
     { name: "About", slug: "about", href: "/about" },
     { name: "Help", slug: "help", href: "#help" },
-    ...(userRole === 'admin' ? [{ name: "Admin", slug: "admin", href: "/admin" }] : []),
-    ...(userRole ? [{ 
-      name: "Dashboard", 
-      slug: "dashboard", 
-      href: userRole === 'admin' ? "/admin" : "/account" 
-    }] : []),
   ];
 
   return (
