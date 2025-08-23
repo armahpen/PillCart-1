@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Header from "@/components/layout/header";
+import Chatbot from "@/components/chatbot/Chatbot";
 import { 
   Shield, 
   Users, 
@@ -436,6 +437,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      <Chatbot />
     </div>
   );
 }

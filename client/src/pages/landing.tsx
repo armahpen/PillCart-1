@@ -1,5 +1,6 @@
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
+import Chatbot from "@/components/chatbot/Chatbot";
 import { useMemo, useState } from "react";
 
 const Index = () => {
@@ -273,6 +274,7 @@ const Index = () => {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
       </main>
       <Footer />
+      <Chatbot />
     </div>
   );
 };
