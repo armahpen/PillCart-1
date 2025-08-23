@@ -63,37 +63,6 @@ export default function Footer() {
             </nav>
           </div>
 
-          {/* Categories */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Categories</h3>
-            <nav className="space-y-2 text-sm">
-              <Link href="/shop?category=prescription-drugs">
-                <span className="block text-gray-400 hover:text-primary transition-colors cursor-pointer">
-                  Prescription Drugs
-                </span>
-              </Link>
-              <Link href="/shop?category=over-the-counter">
-                <span className="block text-gray-400 hover:text-primary transition-colors cursor-pointer">
-                  Over-the-Counter
-                </span>
-              </Link>
-              <Link href="/shop?category=health-supplements">
-                <span className="block text-gray-400 hover:text-primary transition-colors cursor-pointer">
-                  Supplements
-                </span>
-              </Link>
-              <Link href="/shop?category=first-aid">
-                <span className="block text-gray-400 hover:text-primary transition-colors cursor-pointer">
-                  First Aid
-                </span>
-              </Link>
-              <Link href="/shop?category=medical-devices">
-                <span className="block text-gray-400 hover:text-primary transition-colors cursor-pointer">
-                  Medical Devices
-                </span>
-              </Link>
-            </nav>
-          </div>
 
           {/* Contact Info */}
           <div className="space-y-4">
