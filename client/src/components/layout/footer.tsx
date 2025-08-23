@@ -13,7 +13,7 @@ export default function Footer() {
                 <img 
                   src="/assets/IMG_1598%20(1)_1754986183203.PNG" 
                   alt="Smile Pills Ltd - Smile Forever" 
-                  className="h-10 w-auto object-contain filter brightness-0 invert"
+                  className="h-14 w-auto object-contain filter brightness-0 invert"
                 />
               </div>
             </Link>
@@ -101,9 +101,22 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            &copy; 2025 Smile Pills Ltd. All rights reserved.
-          </p>
+          <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 mb-4 md:mb-0">
+            <p className="text-gray-400 text-sm">
+              &copy; 2025 Smile Pills Ltd. All rights reserved.
+            </p>
+            <div className="flex items-center text-sm">
+              <span className="text-gray-400">Built by </span>
+              <a 
+                href="https://heavans.it.com/#home" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 font-medium transition-colors ml-1"
+              >
+                Heavans
+              </a>
+            </div>
+          </div>
           <div className="flex items-center space-x-6 text-sm">
             <Link href="/privacy">
               <span className="text-gray-400 hover:text-primary transition-colors cursor-pointer">
