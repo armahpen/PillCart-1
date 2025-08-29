@@ -21,6 +21,7 @@ import {
   UserCircle,
   ChevronDown
 } from "lucide-react";
+import { getApiUrl } from "@/lib/api";
 
 export default function Header() {
   const { isAuthenticated, user } = useAuth();
@@ -95,7 +96,7 @@ export default function Header() {
       setIsUserAuthenticated(false);
       
       // Try backend logout
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      await fetch(getApiUrl('/api/auth/logout'), { method: 'POST', credentials: 'include' });
       
       window.location.href = '/';
     } catch (error) {

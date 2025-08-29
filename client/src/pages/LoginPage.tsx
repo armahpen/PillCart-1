@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/layout/header';
+import { getApiUrl } from '@/lib/api';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -86,7 +87,7 @@ export default function LoginPage() {
       }
       
       // For non-admin credentials, proceed with regular login
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(getApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +125,7 @@ export default function LoginPage() {
     setError('');
     
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(getApiUrl('/api/auth/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

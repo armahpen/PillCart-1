@@ -2,6 +2,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import Chatbot from "@/components/chatbot/Chatbot";
 import { useMemo, useState } from "react";
+import { Link } from "wouter";
 
 const Index = () => {
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
@@ -70,7 +71,7 @@ const Index = () => {
       <Header />
       <main>
         {/* Hero Section */}
-        <section className="hero relative min-h-[70vh] flex items-center overflow-hidden">
+        <section className="hero relative min-h-[60vh] md:min-h-[70vh] flex items-center overflow-hidden">
           {/* Background Image */}
           <div className="absolute inset-0">
             <img 
@@ -84,29 +85,31 @@ const Index = () => {
           
           {/* Content */}
           <div className="container mx-auto px-4 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6 bg-white/40 backdrop-blur-sm p-8 rounded-lg border border-white/20">
-                <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-neutral leading-tight">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+              <div className="space-y-4 md:space-y-6 bg-white/40 backdrop-blur-sm p-6 md:p-8 rounded-lg border border-white/20">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-neutral leading-tight">
                   Online Pharmacy & Prescription Services
                 </h1>
-                <p className="text-base lg:text-lg text-gray-800 leading-relaxed font-medium">
+                <p className="text-sm sm:text-base lg:text-lg text-gray-800 leading-relaxed font-medium">
                   Order your prescriptions and shop trusted health essentials with fast, discreet delivery across Ghana.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-2 md:pt-4">
                   <a 
                     href="https://wa.me/233209339912"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 text-center inline-flex items-center justify-center gap-2"
+                    className="bg-primary hover:bg-primary/90 text-white px-6 md:px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 text-center inline-flex items-center justify-center gap-2 text-sm md:text-base"
                   >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.787"/>
                     </svg>
                     Order Prescription
                   </a>
-                  <button className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200">
-                    Shop Medicines
-                  </button>
+                  <Link href="/shop">
+                    <button className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-6 md:px-8 py-3 rounded-lg font-semibold transition-all duration-200 text-sm md:text-base">
+                      Shop Medicines
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -168,10 +171,11 @@ const Index = () => {
                   { title: "Dietary Supplements" },
                   { title: "Skin Care & Acne" },
                 ].map((c) => (
-                  <article key={c.title} className="text-center p-8 rounded-xl border bg-white hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                    <h3 className="text-xl font-bold mb-2 text-gray-900">{c.title}</h3>
-                    <p className="text-primary font-semibold hover:text-primary/80 transition-colors">Shop now</p>
-                  </article>
+                  <Link key={c.title} href="/shop">
+                    <article className="text-center p-8 rounded-xl border bg-white hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+                      <h3 className="text-xl font-bold mb-2 text-gray-900">{c.title}</h3>
+                    </article>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -179,10 +183,10 @@ const Index = () => {
         </section>
 
         {/* Embedded Video Section */}
-        <section className="py-12" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
+        <section className="py-8 md:py-12" style={{ backgroundColor: 'rgb(0, 224, 188)' }}>
           <div className="container mx-auto px-4 max-w-4xl">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-white">Medication Made Simple</h2>
+            <div className="text-center mb-6 md:mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Medication Made Simple</h2>
             </div>
             <div className="relative w-full h-0 pb-[56.25%] shadow-lg overflow-hidden rounded-lg">
               <iframe 
@@ -196,14 +200,14 @@ const Index = () => {
             </div>
             
             {/* WhatsApp CTA Button */}
-            <div className="text-center mt-8">
+            <div className="text-center mt-6 md:mt-8">
               <a 
                 href="https://wa.me/233209339912"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-gray-900 font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border-2 border-white/20"
+                className="inline-flex items-center justify-center gap-2 md:gap-3 bg-white hover:bg-gray-50 text-gray-900 font-semibold px-6 md:px-8 py-3 md:py-4 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border-2 border-white/20 text-sm md:text-base"
               >
-                <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 md:w-6 md:h-6 text-green-500" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.787"/>
                 </svg>
                 <span>Chat with Pharmacist</span>
@@ -234,11 +238,11 @@ const Index = () => {
         {/* Reviews Section */}
         <section className="py-16 bg-white text-center font-sans" style={{ color: 'rgb(0, 224, 188)' }}>
           <div className="container mx-auto px-4">
-            <h2 className="text-4xl font-bold mb-4" style={{ color: 'rgb(0, 224, 188)' }}>Feeling better together</h2>
-            <p className="text-lg mb-8" style={{ color: 'rgb(0, 224, 188)' }}>Real client feedback from people we've helped take back control of their health.</p>
-            <div className="text-xl mb-8" style={{ color: 'rgb(0, 224, 188)' }}>Client Reviews</div>
+            <h2 className="text-2xl md:text-4xl font-bold mb-4" style={{ color: 'rgb(0, 224, 188)' }}>Feeling better together</h2>
+            <p className="text-base md:text-lg mb-8" style={{ color: 'rgb(0, 224, 188)' }}>Real client feedback from people we've helped take back control of their health.</p>
+            <div className="text-lg md:text-xl mb-8" style={{ color: 'rgb(0, 224, 188)' }}>Client Reviews</div>
             
-            <div className="flex justify-center items-center gap-6 mb-8">
+            <div className="flex justify-center items-center gap-2 md:gap-6 mb-8 overflow-hidden">
               {/* Left Arrow */}
               <button 
                 onClick={prevReviews}
@@ -249,12 +253,12 @@ const Index = () => {
               </button>
               
               {/* Review Cards */}
-              <div className="flex gap-6 justify-center">
+              <div className="flex gap-3 md:gap-6 justify-center overflow-x-auto md:overflow-visible scrollbar-hide">
                 {getVisibleReviews().map((review, index) => (
-                  <div key={`${currentReviewIndex}-${index}`} className="bg-white text-gray-800 rounded-lg p-6 w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl">
-                    <p className="mb-4 text-gray-700">{review.text}</p>
-                    <div className="text-yellow-500 text-lg mb-2">{review.rating}</div>
-                    <div className="font-bold mb-1" style={{ color: 'rgb(0, 224, 188)' }}>{review.author}</div>
+                  <div key={`${currentReviewIndex}-${index}`} className="bg-white text-gray-800 rounded-lg p-4 md:p-6 w-56 md:w-64 shadow-lg text-left border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 hover:shadow-xl flex-shrink-0">
+                    <p className="mb-3 md:mb-4 text-sm md:text-base text-gray-700 line-clamp-4">{review.text}</p>
+                    <div className="text-yellow-500 text-base md:text-lg mb-2">{review.rating}</div>
+                    <div className="font-bold mb-1 text-sm md:text-base" style={{ color: 'rgb(0, 224, 188)' }}>{review.author}</div>
                   </div>
                 ))}
               </div>

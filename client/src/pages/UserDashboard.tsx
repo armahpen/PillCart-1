@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/layout/header";
+import { getApiUrl } from "@/lib/api";
 import { 
   User, 
   ShoppingCart, 
@@ -37,7 +38,7 @@ export default function UserDashboard() {
   const loadUserData = async () => {
     try {
       // Load recent orders
-      const ordersResponse = await fetch('/api/orders', {
+      const ordersResponse = await fetch(getApiUrl('/api/orders'), {
         credentials: 'include'
       });
       if (ordersResponse.ok) {
@@ -46,7 +47,7 @@ export default function UserDashboard() {
       }
 
       // Load recent prescriptions
-      const prescriptionsResponse = await fetch('/api/prescriptions/history', {
+      const prescriptionsResponse = await fetch(getApiUrl('/api/prescriptions/history'), {
         credentials: 'include'
       });
       if (prescriptionsResponse.ok) {

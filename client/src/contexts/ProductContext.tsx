@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import * as XLSX from 'xlsx';
+import { getAssetUrl } from "@/lib/api";
 
 export interface Product {
   id?: string | number;
@@ -87,7 +88,7 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     const loadProducts = async () => {
       try {
         console.log('Loading products from Excel...');
-        const excelResponse = await fetch('/attached_assets/Merged_Product_Catalog_Cleaned_1755779630562.xlsx');
+        const excelResponse = await fetch(getAssetUrl('/attached_assets/Merged_Product_Catalog_Cleaned_1755779630562.xlsx'));
         
         if (excelResponse.ok) {
           const arrayBuffer = await excelResponse.arrayBuffer();
