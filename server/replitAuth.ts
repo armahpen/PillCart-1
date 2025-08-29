@@ -179,6 +179,9 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   }
 
   try {
+    if (!hasReplitConfig) {
+      return res.status(401).json({ message: "Authentication not configured" });
+    }
     const config = await getOidcConfig();
     const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
     updateUserSession(user, tokenResponse);

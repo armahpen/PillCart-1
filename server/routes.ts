@@ -198,14 +198,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin upload endpoint for product images
-  app.post("/api/admin/objects/upload", isAuthenticated, isAdmin, checkAdminPermission('edit_products'), async (req, res) => {
+  app.post("/api/admin/objects/upload", isAuthenticatedEnhanced, isAdmin, checkAdminPermission('edit_products'), async (req, res) => {
     const objectStorageService = new ObjectStorageService();
     const uploadURL = await objectStorageService.getObjectEntityUploadURL();
     res.json({ uploadURL });
   });
 
   // Admin set product image endpoint
-  app.put("/api/admin/product-images", isAuthenticated, isAdmin, checkAdminPermission('edit_products'), async (req, res) => {
+  app.put("/api/admin/product-images", isAuthenticatedEnhanced, isAdmin, checkAdminPermission('edit_products'), async (req, res) => {
     if (!req.body.imageURL || !req.body.productId) {
       return res.status(400).json({ error: "imageURL and productId are required" });
     }
@@ -225,7 +225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin product management endpoints
-  app.get("/api/admin/products", isAuthenticated, isAdmin, checkAdminPermission('edit_products'), async (req, res) => {
+  app.get("/api/admin/products", isAuthenticatedEnhanced, isAdmin, checkAdminPermission('edit_products'), async (req, res) => {
     try {
       const products = await storage.getProducts();
       res.json({ products });
@@ -235,7 +235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/products/:id", isAuthenticated, isAdmin, checkAdminPermission('edit_products'), async (req, res) => {
+  app.put("/api/admin/products/:id", isAuthenticatedEnhanced, isAdmin, checkAdminPermission('edit_products'), async (req, res) => {
     try {
       const updateData = insertProductSchema.partial().parse(req.body);
       const product = await storage.updateProduct(req.params.id, updateData);
@@ -246,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/products", isAuthenticated, isAdmin, checkAdminPermission('add_products'), async (req, res) => {
+  app.post("/api/admin/products", isAuthenticatedEnhanced, isAdmin, checkAdminPermission('add_products'), async (req, res) => {
     try {
       const productData = insertProductSchema.parse(req.body);
       const product = await storage.createProduct(productData);
@@ -257,7 +257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/admin/products/:id", isAuthenticated, isAdmin, checkAdminPermission('edit_products'), async (req, res) => {
+  app.delete("/api/admin/products/:id", isAuthenticatedEnhanced, isAdmin, checkAdminPermission('edit_products'), async (req, res) => {
     try {
       await storage.deleteProduct(req.params.id);
       res.json({ success: true });
@@ -268,7 +268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin prescription management endpoints
-  app.get("/api/admin/prescriptions", isAuthenticated, isAdmin, checkAdminPermission('view_prescriptions'), async (req, res) => {
+  app.get("/api/admin/prescriptions", isAuthenticatedEnhanced, isAdmin, checkAdminPermission('view_prescriptions'), async (req, res) => {
     try {
       const prescriptions = await storage.getPrescriptions();
       res.json({ prescriptions });
@@ -278,7 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/prescriptions/:id/status", isAuthenticated, isAdmin, checkAdminPermission('view_prescriptions'), async (req, res) => {
+  app.put("/api/admin/prescriptions/:id/status", isAuthenticatedEnhanced, isAdmin, checkAdminPermission('view_prescriptions'), async (req, res) => {
     const { status, reviewNotes } = req.body;
     if (!status) {
       return res.status(400).json({ error: "Status is required" });
@@ -299,7 +299,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin user management endpoints
-  app.post("/api/admin/users/:id/admin", isAuthenticated, isAdmin, checkAdminPermission('manage_users'), async (req, res) => {
+  app.post("/api/admin/users/:id/admin", isAuthenticatedEnhanced, isAdmin, checkAdminPermission('manage_users'), async (req, res) => {
     const { isAdmin: makeAdmin, role } = req.body;
     try {
       const user = await storage.setUserAdmin(req.params.id, makeAdmin, role);
@@ -310,7 +310,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/users/:id/permissions", isAuthenticated, isAdmin, checkAdminPermission('manage_users'), async (req, res) => {
+  app.post("/api/admin/users/:id/permissions", isAuthenticatedEnhanced, isAdmin, checkAdminPermission('manage_users'), async (req, res) => {
     const { permission } = req.body;
     if (!permission) {
       return res.status(400).json({ error: "Permission is required" });
@@ -326,7 +326,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Check if current user is admin
-  app.get("/api/admin/me", isAuthenticated, async (req, res) => {
+  app.get("/api/admin/me", isAuthenticatedEnhanced, async (req, res) => {
     try {
       const user = await storage.getUserWithPermissions((req as any).user.claims.sub);
       if (!user?.isAdmin) {
@@ -340,7 +340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Regular prescription submission (non-admin)
-  app.post("/api/prescriptions/submit", isAuthenticated, async (req, res) => {
+  app.post("/api/prescriptions/submit", isAuthenticatedEnhanced, async (req, res) => {
     try {
       const prescriptionData = insertPrescriptionSchema.parse({
         ...req.body,

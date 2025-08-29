@@ -1,7 +1,10 @@
 # 🔧 Render Deployment Fix
 
 ## Issue
-The build is failing because the `dist/index.js` file doesn't exist. This happens when the build command isn't running properly.
+The deployment was failing with "Environment variable REPLIT_DOMAINS not provided" error. This happens because the code was originally designed for Replit but is now being deployed on Render.
+
+## ✅ FIXED
+The authentication system has been updated to gracefully handle missing Replit configuration and fall back to traditional username/password authentication.
 
 ## Solution
 
@@ -31,7 +34,7 @@ Update the `start` script in package.json to:
 
 But this is not recommended for production as it builds on every start.
 
-### Option 3: Check Environment Variables
+### Environment Variables
 
 Make sure these environment variables are set in Render:
 
@@ -41,9 +44,16 @@ Make sure these environment variables are set in Render:
 - `SESSION_SECRET` - Any secure random string
 - `FRONTEND_URL` - Your Netlify frontend URL
 
-**Optional (for full functionality):**
+**Optional (for payments):**
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
+
+**Optional (for Replit authentication - not needed for Render):**
+- `REPLIT_DOMAINS` - Only needed if using Replit authentication
+- `REPL_ID` - Only needed if using Replit authentication
+- `ISSUER_URL` - Only needed if using Replit authentication
+
+**Note:** The app now supports both traditional username/password authentication and Replit authentication. If Replit environment variables are not provided, the app will automatically use traditional authentication only.
 
 ### Debugging Steps
 
