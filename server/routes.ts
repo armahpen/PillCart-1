@@ -19,8 +19,13 @@ const isAuthenticatedEnhanced = async (req: any, res: any, next: any) => {
     }
   }
   
-  // Fall back to Replit auth
-  return isAuthenticated(req, res, next);
+  // Fall back to Replit auth only if it's configured
+  if (process.env.REPLIT_DOMAINS && process.env.REPL_ID) {
+    return isAuthenticated(req, res, next);
+  }
+  
+  // No authentication method available
+  return res.status(401).json({ message: "Authentication required" });
 };
 
 // Admin middleware to check if user has admin permissions
